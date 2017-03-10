@@ -1,0 +1,59 @@
+version: "3.4"
+
+# Development environment override
+services:
+  php:
+    build:
+      context: .
+      target: php_dev
+      args:
+       USER_ID: 1000
+       GROUP_ID: 1000
+    volumes:
+      - ./:/srv/app
+      - ./docker/php/conf.d/app.dev.ini:/usr/local/etc/php/conf.d/app.dev.ini:ro
+      # If you develop on Mac or Windows you can remove the vendor/ directory
+      #  from the bind-mount for better performance by enabling the next line:
+      #- /srv/app/vendor
+    environment:
+      # See https://xdebug.org/docs/all_settings#mode
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      TRUSTED_PROXIES: "127.0.0.1,REMOTE_ADDR"
+    extra_hosts:
+      # Ensure that host.docker.internal is correctly defined on Linux
+      - host.docker.internal:host-gateway
+
+  caddy:
+    command: [ "caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile", "--watch" ]
+    build:
+      context: .
+      target: caddy_base
+    volumes:
+      - ./public:/srv/app/public:ro
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    environment:
+      MERCURE_EXTRA_DIRECTIVES: demo
+      SERVER_NAME: "${PROJECT_NAME}.${PROJECT_DOMAIN}:80"
+      CADDY_EXTRA_CONFIG: "tls internal"
+    labels:
+      # Traefik v2
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=pontsun'
+      - 'traefik.http.routers.app.rule=Host(`${PROJECT_NAME}.${PROJECT_DOMAIN}`)'
+      - 'traefik.http.middlewares.https_redirect.redirectscheme.scheme=https'
+      - 'traefik.http.middlewares.https_redirect.redirectscheme.permanent=true'
+      - 'traefik.http.routers.app.middlewares=https_redirect'
+      - 'traefik.http.services.caddy.loadbalancer.server.port=80'
+      # Setting x-forwarded-proto is overridden by Caddy ? Couldn't fix it.
+      - "traefik.http.middlewares.caddy.headers.customrequestheaders.Custom-Forwarded-Proto=https"
+      - "traefik.http.middlewares.caddy.headers.customrequestheaders.Custom-Forwarded-Port=443"
+
+    networks:
+      - default
+      - pontsun
+#
+
+networks:
+  pontsun:
+    external: true
+

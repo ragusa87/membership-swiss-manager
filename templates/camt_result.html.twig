@@ -1,0 +1,231 @@
+{#{% extends 'base.html.twig' %}#}
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+        {% block head_stylesheets %}
+            {{ parent() }}
+            <style>
+                ul{
+                    list-style: none;
+                    padding: 0;
+                }
+                ul li{
+                    margin-top: 20px;
+                    padding: 5px;
+                }
+                ul.issues li{
+                    margin-bottom: 5px;
+                    border-bottom: 1px solid #c0c0c0;
+                }
+                ul.issues li.negative{
+                    border-left: 5px solid orange
+                }
+                ul.issues li::before{
+                    display: block;
+                    content: "" attr(title);
+                }
+                ul.issues li.positive{
+                    border-left: 5px solid red
+                }
+                body{
+                    color-scheme: dark;
+                    background-color: rgb(34, 34, 34);
+                    color:rgb(212, 212, 212);
+                }
+                .error{
+                    color: red;
+                }
+                .success{
+                    color: green;
+                }
+                .invoice-details{
+                    background-color: rgb(48, 48, 48);
+                    color: #b5b5b5;
+                    padding: 5px;
+                }
+                .amount.more{
+                    color: green;
+                }
+                .amount.less{
+                    color: red;
+                }
+
+                .line.ref{
+                    color: #128be1;
+                }
+                .line.message{
+                    color: #6D6D6DFF;
+                }
+                .line.contact{
+                    font-weight: bold;
+                }
+                .line.status.paid{
+                    color: green;
+                }
+                .line.status.pending{
+                    color: orange;
+                }
+                .line.price{
+                    font-weight: bold;
+                }
+                .invoice{
+                    border-left: 10px solid #c0c0c0;
+                }
+                .invoice.paid{
+                    border-left: 10px solid green;
+                }
+                .invoice.pending{
+                    border-left: 10px solid #804900;
+                }
+                .btn-group .btn{
+                    margin: 5px;
+                }
+                .violation-details .message{
+                    display: block;
+                    background: #c0c0c0;
+                    color: #000000;
+                    padding: 5px;
+                    margin: 5px 0 5px 0;
+                }
+            </style>
+        {% endblock head_stylesheets %}
+
+
+{% block main %}
+    <h1>{{ "Camt Result" | trans }}</h1>
+
+    {% if results.errors|length > 0 %}
+    <div class="accordion accordion-flush" id="accordionFlushExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="flush-headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                    {{ "unknown_transactions_num"|trans({"num": results.errors|length})}}
+                </button>
+            </h2>
+            <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    {{ block('issues') }}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {{ block('results') }}
+
+    <a class="btn btn-secondary" href="{{ path('camt_remove', {'id': id}) }}">Remove this Camt from session</a>
+
+{% endblock %}
+
+
+{% block issues %}
+    <ul class="issues">
+        {% for violation in results.errors %}
+            <li class="{{ violation.cause.amount.amount >= 0 ? 'positive' : 'negative'}}" title="{{ violation.cause.amount.amount < 0 ? "Rembourssement ou frais": "Facture" }}">
+                {% if violation.cause is not null and violation.cause.additionalInfo is defined %}
+                    <span class="violation-details">
+                        {{ violation.cause.valueDate|format_datetime('short', 'none') }}
+                      <strong>{{ violation.cause.amount.amount / 100 }} CHF</strong>
+                        {{ violation.cause.additionalInfo }}<br>
+                        <span class="message">{{ violation.cause.getTransactionDetail.getRemittanceInformation.getUnstructuredBlocks.message|default((violation.cause.getTransactionDetail.getRemittanceInformation.message|default())) }}</span>
+                        <br>
+                   </span>
+                {% endif %}
+                {% if violation.cause is not null and violation.cause.transactionDetail is defined %}
+                    {{ "Creditor"|trans}}: {{ violation.cause.getTransactionDetail.getRelatedParties.1.getRelatedPartyType.name | default("?") }}<br>
+                    {{ "Debitor"|trans}}: {{ violation.cause.getTransactionDetail.getRelatedParties.0.getRelatedPartyType.name | default("?") }}<br>
+                    {{ "TransactionId"|trans}}: {{ violation.cause.getTransactionDetail.getReference.getTransactionId | default("?") }}<br>
+
+                {% endif %}
+                <span class="error">{{ violation.message|trans(violation.parameters,'validators') }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block results %}
+    <ul>
+        {% for result  in results.getResults %}
+            <li class="invoice {{ result.invoice ? result.invoice.status : 'unknown' }}">
+                {{ result.entry.valueDate|format_datetime('short', 'none') }}
+                <span class="line price">{{ (result.amount/100) ~ " CHF"}}</span>
+                <span class="line ref">{{ result.ref }}</span>
+                <span class="line contact">{{ result.contact }}</span>
+                <span class="line message">{{ result.message }}</span>
+                <span class="line transactionId">{{ result.transactionId }}</span>
+
+                {% for party in result.transactionDetail.getRelatedParties|slice(1) %}
+                    {{- party.getRelatedPartyType.name }}<br>{{ (party.getRelatedPartyType.address.addressLines|join(', ')) }}<br>
+                {% endfor %}
+
+                {# We found a linked invoice #}
+                {% if result.invoice is not null %}
+
+                    {# Display invoice informations and cta #}
+                    <span class="line status {{ result.invoice.status }}">{{ ("statuses."~result.invoice.status)|trans }}</span>
+                    <div class="invoice-details">
+
+                        <div class="btn-group">
+                            <a class="btn" href="{{ path('view_invoice_by_id', {'id': result.invoice.id}) }}">{{ "View Invoice"|trans }}</a><br>
+
+                            {% if result.invoice.status != "paid" %}
+                                <a class="btn" href="{{ path('pay_invoice_by_id', {'id': result.invoice.id, 'status': 'paid', 'amount': result.amount, 'transactionId': result.transactionId }) }}">{{ "Mark as paid"|trans }}</a>
+                            {% endif %}
+
+                            {% if result.invoice.memberSubscription is not null %}
+                                <a class="btn" href="{{ path('view_membersubscription_by_id', {'id': result.invoice.memberSubscription.id}) }}">{{ "view subscription"|trans }}</a>
+                            {% endif %}
+                        </div>
+
+                        {# Display result's price missmatch with align #}
+                        {% if result.amount > result.invoice.price %}
+                            <span class="amount more">{{ 'bill_amount_overpaid'|trans }} {{ (result.amount - result.invoice.price )/100 }} CHF</span>
+                        {% endif %}
+                        {% if result.amount < result.invoice.price %}
+                            <span class="amount less">{{ 'bill_amount_underpaid'|trans }} {{ (result.amount - result.invoice.price )/100 }} CHF</span>
+                        {% endif %}
+                        <br>
+
+                        {# Display invoice information #}
+                        {{ "Reminder"|trans}}: {{ result.invoice.reminder }}<br>
+                        {{ "Due Amount"|trans }}: {{ result.invoice.getFormattedPrice }}<br>
+                        {{ "Transaction Id"|trans }}: {{ result.invoice.transactionId }}<br>
+
+                        {# Display subscription members #}
+                        {% if result.invoice.memberSubscription is not null %}
+                            {{ "Member"|trans }}: {{ result.invoice.memberSubscription.member.fullname }}
+                            {% if result.invoice.memberSubscription.member.children|length > 0 %}
+                                {% for child in result.invoice.memberSubscription.member.children %}
+                                    {{ " & " }} {{ child.fullname }}<br>
+                                {% endfor %}
+                            {% endif %}
+                            <br>
+                        {% endif %}
+
+                        {# Display subscription's price missmatch with invoice #}
+                        {% if result.invoice.memberSubscription is not null and result.invoice.memberSubscription.price != result.invoice.price %}
+                            {% if result.invoice.price > result.invoice.memberSubscription.getDueAmount %}
+                                <span class="amount more">{{ 'bill_amount_overpaid'|trans }} {{ (result.invoice.price - result.invoice.memberSubscription.getDueAmount )/100 }} CHF</span>
+                            {% endif %}
+                            {% if result.invoice.price < result.invoice.memberSubscription.getDueAmount %}
+                                <span class="amount less">{{ 'bill_amount_underpaid'|trans }} {{ (result.invoice.price - result.invoice.memberSubscription.getDueAmount )/100 }} CHF</span>
+                            {% endif %}
+
+                        {% endif %}
+
+                        {# Display reference missmatch with invoice #}
+                        {% if result.invoice.transactionId != null and result.invoice.transactionId != result.transactionId and (result.invoice.status != 'created') %}
+                            <span class="error">{{ 'bill_reference_missmatch'|trans({'transactionId': result.invoice.transactionId}) }}</span>
+                            {{ result.transactionId }}
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div>
+                            {{- result.transactionDetail.additionalTransactionInformation }}<br>
+                    </div>
+                    <span class="error">{{ "No invoice found"|trans}}</span>
+
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,48 @@
+pdf:
+    message: 'Price: {priceMember} CHF per area, {priceSupporter} CHF for supporting members'
+    invoice.ref: 'Invoice number: {ref}' 
+    invoice.name: 'Subscription {type} {name}'
+subscription_type_enum:
+    member: member
+    supporter: supporter
+    label: 'subscription type'
+
+dashboard:
+    number_member_count: 'Number of members: {count}'
+    due_amount: 'Subscription due amount: {amount}'
+    paid_amount: "Subscription paid amount: {amount}"
+    pending_amount: 'Pending bill amount: {amount}'
+
+    subscription:
+        title: 'Subscription {name}'
+        header:
+            member: 'membres'
+            invoices: 'To pay'
+unknown_transactions_num: >-
+    {num, plural,
+            =0    {Transaction inconnue}
+            =1    {Transaction inconnue}
+            other {Transactions inconnues (#)}
+    }
+
+statuses:
+    paid: 'payé'
+    pending: 'en attente de paiement'
+    created: 'créé'
+    canceled: 'annulée'
+'With: ': 'Avec: '
+"bill_amount_overpaid": "Montant payé en trop"
+"bill_amount_underpaid": "Montant manquant"
+bill_reference_missmatch: 'Invoice transaction missmatch {transactionId}'
+Export to {format}: 'Export to {format}'
+bill_amount_underpaid_{amount}: '{amount} CHF is missing'
+reminders_num: >-
+    {num, plural,
+            =0    {Transaction inconnue}
+            =1    {first reminder}
+            =2    {second reminder}
+            =3    {third reminder}
+            other {# reminder}
+    }
+
+Close and create a reminder: 'Close and create a reminder'
