@@ -10,3 +10,8 @@
 ###< symfony/framework-bundle ###
 docker-compose.override.yml
 data.sqlite
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###
