@@ -1,46 +1,36 @@
-# Symfony Docker
+# Subscription manager
 
-A [Docker](https://www.docker.com/)-based installer and runtime for the [Symfony](https://symfony.com) web framework, with full [HTTP/2](https://symfony.com/doc/current/weblink.html), HTTP/3 and HTTPS support.
+Based on [symfony-docker](https://github.com/dunglas/symfony-docker/)
 
-![CI](https://github.com/dunglas/symfony-docker/workflows/CI/badge.svg)
+Goal is just to have a modern PHP/Symfony/Docker playground.
+
+What is implemented:
+- CRUD For Subscriptions
+- CRUD For Members
+- You can assign members to subscriptions
+
+## Roadmap
+- Tests & Pipeline
+- Generate Bill for each subscription (with a reference)
+- Generate a PDF for billing using `camt` and a `qrcode`
+- Be able to sync the data with the bank account to know who did not pay by uploading a csv file.
+- Dashboard about each payment status and due payment
+- Action to generate a bill reminder (New Facture)
+- Group of user (parent), so one user pay the subscription and the "children" don't have to.
 
 ## Getting Started
 
 1. If not already done, [install Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
 2. Run `docker compose build --pull --no-cache` to build fresh images
 3. Run `docker compose up` (the logs will be displayed in the current shell)
-4. Open `https://localhost` in your favorite web browser and [accept the auto-generated TLS certificate](https://stackoverflow.com/a/15076602/1352334)
-5. Run `docker compose down --remove-orphans` to stop the Docker containers.
+4. Setup traefik + DNS on your host
+5. Open `https://vanil.docker.test` in your favorite web browser and [accept the auto-generated TLS certificate](https://stackoverflow.com/a/15076602/1352334)
+6. Run `docker compose down --remove-orphans` to stop the Docker containers.
 
-## Features
+## Fixtures
 
-* Production, development and CI ready
-* [Installation of extra Docker Compose services](docs/extra-services.md) with Symfony Flex
-* Automatic HTTPS (in dev and in prod!)
-* HTTP/2, HTTP/3 and [Preload](https://symfony.com/doc/current/web_link.html) support
-* Built-in [Mercure](https://symfony.com/doc/current/mercure.html) hub
-* [Vulcain](https://vulcain.rocks) support
-* Native [XDebug](docs/xdebug.md) integration
-* Just 2 services (PHP FPM and Caddy server)
-* Super-readable configuration
+Load fixtures:
+> docker-compose exec php bin/console doctrine:fixtures:load -n
 
-**Enjoy!**
-
-## Docs
-
-1. [Build options](docs/build.md)
-2. [Using Symfony Docker with an existing project](docs/existing-project.md)
-3. [Support for extra services](docs/extra-services.md)
-4. [Deploying in production](docs/production.md)
-5. [Debugging with Xdebug](docs/xdebug.md)
-6. [TLS Certificates](docs/tls.md)
-7. [Using a Makefile](docs/makefile.md)
-8. [Troubleshooting](docs/troubleshooting.md)
-
-## License
-
-Symfony Docker is available under the MIT License.
-
-## Credits
-
-Created by [Kévin Dunglas](https://dunglas.fr), co-maintained by [Maxime Helias](https://twitter.com/maxhelias) and sponsored by [Les-Tilleuls.coop](https://les-tilleuls.coop).
+## Code style
+> docker-compose exec php composer run-script phpcs

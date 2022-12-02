@@ -1,0 +1,11 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+{% block content_title %}
+   {{'Dashboard'|trans}}
+{% endblock content_title %}
+
+
+{% block main %}
+    <div>
+        <h2>{{ 'Number of Members: %count%' | trans({'%count%': countMembers}) }}</h2>
+    </div>
+{% endblock main %}
