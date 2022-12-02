@@ -22,6 +22,25 @@ services:
     volumes:
       - ./public:/srv/app/public:ro
       - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
+    environment:
+      SERVER_NAME: "${PROJECT_NAME}.${PROJECT_DOMAIN}:80"
+      CADDY_EXTRA_CONFIG: "tls internal"
+    labels:
+      # Traefik v2
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=pontsun'
+      - 'traefik.http.routers.app.rule=Host(`${PROJECT_NAME}.${PROJECT_DOMAIN}`)'
+      - 'traefik.http.routers.app.middlewares=caddy'
+      - 'traefik.http.services.caddy.loadbalancer.server.port=80'
+      # Setting x-forwarded-proto is overridden by Caddy ? Couldn't fix it.
+      - "traefik.http.middlewares.caddy.headers.customrequestheaders.Custom-Forwarded-Proto=https"
+    networks:
+      - default
+      - pontsun
+#
+networks:
+  pontsun:
+    external: true
+
