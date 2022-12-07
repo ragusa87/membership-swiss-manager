@@ -100,15 +100,15 @@ class Member
 
     public function setParent(?self $parent): self
     {
-        // unset the owning side of the relation if necessary
-        if (null === $parent && null !== $this->parent) {
-            $this->parent->setParent(null);
-        }
+        // // unset the owning side of the relation if necessary
+        // if (null === $parent && null !== $this->parent) {
+        //     $this->parent->setParent(null);
+        // }
 
-        // set the owning side of the relation if necessary
-        if (null !== $parent && $parent->getParent() !== $this) {
-            $parent->setParent($this);
-        }
+        // // set the owning side of the relation if necessary
+        // if (null !== $parent && $parent->getParent() !== $this) {
+        //     $parent->setParent($this);
+        // }
 
         $this->parent = $parent;
 
@@ -147,7 +147,7 @@ class Member
 
     public function __toString(): string
     {
-        $properties = [$this->lastname, $this->firstname];
+        $properties = [$this->firstname, null !== $this->lastname ? strtoupper($this->lastname) : $this->lastname];
         $properties = array_filter($properties);
 
         return implode(' ', $properties);
