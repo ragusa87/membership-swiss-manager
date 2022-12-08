@@ -3,9 +3,12 @@
 namespace App\Command;
 
 use App\Entity\Member;
+use App\Entity\MemberSubscription;
+use App\Entity\Subscription;
 use App\Helper\MemberMatcher;
 use App\Helper\MemberTableFormatter;
 use App\Helper\MemberXlsImporter;
+use App\Repository\MemberSubscriptionRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -32,7 +35,8 @@ class ImportXlsxCommand extends Command
         $this
             // TODO Force the source parameter with InputOption::VALUE_REQUIRED
             ->addArgument('source', InputArgument::OPTIONAL, 'File source')
-            ->addOption('force', null, InputOption::VALUE_NONE, 'Force import');
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Force import')
+            ->addOption('subscription', null, InputOption::VALUE_REQUIRED, 'Subscribe users');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -47,14 +51,22 @@ class ImportXlsxCommand extends Command
         // Display the result of matches
         $this->formatter->fillMatches(new Table($output), $matches)->render();
 
+        $subscriptionName = $input->getOption('subscription');
+        $subscription = null;
+        if (null !== $subscriptionName) {
+            $subscription = $this->managerRegistry->getRepository(Subscription::class)->findOneBy(['name' => $subscriptionName]);
+            $io->block(sprintf('%s subscription %s', null === $subscription ? 'create' : 'assign', $subscriptionName));
+        }
+
         $force = $input->getOption('force');
         if (!$force) {
-            $io->caution('Users are just displayed, use the force option to import');
+            $io->warning('Users are just displayed, use the force option to import');
 
             return Command::SUCCESS;
         }
 
         $mergedUsers = new \WeakMap();
+        $users = [];
         $toVerify = [];
         $nbCreated = 0;
         // Merge each matched user (without handling children)
@@ -64,6 +76,7 @@ class ImportXlsxCommand extends Command
             if (null === $match->getResult()) {
                 // Create imported user as no merge are needed
                 $this->managerRegistry->getManager()->persist($match->getMember());
+                $users[] = $match->getMember();
                 ++$nbCreated;
                 // The user's parent can be wrong, check that later
                 if (null !== $match->getMember()->getParent()) {
@@ -73,6 +86,9 @@ class ImportXlsxCommand extends Command
             }
             // Merge the existing user with the imported one
             $match->getResult()->merge($match->getMember());
+            // Store user for subscription
+            $users[] = $match->getResult();
+
             // The parent might be wrong, check that later
             if (null !== $match->getMember()->getParent()) {
                 $toVerify[] = $match->getMember();
@@ -82,6 +98,7 @@ class ImportXlsxCommand extends Command
             }
             // Be sure the imported one is not going to be saved
             $this->managerRegistry->getManager()->detach($match->getMember());
+
             // Keep trace of the merged users
             $this->managerRegistry->getManager()->persist($match->getResult());
             $mergedUsers->offsetSet($match->getMember(), $match->getResult());
@@ -98,11 +115,36 @@ class ImportXlsxCommand extends Command
                 $user->setParent($mergedUsers->offsetGet($ref));
             }
         }
+
+        if ($subscriptionName) {
+            $subscription = $this->createSubscription($subscriptionName, $subscription);
+            $this->createMemberSubscription($io, $subscription, $users);
+        }
+
         // $match->getResult() !== null ? $this->managerRegistry->getManager()->persist($match->getResult()) : null;
         $this->managerRegistry->getManager()->flush();
         // Success
         $io->success(sprintf('%s user created, %s merged', $nbCreated, $mergedUsers->count()));
 
         return Command::SUCCESS;
+    }
+
+    private function createMemberSubscription(SymfonyStyle $io, Subscription $subscription, array $users)
+    {
+        /** @var MemberSubscriptionRepository $repo */
+        $repo = $this->managerRegistry->getRepository(MemberSubscription::class);
+        $repo->subscribe($subscription, $users);
+    }
+
+    private function createSubscription(string $subscriptionName, ?Subscription $subscription): Subscription
+    {
+        if ($subscription) {
+            return $subscription;
+        }
+        $subscription = new Subscription();
+        $subscription->setName($subscriptionName);
+        $this->managerRegistry->getManager()->persist($subscription);
+
+        return $subscription;
     }
 }

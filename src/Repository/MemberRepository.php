@@ -39,18 +39,18 @@ class MemberRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Member[] Returns an array of Member objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @return Member[] Returns an array of Member objects
+     */
+    public function findByIdWithSubscription(array $ids): array
+    {
+        return $this->createQueryBuilder('m')
+            ->select('m', 'memberSubscription')
+            ->andWhere('m.id in (:val)')
+            ->setParameter('val', $ids)
+            ->leftJoin('m.memberSubscription', 'memberSubscription')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

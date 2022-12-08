@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -63,4 +64,19 @@ class MemberSubscriptionRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function subscribe(\App\Entity\Subscription $subscription, array $users)
+    {
+        /** @var Member $user */
+        foreach ($this->getEntityManager()->getRepository(Member::class)->findByIdWithSubscription($users) as $user) {
+            if (null !== $user->getMemberSubscriptionBySubscription($subscription)) {
+                continue;
+            }
+            $ms = new MemberSubscription();
+            $ms->setMember($user);
+            $ms->setSubscription($subscription);
+            $this->getEntityManager()->persist($ms);
+
+            $user->addMemberSubscription($ms);
+        }
+    }
 }

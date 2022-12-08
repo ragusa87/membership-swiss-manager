@@ -86,7 +86,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         }
 
         if (!file_exists($filename) || !is_readable($filename)) {
-            throw new \InvalidArgumentException(sprintf('Unable to find or read file %s', $filename));
+            throw new \InvalidArgumentException(sprintf('Unable to find or read file \'%s\'', $filename));
         }
 
         try {

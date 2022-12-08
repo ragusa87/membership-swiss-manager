@@ -261,4 +261,16 @@ class Member
 
         return $this;
     }
+
+    public function getMemberSubscriptionBySubscription(Subscription $subscription): ?MemberSubscription
+    {
+        /** @var MemberSubscription $memberSubscription */
+        foreach ($this->memberSubscription as $memberSubscription) {
+            if ($memberSubscription->getSubscription() === $subscription) {
+                return $memberSubscription;
+            }
+        }
+
+        return null;
+    }
 }
