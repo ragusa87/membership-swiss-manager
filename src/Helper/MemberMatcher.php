@@ -62,6 +62,17 @@ class MemberMatcher
             ] + $criteria, MemberMatch::SCORE_HIGH, 'email+firstname');
     }
 
+    protected function findByEmail(Member $user, array $criteria = []): ?MemberMatch
+    {
+        if (empty($user->getEmail())) {
+            return null;
+        }
+
+        return $this->matches($user, [
+                'email' => $user->getEmail(),
+            ] + $criteria, MemberMatch::SCORE_LOW, 'email');
+    }
+
     public function find(Member $user): MemberMatch
     {
         $parent = $user->getParent();
@@ -83,11 +94,12 @@ class MemberMatcher
             }
         }
 
-        // Search a similar user, first by email or phone, then by full name with same parent.
+        // Search a similar user, we try to map ~2 fields when possible, then 1
         return $this->findByEmailAndFirstName($user) ??
             $this->findByPhoneAndFirstName($user) ??
             $this->findByFullNameAndAddress($user, ['parent' => $parent]) ??
             $this->findByFullName($user, ['parent' => $parent]) ??
+            $this->findByEmail($user, ['parent' => $parent]) ??
             MemberMatch::zero($user);
     }
 
