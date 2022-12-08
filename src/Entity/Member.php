@@ -35,8 +35,27 @@ class Member
     #[ORM\OneToMany(mappedBy: 'member', targetEntity: MemberSubscription::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $memberSubscription;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $address = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $city = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $phone = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $zip = null;
+
+    /**
+     * @var Collection||Member[]
+     */
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: MemberSubscription::class)]
+    protected Collection $children;
+
     public function __construct()
     {
+        $this->children = new ArrayCollection();
         $this->memberSubscription = new ArrayCollection();
     }
 
@@ -151,5 +170,95 @@ class Member
         $properties = array_filter($properties);
 
         return implode(' ', $properties);
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): self
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getZip(): ?int
+    {
+        return $this->zip;
+    }
+
+    public function setZip(?int $zip): self
+    {
+        $this->zip = $zip;
+
+        return $this;
+    }
+
+    public function setCityAndZip(?string $npaAndCity): self
+    {
+        if (null === $npaAndCity) {
+            return $this;
+        }
+        $explode = explode(' ', $npaAndCity);
+        foreach ($explode as $index => $element) {
+            if (1 === preg_match('/[0-9]+/', $element)) {
+                $this->setZip((int) $element);
+                unset($explode[$index]);
+                break;
+            }
+        }
+        $city = implode(' ', $explode);
+        $this->setCity('' === trim((string) $city) ? null : trim($city));
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Member[]
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function merge(Member $copy): self
+    {
+        // TODO move into a service and use more intelligent merge (DeepClone or annotation reader)
+        $this->setLastname($copy->getLastname());
+        $this->setFirstname($copy->getFirstname());
+        $this->setEmail($copy->getEmail());
+        $this->setAddress($copy->getAddress());
+        $this->setCity($copy->getCity());
+        $this->setZip($copy->getZip());
+        $this->setPhone($copy->getPhone());
+        $this->setComment($copy->getComment());
+
+        return $this;
     }
 }
