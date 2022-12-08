@@ -11,7 +11,7 @@
         "ext-iconv": "*",
         "doctrine/doctrine-bundle": "^2.7",
         "doctrine/doctrine-migrations-bundle": "^3.2",
-        "doctrine/orm": "^2.13",
+        "doctrine/orm": "^2.14",
         "easycorp/easyadmin-bundle": "^4.4",
         "giggsey/libphonenumber-for-php": "^8.13",
         "mpdf/mpdf": "^6.1",
