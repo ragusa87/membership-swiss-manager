@@ -2,12 +2,17 @@
 
 namespace App\Command;
 
+use App\Entity\Member;
+use App\Helper\MemberMatcher;
+use App\Helper\MemberTableFormatter;
 use App\Helper\MemberXlsImporter;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -17,7 +22,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class ImportXlsxCommand extends Command
 {
-    public function __construct(protected MemberXlsImporter $memberXlsImporter)
+    public function __construct(protected ManagerRegistry $managerRegistry, protected MemberXlsImporter $memberXlsImporter, protected MemberTableFormatter $formatter, protected MemberMatcher $matcher)
     {
         parent::__construct();
     }
@@ -25,18 +30,78 @@ class ImportXlsxCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('source', InputArgument::OPTIONAL, 'File source');
+            // TODO Force the source parameter with InputOption::VALUE_REQUIRED
+            ->addArgument('source', InputArgument::OPTIONAL, 'File source')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Force import');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $src = $input->getArgument('source');
+        // Parse members from xlsx
+        $members = $this->memberXlsImporter->parse($src);
+        // Try to match each member with an existing member
+        $matches = array_map(fn (Member $member) => $this->matcher->find($member), $members);
 
-        $this->memberXlsImporter->setLogger(new ConsoleLogger($output));
-        $users = $this->memberXlsImporter->import($src);
+        // Display the result of matches
+        $this->formatter->fillMatches(new Table($output), $matches)->render();
 
-        $io->success(sprintf('%s user imported', count($users)));
+        $force = $input->getOption('force');
+        if (!$force) {
+            $io->caution('Users are just displayed, use the force option to import');
+
+            return Command::SUCCESS;
+        }
+
+        $mergedUsers = new \WeakMap();
+        $toVerify = [];
+        $nbCreated = 0;
+        // Merge each matched user (without handling children)
+        // Note that the list concern every imported member, child and parents.
+        foreach ($matches as $match) {
+            // Skip not matching entities
+            if (null === $match->getResult()) {
+                // Create imported user as no merge are needed
+                $this->managerRegistry->getManager()->persist($match->getMember());
+                ++$nbCreated;
+                // The user's parent can be wrong, check that later
+                if (null !== $match->getMember()->getParent()) {
+                    $toVerify[] = $match->getMember();
+                }
+                continue;
+            }
+            // Merge the existing user with the imported one
+            $match->getResult()->merge($match->getMember());
+            // The parent might be wrong, check that later
+            if (null !== $match->getMember()->getParent()) {
+                $toVerify[] = $match->getMember();
+            }
+            if (null !== $match->getResult()->getParent()) {
+                $toVerify[] = $match->getResult();
+            }
+            // Be sure the imported one is not going to be saved
+            $this->managerRegistry->getManager()->detach($match->getMember());
+            // Keep trace of the merged users
+            $this->managerRegistry->getManager()->persist($match->getResult());
+            $mergedUsers->offsetSet($match->getMember(), $match->getResult());
+        }
+
+        // Use the merged parent if any
+        /** @var Member $user */
+        while (($user = array_pop($toVerify)) !== null) {
+            if (null == $user->getParent()) {
+                continue;
+            }
+            $ref = $user->getParent();
+            if ($mergedUsers->offsetExists($ref)) {
+                $user->setParent($mergedUsers->offsetGet($ref));
+            }
+        }
+        // $match->getResult() !== null ? $this->managerRegistry->getManager()->persist($match->getResult()) : null;
+        $this->managerRegistry->getManager()->flush();
+        // Success
+        $io->success(sprintf('%s user created, %s merged', $nbCreated, $mergedUsers->count()));
 
         return Command::SUCCESS;
     }

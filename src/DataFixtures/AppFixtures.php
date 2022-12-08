@@ -6,11 +6,16 @@ use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
 use App\Entity\SubscriptionTypeEnum;
+use App\Helper\MemberXlsImporter;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(protected MemberXlsImporter $importer)
+    {
+    }
+
     public function load(ObjectManager $manager): void
     {
         $this->loadSubscriptions($manager);
@@ -38,6 +43,13 @@ class AppFixtures extends Fixture
         $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1)));
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::MEMBER);
         $manager->persist($memberSubscription);
+        $manager->flush();
+
+        $users = $this->importer->parse(null);
+        foreach ($users as $user) {
+            $this->setReference(Member::class.'_'.$user->getFirstname(), $user);
+            $manager->persist($user);
+        }
         $manager->flush();
     }
 

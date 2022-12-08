@@ -5,6 +5,7 @@ namespace App\Helper;
 use App\Entity\Member;
 use libphonenumber\PhoneNumberFormat;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Psr\Log\LoggerInterface;
 
@@ -47,7 +48,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function import(string $filename = null): array
+    public function parse(string $filename = null): array
     {
         $data = $this->read($filename, false);
         if (empty($data)) {
@@ -58,7 +59,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
 
         if (!empty($this->expectedHeaders)) {
             if ($diff = array_diff(array_values($this->expectedHeaders), array_values($data[0]))) {
-                throw new \InvalidArgumentException(sprintf('Uncompatible xlsx headers. Got %s, expect %s. Diff %s', json_encode($data[0], true), json_encode($this->expectedHeaders, true), json_encode($diff, true)));
+                throw new \InvalidArgumentException(sprintf('Incompatible xlsx headers. Got %s, expect %s. Diff %s', json_encode($data[0], true), json_encode($this->expectedHeaders, true), json_encode($diff, true)));
             }
         }
 
@@ -81,20 +82,24 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     protected function read(string $filename = null): array
     {
         if (null === $filename) {
-            $filename = __DIR__.'/../DataFixtures/membres_fixtures.xlsx';
+            $filename = __DIR__.'/../DataFixtures/members_fixtures.xlsx';
         }
 
         if (!file_exists($filename) || !is_readable($filename)) {
             throw new \InvalidArgumentException(sprintf('Unable to find or read file %s', $filename));
         }
 
-        $reader = IOFactory::createReaderForFile($filename);
-        $filter = new XlsReadFilter(0, null, range('A', 'E'));
-        $reader->setReadFilter($filter);
+        try {
+            $reader = IOFactory::createReaderForFile($filename);
+            $filter = new XlsReadFilter(0, null, range('A', 'E'));
+            $reader->setReadFilter($filter);
 
-        /** @var Worksheet */
-        $workSheet = $reader->load($filename)->getSheet(0);
-        $data = $workSheet->toArray(null, false, false, false);
+            /** @var Worksheet */
+            $workSheet = $reader->load($filename)->getSheet(0);
+            $data = $workSheet->toArray(null, false, false, false);
+        } catch (\Reader\Exception|Exception $exception) {
+            throw new \RuntimeException('Unable to parse file', 0, $exception);
+        }
 
         return $data;
     }
@@ -127,10 +132,9 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             $m->setLastname($firstname);
             $m->setFirstname($lastname);
             $m->setEmail($row[self::HEADER_EMAIL]);
-            // $m->setAddress($row[self::HEADER_ADDRESS]);
-            // $m->setCity($row[self::HEADER_CITY]);
-            // $m->setPhone(
-            $this->formatPhone($row[self::HEADER_PHONE]);
+            $m->setAddress($row[self::HEADER_ADDRESS]);
+            $m->setCityAndZip($row[self::HEADER_CITY]);
+            $m->setPhone($this->formatPhone($row[self::HEADER_PHONE]));
         }
 
         $parent = array_shift($members);
