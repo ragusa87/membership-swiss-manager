@@ -38,7 +38,7 @@ class MemberSubscription
     #[ORM\Column(nullable: true)]
     private ?int $price = 0;
 
-    #[ORM\OneToMany(mappedBy: 'userSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'memberSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
     private Collection $invoice;
 
     public function __construct()

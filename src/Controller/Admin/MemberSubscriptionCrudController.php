@@ -4,8 +4,11 @@ namespace App\Controller\Admin;
 
 use App\Entity\MemberSubscription;
 use App\Entity\SubscriptionTypeEnum;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
@@ -33,7 +36,6 @@ class MemberSubscriptionCrudController extends AbstractCrudController
             ->setNumDecimals(2)
             ->setStoredAsCents(true)
             ->setCurrency('CHF');
-        // ->setDisabled();
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -51,5 +53,28 @@ class MemberSubscriptionCrudController extends AbstractCrudController
             )
             ->add('member')
             ->add('subscription');
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $viewInvoice = Action::new('View Invoice', 'View Invoices')
+            ->displayIf(static function (MemberSubscription $entity) {
+                return $entity->getPrice() > 0;
+            })
+            ->linkToCrudAction('renderInvoice');
+
+        $actions->add(Crud::PAGE_INDEX, $viewInvoice);
+
+        return $actions;
+    }
+
+    public function renderInvoice(AdminContext $context)
+    {
+        /** @var MemberSubscription $memberSubscription */
+        $memberSubscription = $context->getEntity()->getInstance();
+        foreach ($memberSubscription->getInvoice() as $invoice) {
+            dump($invoice->getId());
+        }
+        exit;
     }
 }

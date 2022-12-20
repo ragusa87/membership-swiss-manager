@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Invoice;
 use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
@@ -37,6 +38,7 @@ class AppFixtures extends Fixture
         $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.date('Y')));
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::MEMBER);
         $memberSubscription->setPrice($memberSubscription->getPrice());
+        $this->addInvoices($manager, $memberSubscription);
         $manager->persist($memberSubscription);
 
         $memberSubscription = new MemberSubscription();
@@ -44,6 +46,7 @@ class AppFixtures extends Fixture
         $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1)));
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::MEMBER);
         $memberSubscription->setPrice($memberSubscription->getPrice());
+        $this->addInvoices($manager, $memberSubscription);
         $manager->persist($memberSubscription);
         $manager->flush();
 
@@ -52,6 +55,7 @@ class AppFixtures extends Fixture
         $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1)));
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::SUPPORTER);
         $memberSubscription->setPrice($memberSubscription->getPrice());
+        $this->addInvoices($manager, $memberSubscription);
         $manager->persist($memberSubscription);
         $manager->flush();
 
@@ -73,5 +77,12 @@ class AppFixtures extends Fixture
             $this->addReference(Subscription::class.'_'.$i, $sub);
         }
         $manager->flush();
+    }
+
+    private function addInvoices(ObjectManager $manager, MemberSubscription $memberSubscription)
+    {
+        $invoice = new Invoice();
+        $invoice->setMemberSubscription($memberSubscription);
+        $manager->persist($invoice);
     }
 }

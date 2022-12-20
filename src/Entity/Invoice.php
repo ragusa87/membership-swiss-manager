@@ -6,6 +6,7 @@ use App\Repository\InvoiceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Invoice
 {
     #[ORM\Id]
@@ -13,8 +14,8 @@ class Invoice
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $number = null;
+    #[ORM\Column(nullable: true)]
+    private ?int $reference = null;
 
     #[ORM\ManyToOne(inversedBy: 'invoice')]
     #[ORM\JoinColumn(nullable: false)]
@@ -33,14 +34,14 @@ class Invoice
         return $this->id;
     }
 
-    public function getNumber(): ?int
+    public function getReference(): ?int
     {
-        return $this->number;
+        return $this->reference ?? $this->id;
     }
 
-    public function setNumber(int $number): self
+    public function setReference(int $number): self
     {
-        $this->number = $number;
+        $this->reference = $number;
 
         return $this;
     }
@@ -79,5 +80,10 @@ class Invoice
         $this->status = $status;
 
         return $this;
+    }
+
+    public function setCreatedAtValue()
+    {
+        $this->createdAt = new \DateTime();
     }
 }
