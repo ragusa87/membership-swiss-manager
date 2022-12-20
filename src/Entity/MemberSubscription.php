@@ -4,8 +4,9 @@ namespace App\Entity;
 
 use App\Repository\MemberSubscriptionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 #[ORM\Entity(repositoryClass: MemberSubscriptionRepository::class)]
 #[UniqueEntity(
     fields: ['subscription', 'member'],
@@ -31,6 +32,9 @@ class MemberSubscription
     #[ORM\ManyToOne(inversedBy: 'memberSubscription')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Member $member = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $price = 0;
 
     public function __construct()
     {
@@ -91,5 +95,32 @@ class MemberSubscription
     public function __toString()
     {
         return sprintf('%s%s', $this->getSubscription(), substr($this->getTypeEnum()->name, 0, 1));
+    }
+
+    public function getFormattedPrice(): ?string
+    {
+        $priceInt = $this->getPrice();
+        if (null === $priceInt) {
+            return null;
+        }
+
+        return number_format(float($this->price) / 10.0, 2);
+    }
+
+    public function getPrice(): ?int
+    {
+        return null == $this->price ? $this->getPriceByType() : $this->price;
+    }
+
+    private function getPriceByType(): int
+    {
+        return SubscriptionTypeEnum::MEMBER === $this->getTypeEnum() ? 50 : 10;
+    }
+
+    public function setPrice(?int $price): self
+    {
+        $this->price = $price;
+
+        return $this;
     }
 }
