@@ -8,6 +8,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 
 class MemberSubscriptionCrudController extends AbstractCrudController
@@ -27,6 +28,12 @@ class MemberSubscriptionCrudController extends AbstractCrudController
         } else {
             yield AssociationField::new('subscription')->setDisabled();
         }
+
+        yield MoneyField::new('price')
+            ->setNumDecimals(2)
+            ->setStoredAsCents(true)
+            ->setCurrency('CHF');
+        // ->setDisabled();
     }
 
     public function configureCrud(Crud $crud): Crud

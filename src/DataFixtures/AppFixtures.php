@@ -47,6 +47,14 @@ class AppFixtures extends Fixture
         $manager->persist($memberSubscription);
         $manager->flush();
 
+        $memberSubscription = new MemberSubscription();
+        $memberSubscription->setMember($this->getReference(Member::class.'_Laurent'));
+        $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1)));
+        $memberSubscription->setTypeEnum(SubscriptionTypeEnum::SUPPORTER);
+        $memberSubscription->setPrice($memberSubscription->getPrice());
+        $manager->persist($memberSubscription);
+        $manager->flush();
+
         $users = $this->importer->parse(null);
         foreach ($users as $user) {
             $this->setReference(Member::class.'_'.$user->getFirstname(), $user);

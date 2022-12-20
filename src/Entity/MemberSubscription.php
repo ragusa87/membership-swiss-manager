@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MemberSubscriptionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -22,7 +24,7 @@ class MemberSubscription
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, options: ['default' => 'member'])]
     private string $type;
 
     #[ORM\ManyToOne(inversedBy: 'subscription')]
@@ -36,9 +38,13 @@ class MemberSubscription
     #[ORM\Column(nullable: true)]
     private ?int $price = 0;
 
+    #[ORM\OneToMany(mappedBy: 'userSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
+    private Collection $invoice;
+
     public function __construct()
     {
         $this->type = SubscriptionTypeEnum::MEMBER->value;
+        $this->invoice = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,12 +120,42 @@ class MemberSubscription
 
     private function getPriceByType(): int
     {
-        return SubscriptionTypeEnum::MEMBER === $this->getTypeEnum() ? 50 : 10;
+        return SubscriptionTypeEnum::MEMBER === $this->getTypeEnum() ? 50 * 100 : 10 * 100;
     }
 
     public function setPrice(?int $price): self
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Invoice>
+     */
+    public function getInvoice(): Collection
+    {
+        return $this->invoice;
+    }
+
+    public function addInvoice(Invoice $invoice): self
+    {
+        if (!$this->invoice->contains($invoice)) {
+            $this->invoice->add($invoice);
+            $invoice->setMemberSubscription($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvoice(Invoice $invoice): self
+    {
+        if ($this->invoice->removeElement($invoice)) {
+            // set the owning side to null (unless already changed)
+            if ($invoice->getMemberSubscription() === $this) {
+                $invoice->setMemberSubscription(null);
+            }
+        }
 
         return $this;
     }
