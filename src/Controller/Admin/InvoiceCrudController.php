@@ -6,6 +6,8 @@ use App\Entity\Invoice;
 use App\Entity\InvoiceStatusEnum;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
@@ -37,11 +39,15 @@ class InvoiceCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id');
-        yield IntegerField::new('reference');
+        yield IdField::new('id')->setRequired(false)->hideWhenCreating();
+        yield IntegerField::new('reference')->hideWhenCreating();
         yield TextField::new('memberSubscription.member')->setLabel('Member')->onlyOnIndex();
         yield TextField::new('memberSubscription.subscription.name')->setLabel('Subscription')->onlyOnIndex();
+        $sub = AssociationField::new('memberSubscription')->setLabel('memberSubscription');
+        $sub->getAsDto()->setFormTypeOptionIfNotSet('choice_label', 'toLabel');
+        yield $sub->onlyOnForms();
         yield TextField::new('status')->onlyOnIndex();
+        yield ChoiceField::new('status')->setChoices(InvoiceStatusEnum::choices())->onlyOnForms()->setEmptyData(InvoiceStatusEnum::CREATED->value)->hideWhenCreating();
         yield MoneyField::new('price')->setStoredAsCents(true)->setCurrency('CHF');
     }
 }
