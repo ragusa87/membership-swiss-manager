@@ -20,7 +20,7 @@ class Invoice
     #[ORM\Column(nullable: true)]
     private ?int $reference = null;
 
-    #[ORM\ManyToOne(inversedBy: 'invoice')]
+    #[ORM\ManyToOne(inversedBy: 'invoices')]
     #[ORM\JoinColumn(nullable: false)]
     private ?MemberSubscription $memberSubscription = null;
 

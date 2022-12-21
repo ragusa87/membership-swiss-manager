@@ -31,7 +31,7 @@ class Member
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
 
-    #[ORM\OneToOne(targetEntity: self::class)]
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
     private ?self $parent = null;
 
@@ -53,7 +53,7 @@ class Member
     /**
      * @var Collection||Member[]
      */
-    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: MemberSubscription::class)]
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
     protected Collection $children;
 
     public function __construct()
