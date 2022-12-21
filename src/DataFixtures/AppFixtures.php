@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Invoice;
+use App\Entity\InvoiceStatusEnum;
 use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
@@ -46,7 +47,8 @@ class AppFixtures extends Fixture
         $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1)));
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::MEMBER);
         $memberSubscription->setPrice($memberSubscription->getPrice());
-        $this->addInvoices($manager, $memberSubscription);
+        $this->addInvoices($manager, $memberSubscription, 0.5)->setStatusFromEnum(InvoiceStatusEnum::PAID);
+        $this->addInvoices($manager, $memberSubscription, 0.5);
         $manager->persist($memberSubscription);
         $manager->flush();
 
@@ -79,10 +81,13 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    private function addInvoices(ObjectManager $manager, MemberSubscription $memberSubscription)
+    private function addInvoices(ObjectManager $manager, MemberSubscription $memberSubscription, float $ratio = 1.0): Invoice
     {
         $invoice = new Invoice();
         $invoice->setMemberSubscription($memberSubscription);
+        $invoice->setPrice($memberSubscription->getPrice() * $ratio);
         $manager->persist($invoice);
+
+        return $invoice;
     }
 }

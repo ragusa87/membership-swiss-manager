@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Invoice;
+use App\Entity\InvoiceStatusEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -47,5 +48,14 @@ class InvoiceRepository extends ServiceEntityRepository
                   ->where($qb->expr()->isNull('i.reference'));
 
         $query->getQuery()->execute();
+    }
+
+    public function countDue(): int
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->where($qb->expr()->notIn('i.status', [InvoiceStatusEnum::PAID->value]));
+        $query = $qb->select($qb->expr()->countDistinct('i.id'));
+
+        return $query->getQuery()->getSingleScalarResult();
     }
 }

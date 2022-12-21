@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\MemberSubscriptionRepository;
+use App\Trait\PriceEntityTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,6 +19,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class MemberSubscription
 {
     use TimestampableEntity;
+    use PriceEntityTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -35,16 +37,13 @@ class MemberSubscription
     #[ORM\JoinColumn(nullable: false)]
     private ?Member $member = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $price = 0;
-
     #[ORM\OneToMany(mappedBy: 'memberSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
-    private Collection $invoice;
+    private Collection $invoices;
 
     public function __construct()
     {
         $this->type = SubscriptionTypeEnum::MEMBER->value;
-        $this->invoice = new ArrayCollection();
+        $this->invoices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -103,19 +102,9 @@ class MemberSubscription
         return sprintf('%s%s', $this->getSubscription(), substr($this->getTypeEnum()->name, 0, 1));
     }
 
-    public function getFormattedPrice(): ?string
+    public function toLabel(): string
     {
-        $priceInt = $this->getPrice();
-        if (null === $priceInt) {
-            return null;
-        }
-
-        return number_format(float($this->price) / 10.0, 2);
-    }
-
-    public function getPrice(): ?int
-    {
-        return null == $this->price ? $this->getPriceByType() : $this->price;
+        return sprintf('%s %s', $this->getMember()->getFullname(), $this->getSubscription()->getName());
     }
 
     private function getPriceByType(): int
@@ -123,25 +112,18 @@ class MemberSubscription
         return SubscriptionTypeEnum::MEMBER === $this->getTypeEnum() ? 50 * 100 : 10 * 100;
     }
 
-    public function setPrice(?int $price): self
-    {
-        $this->price = $price;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Invoice>
      */
-    public function getInvoice(): Collection
+    public function getInvoices(): Collection
     {
-        return $this->invoice;
+        return $this->invoices;
     }
 
     public function addInvoice(Invoice $invoice): self
     {
-        if (!$this->invoice->contains($invoice)) {
-            $this->invoice->add($invoice);
+        if (!$this->invoices->contains($invoice)) {
+            $this->invoices->add($invoice);
             $invoice->setMemberSubscription($this);
         }
 
@@ -150,7 +132,7 @@ class MemberSubscription
 
     public function removeInvoice(Invoice $invoice): self
     {
-        if ($this->invoice->removeElement($invoice)) {
+        if ($this->invoices->removeElement($invoice)) {
             // set the owning side to null (unless already changed)
             if ($invoice->getMemberSubscription() === $this) {
                 $invoice->setMemberSubscription(null);
@@ -158,5 +140,28 @@ class MemberSubscription
         }
 
         return $this;
+    }
+
+    public function getPrice(): ?int
+    {
+        return null == $this->price ? $this->getPriceByType() : $this->price;
+    }
+
+    public function getDueAmount(): int
+    {
+        $expected = $this->getPrice();
+        if (null === $expected) {
+            return 0;
+        }
+        /** @var Invoice $invoice */
+        $paid = 0;
+        foreach ($this->invoices as $invoice) {
+            if (null === $invoice->getPrice()) {
+                continue;
+            }
+            $paid += (InvoiceStatusEnum::PAID === $invoice->getStatusAsEnum() ? 1 : 0) * $invoice->getPrice();
+        }
+
+        return $expected - $paid;
     }
 }

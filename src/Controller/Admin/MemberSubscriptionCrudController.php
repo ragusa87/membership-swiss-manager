@@ -13,9 +13,18 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 
 class MemberSubscriptionCrudController extends AbstractCrudController
 {
+    private AdminUrlGenerator $adminUrlGenerator;
+
+    public function __construct(AdminUrlGenerator $adminUrlGenerator)
+    {
+        $this->adminUrlGenerator = $adminUrlGenerator;
+    }
+
     public static function getEntityFqcn(): string
     {
         return MemberSubscription::class;
@@ -36,6 +45,12 @@ class MemberSubscriptionCrudController extends AbstractCrudController
             ->setNumDecimals(2)
             ->setStoredAsCents(true)
             ->setCurrency('CHF');
+
+        yield MoneyField::new('dueAmount')
+            ->setNumDecimals(2)
+            ->setStoredAsCents(true)
+            ->setCurrency('CHF')
+            ->onlyOnIndex();
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -52,7 +67,8 @@ class MemberSubscriptionCrudController extends AbstractCrudController
                 ->setChoices(SubscriptionTypeEnum::choices())
             )
             ->add('member')
-            ->add('subscription');
+            ->add('subscription')
+            ->add('id');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -61,20 +77,26 @@ class MemberSubscriptionCrudController extends AbstractCrudController
             ->displayIf(static function (MemberSubscription $entity) {
                 return $entity->getPrice() > 0;
             })
-            ->linkToCrudAction('renderInvoice');
+            ->linkToCrudAction('viewInvoices');
 
         $actions->add(Crud::PAGE_INDEX, $viewInvoice);
 
         return $actions;
     }
 
-    public function renderInvoice(AdminContext $context)
+    public function viewInvoices(AdminContext $context): Response
     {
         /** @var MemberSubscription $memberSubscription */
         $memberSubscription = $context->getEntity()->getInstance();
-        foreach ($memberSubscription->getInvoice() as $invoice) {
-            dump($invoice->getId());
-        }
-        exit;
+
+        $url = $this->adminUrlGenerator
+            ->setController(InvoiceCrudController::class)
+            ->setAction(Action::INDEX)
+            ->setEntityId(null)
+            ->set('filters[memberSubscription][value]', $memberSubscription->getId())
+            ->set('filters[memberSubscription][comparison]', '=')
+            ->generateUrl();
+
+        return $this->redirect($url);
     }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Invoice;
 use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
 use App\Repository\DashboardRepository;
+use App\Repository\InvoiceRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -19,6 +21,7 @@ class DashboardController extends AbstractDashboardController
     {
         return array_merge(parent::getSubscribedServices(), [
             DashboardRepository::class => '?'.DashboardRepository::class,
+            InvoiceRepository::class => '?'.InvoiceRepository::class,
         ]);
     }
 
@@ -32,7 +35,7 @@ class DashboardController extends AbstractDashboardController
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
 
         $data = [
-            'countMembers' => $this->container->get(DashboardRepository::class)->countMembers(),
+            'countMembers' => $this->getDashboardRepo()->countMembers(),
         ];
 
         return $this->render('dashboard.twig', $data);
@@ -47,11 +50,25 @@ class DashboardController extends AbstractDashboardController
             ->setTitle('App');
     }
 
+    protected function getInvoiceRepo(): InvoiceRepository
+    {
+        return $this->container->get(InvoiceRepository::class);
+    }
+
+    protected function getDashboardRepo(): DashboardRepository
+    {
+        return $this->container->get(DashboardRepository::class);
+    }
+
     public function configureMenuItems(): iterable
     {
+        $countMembers = $this->getDashboardRepo()->countMembers();
+        $countDueInvoices = $this->getInvoiceRepo()->countDue();
+
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkToCrud('Subscription', 'fas fa-list', Subscription::class);
-        yield MenuItem::linkToCrud('Members', 'fas fa-list', Member::class);
+        yield MenuItem::linkToCrud('Members', 'fas fa-list', Member::class)->setBadge($countMembers);
         yield MenuItem::linkToCrud('SubscriptionMember', 'fas fa-list', MemberSubscription::class);
+        yield MenuItem::linkToCrud('Invoices', 'fas fa-list', Invoice::class)->setBadge($countDueInvoices);
     }
 }

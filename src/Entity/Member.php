@@ -276,4 +276,9 @@ class Member
 
         return null;
     }
+
+    public function getFullname(): string
+    {
+        return implode(' ', [$this->firstname, $this->lastname]);
+    }
 }
