@@ -97,7 +97,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             /** @var Worksheet */
             $workSheet = $reader->load($filename)->getSheet(0);
             $data = $workSheet->toArray(null, false, false, false);
-        } catch (\Reader\Exception|Exception $exception) {
+        } catch (\Exception $exception) {
             throw new \RuntimeException('Unable to parse file', 0, $exception);
         }
 
