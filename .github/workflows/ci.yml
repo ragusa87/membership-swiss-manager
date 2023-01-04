@@ -72,7 +72,7 @@ jobs:
 #          script -e -c './phpunit'
 
       - name: Run phpstan
-        run: phpstan analyse src
+        run: composer phpstan
 
       - name: Run phpcs
-        run: phpcs -q --report=checkstyle src | cs2pr
+        run: composer phpcs
