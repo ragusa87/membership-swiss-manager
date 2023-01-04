@@ -5,7 +5,6 @@ namespace App\Helper;
 use App\Entity\Member;
 use libphonenumber\PhoneNumberFormat;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Psr\Log\LoggerInterface;
 
@@ -97,7 +96,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             /** @var Worksheet */
             $workSheet = $reader->load($filename)->getSheet(0);
             $data = $workSheet->toArray(null, false, false, false);
-        } catch (\Reader\Exception|Exception $exception) {
+        } catch (\Exception $exception) {
             throw new \RuntimeException('Unable to parse file', 0, $exception);
         }
 

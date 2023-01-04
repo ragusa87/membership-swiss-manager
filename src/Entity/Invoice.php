@@ -84,9 +84,4 @@ class Invoice
 
         return $this;
     }
-
-    public function setCreatedAtValue()
-    {
-        $this->createdAt = new \DateTime();
-    }
 }
