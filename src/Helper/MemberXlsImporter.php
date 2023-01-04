@@ -5,7 +5,6 @@ namespace App\Helper;
 use App\Entity\Member;
 use libphonenumber\PhoneNumberFormat;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Psr\Log\LoggerInterface;
 
