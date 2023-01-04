@@ -41,6 +41,9 @@ class Member
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $address = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $addressNumber = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $city = null;
 
@@ -257,6 +260,7 @@ class Member
         $this->setFirstname($copy->getFirstname());
         $this->setEmail($copy->getEmail());
         $this->setAddress($copy->getAddress());
+        $this->setAddressNumber($copy->getAddressNumber());
         $this->setCity($copy->getCity());
         $this->setZip($copy->getZip());
         $this->setPhone($copy->getPhone());
@@ -280,5 +284,22 @@ class Member
     public function getFullname(): string
     {
         return implode(' ', [$this->firstname, $this->lastname]);
+    }
+
+    public function getCountry(): string
+    {
+        return 'CH';
+    }
+
+    public function getAddressNumber(): ?string
+    {
+        return $this->addressNumber;
+    }
+
+    public function setAddressNumber(?string $addressNumber): self
+    {
+        $this->addressNumber = $addressNumber;
+
+        return $this;
     }
 }
