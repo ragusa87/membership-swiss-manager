@@ -13,6 +13,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.14",
         "easycorp/easyadmin-bundle": "^4.4",
+        "fpdf/fpdf": "^1.85",
         "giggsey/libphonenumber-for-php": "^8.13",
         "mpdf/mpdf": "^6.1",
         "phpoffice/phpspreadsheet": "dev-NumberFormatMask-Helpers",
