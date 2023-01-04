@@ -55,6 +55,9 @@
         "phpcs": {
             "fix src": "@php ./vendor/bin/php-cs-fixer fix src"
         },
+        "phpstan": {
+            "phpstan": "@php ./vendor/bin/phpstan analyse src"
+        },
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
@@ -79,6 +82,7 @@
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "friendsofphp/php-cs-fixer": "^3.13",
+        "phpstan/phpstan": "^1.9",
         "symfony/maker-bundle": "^1.48",
         "symfony/stopwatch": "6.2.*",
         "symfony/web-profiler-bundle": "6.2.*"
