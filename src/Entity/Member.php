@@ -302,4 +302,22 @@ class Member
 
         return $this;
     }
+
+    public function getFullAddressLine1(): ?string
+    {
+        if (null == $this->getAddress() && null == $this->getAddressNumber()) {
+            return null;
+        }
+
+        return trim(sprintf('%s %s', $this->getAddress() ?? '', $this->getAddressNumber()));
+    }
+
+    public function getFullAddressLine2(): ?string
+    {
+        if (null == $this->getCity() && null == $this->getZip()) {
+            return null;
+        }
+
+        return trim(sprintf('%s %s', $this->getCity() ?? '', $this->getZip()));
+    }
 }
