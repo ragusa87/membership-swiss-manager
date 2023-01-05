@@ -21,7 +21,7 @@ What is implemented:
 ## Getting Started
 
 1. If not already done, [install Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
-2. Run `mkdir -p var`
+2. Run `mkdir -p var db`
 2. Run `docker compose build --pull --no-cache` to build fresh images
 3. Choose the configuration you need:
     - For traefik `cp docker-compose.override.traefik.yml docker-compose.override.yml`
@@ -40,3 +40,13 @@ Load fixtures:
 > docker-compose exec php composer run-script phpcs
 
 > docker-compose exec php composer run-script phpstan
+
+## Database backup
+If you install `rcopy`, you can sync the .sqllite file to S3.
+There is some helper script in the `bin` directory.
+
+For example:
+> bin/db-rclone-download.sh
+
+Be sure to set ACCESS_KEY_ID and SECRET_ACCESS_KEY in your .env.local
+

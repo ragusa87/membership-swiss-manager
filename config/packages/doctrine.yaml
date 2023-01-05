@@ -1,5 +1,5 @@
 parameters:
-    env(DATABASE_URL): 'sqlite:///%kernel.project_dir%/data.sqlite'
+    env(DATABASE_URL): 'sqlite:///%kernel.project_dir%/db/%kernel.environment%.sqlite'
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'

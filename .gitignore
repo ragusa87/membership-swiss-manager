@@ -9,7 +9,7 @@
 /vendor/
 ###< symfony/framework-bundle ###
 docker-compose.override.yml
-data.sqlite
+db/*
 
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.php
