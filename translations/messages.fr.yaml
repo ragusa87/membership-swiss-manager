@@ -1,0 +1,7 @@
+pdf:
+    message: 'Cotisation: {{ priceMember }} CHF par carré, {{ priceSupporter }} CHF Membres sympatisants'
+    invoice.ref: 'Facture Numéro: {{ ref }}' 
+    invoice.name: 'Cotisation {{ type }} {{ name }}'
+subscription_type_enum:
+    member: membre
+    supporter: sympatisant

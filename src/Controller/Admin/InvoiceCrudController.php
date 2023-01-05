@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -60,8 +61,12 @@ class InvoiceCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $exportInvoice = Action::new('Export Invoice', 'Export Invoices')
+        $exportInvoice = Action::new('Export Invoice', 'Export Invoice')
             ->linkToCrudAction('export');
+
+        $actions->addBatchAction(Action::new('Export Invoices', 'Export Invoices')
+        ->linkToCrudAction('exportBatch')
+        ->addCssClass('btn btn-primary'));
 
         $actions->add(Crud::PAGE_INDEX, $exportInvoice);
 
@@ -83,5 +88,20 @@ class InvoiceCrudController extends AbstractCrudController
         return array_merge(parent::getSubscribedServices(), [
             PdfService::class,
         ]);
+    }
+
+    public function exportBatch(BatchActionDto $batchActionDto): Response
+    {
+        $className = $batchActionDto->getEntityFqcn();
+        $entityManager = $this->container->get('doctrine')->getManagerForClass($className);
+        $invoices = [];
+        foreach ($batchActionDto->getEntityIds() as $id) {
+            $invoices[] = $entityManager->find($className, $id);
+        }
+        array_filter($invoices);
+        /** @var PdfService $pdfService */
+        $pdfService = $this->container->get(PdfService::class);
+
+        return $pdfService->generate(...$invoices);
     }
 }
