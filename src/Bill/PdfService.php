@@ -4,6 +4,7 @@ namespace App\Bill;
 
 use App\Entity\Invoice;
 use App\Entity\Member;
+use App\Entity\MemberSubscription;
 use App\Entity\SubscriptionTypeEnum;
 use Fpdf\Fpdf;
 use Psr\Log\LoggerAwareInterface;
@@ -18,20 +19,23 @@ use Sprain\SwissQrBill\QrBill;
 use Sprain\SwissQrBill\Reference\QrPaymentReferenceGenerator;
 use Sprain\SwissQrBill\Reference\RfCreditorReferenceGenerator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PdfService implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    public function __construct(protected string $iban,
-                                protected string $customerIdentificationNumber,
-                                protected string $addressName,
-                                protected string $addressStreet,
-                                protected string $addressCity,
-                                protected string $addressZip,
-                                protected string $addressCountry,
-                                protected string $language,
-    protected bool $printable,
+    public function __construct(
+        protected TranslatorInterface $translator,
+        protected string $iban,
+        protected string $customerIdentificationNumber,
+        protected string $addressName,
+        protected string $addressStreet,
+        protected string $addressCity,
+        protected string $addressZip,
+        protected string $addressCountry,
+        protected string $language,
+        protected bool $printable,
     ) {
     }
 
@@ -80,11 +84,12 @@ class PdfService implements LoggerAwareInterface
 
         // Add payment amount information
         // What amount is to be paid?
-        $qrBill->setPaymentAmountInformation(
-            PaymentAmountInformation::create(
-                'CHF',
-                $invoice->getPrice() / 100
-            ));
+            $qrBill->setPaymentAmountInformation(
+                PaymentAmountInformation::create(
+                    'CHF',
+                    // Supporters can choose the amount.
+                    SubscriptionTypeEnum::SUPPORTER !== $invoice->getMemberSubscription()->getTypeEnum() ? $invoice->getPrice() / 100 : null
+                ));
 
         // Add payment reference
         // This is what you will need to identify incoming payments.
@@ -143,9 +148,10 @@ class PdfService implements LoggerAwareInterface
     {
         $subscription = $invoice->getMemberSubscription()->getSubscription();
 
-        $type = $this->translateSubscriptionType($invoice->getMemberSubscription()->getTypeEnum());
-
-        return sprintf('Cotisation %s %s', $type, $subscription->getName());
+        return $this->translator->trans('pdf.invoice.name', [
+            '{{ name }}' => $subscription->getName(),
+            '{{ type }}' => $this->translator->trans('subscription_type_enum.'.$invoice->getMemberSubscription()->getTypeEnum()->value),
+        ]);
     }
 
     protected function insertHeader(Fpdf $fpdf, Invoice $invoice)
@@ -180,20 +186,15 @@ class PdfService implements LoggerAwareInterface
         }
 
         $fpdf->Ln(15);
-        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', 'Facture Numéro: '.$invoice->getReference()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('pdf.invoice.ref', ['{{ ref }}' => $invoice->getReference()])));
         $fpdf->Ln(5);
 
-        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', 'Cotisation: 50 CHF par carré, 30 CHF Membres sympatisants'));
-    }
-
-    protected function translateSubscriptionType(SubscriptionTypeEnum $getTypeEnum)
-    {
-        switch ($getTypeEnum) {
-            case SubscriptionTypeEnum::MEMBER:
-                return 'membre';
-            case SubscriptionTypeEnum::SUPPORTER:
-                return 'sympatisant';
-        }
+        $priceMember = MemberSubscription::getPriceByType(SubscriptionTypeEnum::MEMBER);
+        $priceSupporter = MemberSubscription::getPriceByType(SubscriptionTypeEnum::SUPPORTER);
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('pdf.message', [
+            '{{ priceMember }}' => $priceMember / 100,
+            '{{ priceSupporter }}' => $priceSupporter / 100,
+        ])));
     }
 
     private function isIbanCompatibleWithQRCodeReference()

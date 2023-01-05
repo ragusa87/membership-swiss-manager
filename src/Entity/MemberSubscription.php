@@ -107,9 +107,9 @@ class MemberSubscription
         return sprintf('%s %s', $this->getMember()->getFullname(), $this->getSubscription()->getName());
     }
 
-    private function getPriceByType(): int
+    public static function getPriceByType(SubscriptionTypeEnum $enum): int
     {
-        return SubscriptionTypeEnum::MEMBER === $this->getTypeEnum() ? 50 * 100 : 10 * 100;
+        return SubscriptionTypeEnum::MEMBER === $enum ? 50 * 100 : 10 * 100;
     }
 
     /**
@@ -144,7 +144,7 @@ class MemberSubscription
 
     public function getPrice(): ?int
     {
-        return null == $this->price ? $this->getPriceByType() : $this->price;
+        return null == $this->price ? self::getPriceByType($this->getTypeEnum()) : $this->price;
     }
 
     public function getDueAmount(): int
