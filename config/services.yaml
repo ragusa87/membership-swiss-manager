@@ -4,6 +4,21 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    pdf.iban: "%env(IBAN)%"
+    pdf.customerIdentificationNumber: "%env(CUSTOMER_IDENTIFICATION_NUMBER)%"
+    pdf.addressName: "%env(ADDRESS_NAME)%"
+    env(ADDRESS_NAME): "Association Voisins Du Vanil"
+    pdf.addressStreet: "%env(ADDRESS_STREET)%"
+    env(ADDRESS_STREET): "Chemin du Vanil"
+    pdf.addressCity: "%env(ADDRESS_CITY)%"
+    env(ADDRESS_CITY): "Lausanne"
+    pdf.addressZip: "%env(ADDRESS_ZIP)%"
+    env(ADDRESS_ZIP): "1006"
+    pdf.addressCountry: "%env(COUNTRY)%"
+    env(COUNTRY): "CH"
+    pdf.language: "%env(LANGUAGE)%"
+    env(LANGUAGE): "en"
+    pdf.printable: false
 
 services:
     # default configuration for services in *this* file
@@ -24,3 +39,15 @@ services:
     App\Helper\MemberXlsImporter: ~
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Bill\PdfService:
+        bind: 
+          $iban: "%pdf.iban%"
+          $customerIdentificationNumber: "%pdf.customerIdentificationNumber%"
+          $addressName: "%pdf.addressName%"
+          $addressStreet: "%pdf.addressStreet%"
+          $addressCity: "%pdf.addressCity%"
+          $addressZip: "%pdf.addressZip%"
+          $addressCountry: "%pdf.addressCountry%"
+          $language: "%pdf.language%"
+          $printable: "%pdf.printable%"
+    
