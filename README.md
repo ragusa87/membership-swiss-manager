@@ -21,6 +21,7 @@ What is implemented:
 ## Getting Started
 
 1. If not already done, [install Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
+2. Run `mkdir -p var`
 2. Run `docker compose build --pull --no-cache` to build fresh images
 3. Choose the configuration you need:
     - For traefik `cp docker-compose.override.traefik.yml docker-compose.override.yml`
@@ -29,12 +30,13 @@ What is implemented:
 4. Create the database `docker-compose exec php bin/console doctrine:schema:create`
 5. Import the fixtues `docker-compose exec php bin/console doctrine:fixtures:load`
 5. Open <https://vanil.docker.test> (traefik) or <https://localhost:44333> (localhost) in your favorite web browser and [accept the auto-generated TLS certificate](https://stackoverflow.com/a/15076602/1352334)
-6. Run `docker compose down --remove-orphans` to stop the Docker containers.
 
 ## Fixtures
 
 Load fixtures:
 > docker-compose exec php bin/console doctrine:fixtures:load -n
 
-## Code style
+## Code style & checks
 > docker-compose exec php composer run-script phpcs
+
+> docker-compose exec php composer run-script phpstan
