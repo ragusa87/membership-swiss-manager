@@ -33,11 +33,12 @@ RUN apk add --no-cache \
 
 RUN set -eux; \
     install-php-extensions \
+		opcache \
+    	apcu \
+    	bcmath \
+    	gd \
     	intl \
     	zip \
-    	apcu \
-		opcache \
-    	gd \
     ;
 
 ###> recipes ###
