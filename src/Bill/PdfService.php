@@ -6,6 +6,8 @@ use App\Entity\Invoice;
 use App\Entity\Member;
 use App\Entity\SubscriptionTypeEnum;
 use Fpdf\Fpdf;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Sprain\SwissQrBill\DataGroup\Element\AdditionalInformation;
 use Sprain\SwissQrBill\DataGroup\Element\CombinedAddress;
 use Sprain\SwissQrBill\DataGroup\Element\CreditorInformation;
@@ -14,18 +16,24 @@ use Sprain\SwissQrBill\DataGroup\Element\PaymentReference;
 use Sprain\SwissQrBill\PaymentPart\Output\FpdfOutput\FpdfOutput;
 use Sprain\SwissQrBill\QrBill;
 use Sprain\SwissQrBill\Reference\QrPaymentReferenceGenerator;
+use Sprain\SwissQrBill\Reference\RfCreditorReferenceGenerator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class PdfService
+class PdfService implements LoggerAwareInterface
 {
-    protected string $customerIdentificationNumber = '210000';
-    protected string $iban = 'CH4431999123000889012';
-    protected string $language = 'en';
-    protected string $addressName = 'Association Voisins Du Vanil';
-    protected string $addressStreet = 'Chemin du Vanil';
-    protected string $addressCity = 'Lausanne';
-    protected string $addressZip = '1006';
-    protected string $addressCountry = 'CH';
+    use LoggerAwareTrait;
+
+    public function __construct(protected string $iban,
+                                protected string $customerIdentificationNumber,
+                                protected string $addressName,
+                                protected string $addressStreet,
+                                protected string $addressCity,
+                                protected string $addressZip,
+                                protected string $addressCountry,
+                                protected string $language,
+    protected bool $printable,
+    ) {
+    }
 
     public function convert(Invoice $invoice): QrBill
     {
@@ -67,7 +75,7 @@ class PdfService
                 $this->memberToAddress($member)
             );
         } catch (\InvalidArgumentException $invalidArgumentException) {
-            // TODO log
+            $this->logger?->warning($invalidArgumentException);
         }
 
         // Add payment amount information
@@ -80,16 +88,7 @@ class PdfService
 
         // Add payment reference
         // This is what you will need to identify incoming payments.
-        $referenceNumber = QrPaymentReferenceGenerator::generate(
-            $this->customerIdentificationNumber,  // You receive this number from your bank (BESR-ID). Unless your bank is PostFinance, in that case use NULL.
-            $invoice->getReference()// A number to match the payment with your internal data, e.g. an invoice number
-        );
-
-        $qrBill->setPaymentReference(
-            PaymentReference::create(
-                PaymentReference::TYPE_QR,
-                $referenceNumber
-            ));
+        $this->addReference($qrBill, $invoice);
 
         // Optionally, add some human-readable information about what the bill is for.
         $qrBill->setAdditionalInformation(
@@ -106,19 +105,22 @@ class PdfService
         return $qrBill;
     }
 
-    public function generate(Invoice $invoice): StreamedResponse
+    public function generate(Invoice ...$invoices): StreamedResponse
     {
         $fpdf = new Fpdf('P', 'mm', 'A4');
-        $fpdf->AddPage();
-        $output = new FpdfOutput($this->convert($invoice), $this->language, $fpdf);
+        $fpdf->SetCreator('membership-swiss-manager');
+        $fpdf->SetTitle(1 == count($invoices) ? 'Invoice '.$invoices[0]->getReference() : 'Invoices');
+        foreach ($invoices as $invoice) {
+            $fpdf->AddPage();
+            $output = new FpdfOutput($this->convert($invoice), $this->language, $fpdf);
+            $this->insertHeader($fpdf, $invoice);
+            $output
+                ->setPrintable($this->printable)
+                ->getPaymentPart();
+        }
 
-        $this->insertHeader($fpdf, $invoice);
-        $output
-            ->setPrintable(false)
-            ->getPaymentPart();
-
-        return new StreamedResponse(function () use ($fpdf, $invoice) {
-            $fpdf->Output('I', sprintf('Invoice-%s.pdf', $invoice->getReference()));
+        return new StreamedResponse(function () use ($fpdf) {
+            $fpdf->Output('I', sprintf('Invoices-%s.pdf', date('Y-m-d-His')));
         });
     }
 
@@ -192,5 +194,38 @@ class PdfService
             case SubscriptionTypeEnum::SUPPORTER:
                 return 'sympatisant';
         }
+    }
+
+    private function isIbanCompatibleWithQRCodeReference()
+    {
+        $iban = str_replace(' ', '', $this->iban);
+        $qrIid = substr($iban, 4, 5);
+
+        return (int) $qrIid >= 30000 && (int) $qrIid <= 31999;
+    }
+
+    private function addReference(QrBill $qrBill, Invoice $invoice): void
+    {
+        if ($this->isIbanCompatibleWithQRCodeReference()) {
+            $referenceNumber = QrPaymentReferenceGenerator::generate(
+                $this->customerIdentificationNumber,
+                $invoice->getReference()
+            );
+            $qrBill->setPaymentReference(
+                PaymentReference::create(
+                    PaymentReference::TYPE_QR,
+                    $referenceNumber
+                ));
+
+            return;
+        }
+        $referenceNumber = RfCreditorReferenceGenerator::generate(
+            str_pad($invoice->getReference(), 21, '0', STR_PAD_LEFT)
+        );
+        $qrBill->setPaymentReference(
+            PaymentReference::create(
+                PaymentReference::TYPE_SCOR,
+                $referenceNumber
+            ));
     }
 }
