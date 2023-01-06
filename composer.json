@@ -61,6 +61,9 @@
         "phpstan": {
             "phpstan": "@php ./vendor/bin/phpstan -l3 analyse src"
         },
+        "phpunit": {
+            "phpunit": "@php ./vendor/bin/simple-phpunit"
+        },
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
@@ -87,6 +90,7 @@
         "friendsofphp/php-cs-fixer": "^3.13",
         "phpstan/phpstan": "^1.9",
         "symfony/maker-bundle": "^1.48",
+        "symfony/phpunit-bridge": "^6.2",
         "symfony/stopwatch": "6.2.*",
         "symfony/web-profiler-bundle": "6.2.*"
     }
