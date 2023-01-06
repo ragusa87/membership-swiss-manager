@@ -54,7 +54,7 @@ class Member
     private ?int $zip = null;
 
     /**
-     * @var Collection||Member[]
+     * @var Collection|Member[]
      */
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
     protected Collection $children;
@@ -141,14 +141,14 @@ class Member
     }
 
     /**
-     * @return Collection<int, membersubscription>
+     * @return Collection<int, MemberSubscription>
      */
     public function getMemberSubscription(): Collection
     {
         return $this->memberSubscription;
     }
 
-    public function addMemberSubscription(membersubscription $memberSubscription): self
+    public function addMemberSubscription(MemberSubscription $memberSubscription): self
     {
         if (!$this->memberSubscription->contains($memberSubscription)) {
             $this->memberSubscription->add($memberSubscription);
@@ -158,7 +158,7 @@ class Member
         return $this;
     }
 
-    public function removeMemberSubscription(membersubscription $memberSubscription): self
+    public function removeMemberSubscription(MemberSubscription $memberSubscription): self
     {
         if ($this->memberSubscription->removeElement($memberSubscription)) {
             // set the owning side to null (unless already changed)

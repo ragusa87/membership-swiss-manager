@@ -55,7 +55,7 @@ class SubscriptionCrudController extends AbstractCrudController
 
     public function viewMembers(AdminContext $context)
     {
-        /** @var Subscription $memberSubscription */
+        /** @var Subscription $subscription */
         $subscription = $context->getEntity()->getInstance();
 
         $url = $this->adminUrlGenerator
