@@ -56,20 +56,15 @@ jobs:
           git config --global advice.detachedHead false
 
           COMPOSER_HOME="$(composer config home)"
-          echo COMPOSER_UP='composer update --no-progress --ansi'$([[ "${{ matrix.php }}" = "8.2" ]] && echo ' --ignore-platform-req=php+') >> $GITHUB_ENV
+# echo COMPOSER_UP='composer update --no-progress --ansi'$([[ "${{ matrix.php }}" = "8.2" ]] && echo ' --ignore-platform-req=php+') >> $GITHUB_ENV
       - name: Install dependencies
         run: |
           echo "::group::composer update"
-          $COMPOSER_UP
+          composer install
           echo "::endgroup::"
 
-#          echo "::group::install phpunit"
-#          ./phpunit install
-#          echo "::endgroup::"
-
-#      - name: Run phpunit
-#        run: |
-#          script -e -c './phpunit'
+      - name: Run phpunit
+        run: composer phpunit
 
       - name: Run phpstan
         run: composer phpstan
