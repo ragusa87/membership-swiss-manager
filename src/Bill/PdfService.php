@@ -119,6 +119,7 @@ class PdfService implements LoggerAwareInterface
             $fpdf->AddPage();
             $output = new FpdfOutput($this->convert($invoice), $this->language, $fpdf);
             $this->insertHeader($fpdf, $invoice);
+            // @phpstan-ignore-next-line
             $output
                 ->setPrintable($this->printable)
                 ->getPaymentPart();

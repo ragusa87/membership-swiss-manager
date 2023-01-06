@@ -66,8 +66,9 @@ class MemberSubscriptionRepository extends ServiceEntityRepository
 //    }
     public function subscribe(\App\Entity\Subscription $subscription, array $users)
     {
-        /** @var Member $user */
-        foreach ($this->getEntityManager()->getRepository(Member::class)->findByIdWithSubscription($users) as $user) {
+        /** @var MemberRepository $memberRepository */
+        $memberRepository = $this->getEntityManager()->getRepository(Member::class);
+        foreach ($memberRepository->findByIdWithSubscription($users) as $user) {
             if (null !== $user->getMemberSubscriptionBySubscription($subscription)) {
                 continue;
             }

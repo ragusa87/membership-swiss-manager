@@ -105,8 +105,8 @@ class ImportXlsxCommand extends Command
         }
 
         // Use the merged parent if any
-        /** @var Member $user */
         while (($user = array_pop($toVerify)) !== null) {
+            /** @var Member $user */
             if (null == $user->getParent()) {
                 continue;
             }

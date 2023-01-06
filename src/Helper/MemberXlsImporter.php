@@ -49,7 +49,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
      */
     public function parse(string $filename = null): array
     {
-        $data = $this->read($filename, false);
+        $data = $this->read($filename);
         if (empty($data)) {
             return [];
         }

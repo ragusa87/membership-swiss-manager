@@ -16,6 +16,9 @@ class DashboardRepository
 
     public function countMembers(): int
     {
-        return $this->registry->getManagerForClass(Member::class)->getRepository(Member::class)->count([]);
+        /** @var MemberRepository $memberRepository */
+        $memberRepository = $this->registry->getManagerForClass(Member::class)->getRepository(Member::class);
+
+        return $memberRepository->count([]);
     }
 }

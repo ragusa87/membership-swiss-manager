@@ -153,8 +153,9 @@ class MemberSubscription
         if (null === $expected) {
             return 0;
         }
-        /** @var Invoice $invoice */
+
         $paid = 0;
+        /** @var Invoice $invoice */
         foreach ($this->invoices as $invoice) {
             if (null === $invoice->getPrice()) {
                 continue;
