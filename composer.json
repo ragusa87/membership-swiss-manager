@@ -59,7 +59,7 @@
             "fix src": "@php ./vendor/bin/php-cs-fixer fix src"
         },
         "phpstan": {
-            "phpstan": "@php ./vendor/bin/phpstan -l3 analyse src"
+            "phpstan": "@php ./vendor/bin/phpstan analyse -c phpstan.neon"
         },
         "phpunit": {
             "phpunit": "@php ./vendor/bin/simple-phpunit"
