@@ -56,7 +56,7 @@
     },
     "scripts": {
         "phpcs": {
-            "fix src": "@php ./vendor/bin/php-cs-fixer fix src"
+            "fix src": "@php ./vendor/bin/php-cs-fixer fix src tests"
         },
         "phpstan": {
             "phpstan": "@php ./vendor/bin/phpstan analyse -c phpstan.neon"
