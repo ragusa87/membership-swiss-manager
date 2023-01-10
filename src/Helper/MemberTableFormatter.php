@@ -12,7 +12,7 @@ class MemberTableFormatter
 {
     public function fillMatches(Table $table, array $matches): Table
     {
-        $table->setHeaders(['Firstname', 'Lastname', 'Email', 'Address', 'City', 'Npa', 'Phone', 'Score', 'Action']);
+        $table->setHeaders(['Firstname', 'Lastname', 'Email', 'Address', 'City', 'Phone', 'Parent', 'Score', 'Action']);
         /** @var MemberMatch $match */
         foreach ($matches as $match) {
             $importedMember = $match->getMember();
@@ -38,7 +38,7 @@ class MemberTableFormatter
             $currentData[] = $action;
             $importedData[] = $action;
 
-            // Show only one row as no previous row exsists
+            // Show only one row as no previous row exists
             if (null === $existingMember) {
                 $table->addRow($result);
                 $table->addRow(new TableSeparator());
@@ -59,10 +59,10 @@ class MemberTableFormatter
             $member->getFirstname(),
             $member->getLastname(),
             $member->getEmail(),
-            $member->getAddress(),
-            $member->getCity(),
-            $member->getZip(),
+            $member->getFullAddressLine1(),
+            $member->getFullAddressLine2(),
             $member->getPhone(),
+            $member->getParent() ? $member->getParent()->getFullname() : null,
         ];
     }
 }

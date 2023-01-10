@@ -61,7 +61,7 @@ class AppFixtures extends Fixture
         $manager->persist($memberSubscription);
         $manager->flush();
 
-        $users = $this->importer->parse(null);
+        $users = $this->importer->parse(__DIR__.'/members_fixtures.xlsx');
         foreach ($users as $user) {
             $this->setReference(Member::class.'_'.$user->getFirstname(), $user);
             $manager->persist($user);

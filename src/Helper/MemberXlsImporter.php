@@ -20,6 +20,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     public const HEADER_EMAIL = self::HEADER_EMAIL_DIRTY;
     public const HEADER_PHONE_DIRTY = 'téléphone';
     public const HEADER_PHONE = 'phone';
+    public const HEADER_PARENT = 'parent';
 
     public const HEADERS_DIRTY = [
         MemberXlsImporter::HEADER_NAME_DIRTY,
@@ -27,6 +28,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         MemberXlsImporter::HEADER_CITY_DIRTY,
         MemberXlsImporter::HEADER_EMAIL_DIRTY,
         MemberXlsImporter::HEADER_PHONE_DIRTY,
+        MemberXlsImporter::HEADER_PARENT,
     ];
     public const HEADERS_CLEAN = [
         MemberXlsImporter::HEADER_NAME,
@@ -34,6 +36,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         MemberXlsImporter::HEADER_CITY,
         MemberXlsImporter::HEADER_EMAIL,
         MemberXlsImporter::HEADER_PHONE,
+        MemberXlsImporter::HEADER_PARENT,
     ];
 
     public function __construct(protected AddressConverterService $addressConverterService, protected ?LoggerInterface $logger = null)
@@ -47,7 +50,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function parse(string $filename = null): array
+    public function parse(string $filename): array
     {
         $data = $this->read($filename);
         if (empty($data)) {
@@ -65,32 +68,32 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         $headers = array_shift($data);
 
         $users = [];
+        $parents = [];
         foreach ($data as &$line) {
             self::trimArray($line);
 
-            foreach ($this->convertToMembers(array_combine(self::HEADERS_CLEAN, $line)) as $user) {
+            foreach ($this->convertToMembers(array_combine(self::HEADERS_CLEAN, $line), $parents) as $user) {
                 $users[] = $user;
             }
         }
+
+        // We read the parent column and assign the right member to it.
+        $this->fixParents($users, $parents);
 
         $this->logger?->debug(sprintf('%d users imported', count($users)));
 
         return $users;
     }
 
-    protected function read(string $filename = null): array
+    protected function read(string $filename): array
     {
-        if (null === $filename) {
-            $filename = __DIR__.'/../DataFixtures/members_fixtures.xlsx';
-        }
-
         if (!file_exists($filename) || !is_readable($filename)) {
             throw new \InvalidArgumentException(sprintf('Unable to find or read file \'%s\'', $filename));
         }
 
         try {
             $reader = IOFactory::createReaderForFile($filename);
-            $filter = new XlsReadFilter(0, null, range('A', 'E'));
+            $filter = new XlsReadFilter(0, null, range('A', 'F'));
             $reader->setReadFilter($filter);
 
             /** @var Worksheet */
@@ -110,7 +113,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         return $this;
     }
 
-    private function convertToMembers(array $row): array
+    private function convertToMembers(array $row, array &$parentArray): array
     {
         $this->logger?->debug('row: '.print_r($row, true));
         $names = explode(',', $row[self::HEADER_NAME]);
@@ -137,6 +140,9 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             $m->setAddressNumber($addressNumber);
             $m->setCityAndZip($row[self::HEADER_CITY]);
             $m->setPhone($this->formatPhone($row[self::HEADER_PHONE]));
+            // The parent columns contains the fullname of the parent user.
+            // We store an array indexed by member hash, with the value of the column.
+            $parentArray[spl_object_hash($m)] = $row[self::HEADER_PARENT];
         }
 
         $parent = array_shift($members);
@@ -192,5 +198,49 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
+    }
+
+    private function fixParents(array $users, array $parents): void
+    {
+        // Hash all the imported user in array index
+        $parentListHash = array_map('spl_object_hash', $users);
+        $parentsByHash = array_combine($parentListHash, $users);
+        unset($parentListHash);
+        // Keep only the column with a parent defined
+        $parents = array_filter($parents);
+
+        // Search the user to assign the parent to it.
+        foreach ($parents as $hash => $parentName) {
+            if (!isset($parentsByHash[$hash])) {
+                throw new \RuntimeException('Invalid parent detection');
+            }
+
+            /** @var Member $user */
+            $user = $parentsByHash[$hash];
+            // Find the parent by fullName and assign it to the corresponding user.
+            /** @var Member $parent */
+            $parent = $this->searchImportedUserByName($parentName, $users);
+            $parentName = $parent?->getFullName();
+            $userName = $user->getFullname();
+
+            $this->logger?->debug($parent ? "Parent found $parentName -> $userName" : "Parent not found $parentName");
+            $user->setParent($parent);
+        }
+    }
+
+    private function searchImportedUserByName(?string $parentName, array $importedUsers): ?Member
+    {
+        if (null === $parentName) {
+            return null;
+        }
+
+        /** @var Member $user */
+        foreach ($importedUsers as $user) {
+            if ($user->getFullname() === $parentName) {
+                return $user;
+            }
+        }
+
+        return null;
     }
 }
