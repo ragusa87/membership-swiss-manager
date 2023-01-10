@@ -25,6 +25,9 @@ class MemberXlsImporterTest extends TestCase
         // Klara Ballouhey's parent is Rodrigo Scheurer
         $this->assertEquals($result[7]->getParent(), $result[6]);
 
+        // Klara Ballouhey extra parsed parent columns contains Rodrigo Scheurer.
+        $this->assertEquals('Rodrigo Scheurer', $result->getExtra($result[7], MemberXlsImporter::HEADER_PARENT));
+
         $this->assertEquals('Jaden_Rousseau17@gmail.com', $result[0]->getEmail());
         $this->assertEquals('+41216157840', $result[1]->getPhone());
     }

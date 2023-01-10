@@ -3,6 +3,7 @@
 namespace App\Helper;
 
 use App\Entity\Member;
+use App\Entity\ParseResult;
 use libphonenumber\PhoneNumberFormat;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -21,6 +22,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     public const HEADER_PHONE_DIRTY = 'téléphone';
     public const HEADER_PHONE = 'phone';
     public const HEADER_PARENT = 'parent';
+    public const HEADER_SUBSCRIPTION_TYPE = 'sympatisant';
 
     public const HEADERS_DIRTY = [
         MemberXlsImporter::HEADER_NAME_DIRTY,
@@ -29,6 +31,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         MemberXlsImporter::HEADER_EMAIL_DIRTY,
         MemberXlsImporter::HEADER_PHONE_DIRTY,
         MemberXlsImporter::HEADER_PARENT,
+        MemberXlsImporter::HEADER_SUBSCRIPTION_TYPE,
     ];
     public const HEADERS_CLEAN = [
         MemberXlsImporter::HEADER_NAME,
@@ -37,6 +40,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         MemberXlsImporter::HEADER_EMAIL,
         MemberXlsImporter::HEADER_PHONE,
         MemberXlsImporter::HEADER_PARENT,
+        MemberXlsImporter::HEADER_SUBSCRIPTION_TYPE,
     ];
 
     public function __construct(protected AddressConverterService $addressConverterService, protected ?LoggerInterface $logger = null)
@@ -50,11 +54,11 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
      *
      * @throws \InvalidArgumentException
      */
-    public function parse(string $filename): array
+    public function parse(string $filename): ParseResult
     {
         $data = $this->read($filename);
         if (empty($data)) {
-            return [];
+            return new ParseResult([]);
         }
 
         $data = array_values($data);
@@ -68,21 +72,21 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         $headers = array_shift($data);
 
         $users = [];
-        $parents = [];
+        $extras = [];
         foreach ($data as &$line) {
             self::trimArray($line);
 
-            foreach ($this->convertToMembers(array_combine(self::HEADERS_CLEAN, $line), $parents) as $user) {
+            foreach ($this->convertToMembers(array_combine(self::HEADERS_CLEAN, $line), $extras) as $user) {
                 $users[] = $user;
             }
         }
 
         // We read the parent column and assign the right member to it.
-        $this->fixParents($users, $parents);
+        $this->fixParents($users, array_map(function (array $extra) { return $extra[self::HEADER_PARENT]; }, $extras));
 
         $this->logger?->debug(sprintf('%d users imported', count($users)));
 
-        return $users;
+        return new ParseResult($users, $extras);
     }
 
     protected function read(string $filename): array
@@ -93,7 +97,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
 
         try {
             $reader = IOFactory::createReaderForFile($filename);
-            $filter = new XlsReadFilter(0, null, range('A', 'F'));
+            $filter = new XlsReadFilter(0, null, range('A', 'G'));
             $reader->setReadFilter($filter);
 
             /** @var Worksheet */
@@ -113,7 +117,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         return $this;
     }
 
-    private function convertToMembers(array $row, array &$parentArray): array
+    private function convertToMembers(array $row, array &$extra): array
     {
         $this->logger?->debug('row: '.print_r($row, true));
         $names = explode(',', $row[self::HEADER_NAME]);
@@ -142,7 +146,8 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             $m->setPhone($this->formatPhone($row[self::HEADER_PHONE]));
             // The parent columns contains the fullname of the parent user.
             // We store an array indexed by member hash, with the value of the column.
-            $parentArray[spl_object_hash($m)] = $row[self::HEADER_PARENT];
+            $extra[spl_object_hash($m)][self::HEADER_PARENT] = $row[self::HEADER_PARENT];
+            $extra[spl_object_hash($m)][self::HEADER_SUBSCRIPTION_TYPE] = $row[self::HEADER_SUBSCRIPTION_TYPE];
         }
 
         $parent = array_shift($members);
