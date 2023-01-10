@@ -50,7 +50,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     private array $expectedHeaders = self::HEADERS_DIRTY;
 
     /**
-     * @return array|Member[]
+     * @return ParseResult<Member>
      *
      * @throws \InvalidArgumentException
      */

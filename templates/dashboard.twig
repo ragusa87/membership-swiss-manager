@@ -1,11 +1,66 @@
 {% extends '@EasyAdmin/layout.html.twig' %}
 {% block content_title %}
-   {{'Dashboard'|trans}}
+    {{ 'Dashboard'|trans }}
 {% endblock content_title %}
 
 
 {% block main %}
-    <div>
-        <h2>{{ 'Number of Members: %count%' | trans({'%count%': countMembers}) }}</h2>
-    </div>
-{% endblock main %}
+<div>
+    <h2>{{ 'dashboard.number_member_count' | trans({'%count%': countMembers}) }}</h2>
+</div>
+<div>
+    <h2>{{ 'dashboard.current_subscription_name' | trans({'%name%': subscription.name|default('none')}) }}</h2>
+</div>
+
+<br>
+<br>
+<tb>
+    <h2>{{ 'dashboard.subscription.title'|trans }}</h2>
+    <td>
+
+        <table class="table table-bordered table-dark table-hover">
+            <thead>
+            <tr>
+                <td>{{ 'dashboard.subscription.header.member'|trans|capitalize }}</td>
+                <td>{{ 'dashboard.subscription.header.type'|trans|capitalize }}</td>
+                <td>{{ 'dashboard.subscription.header.invoices'|trans|capitalize }}</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ms in memberSubscriptions %}
+
+                <tr>
+                    <td>
+                        <div title="{{ ms.member.getFullAddressLine1 ~ ' ' ~ ms.member.getFullAddressLine2 }}">{{ ms.member.fullname }}</div>
+                        {% if ms.member.phone %}
+                            <a href="tel:{{ ms.member.phone }}">📞</a>
+                        {% endif %}
+                        {% if ms.member.email %}
+                            <a href="mailto:{{ ms.member.email }}">✉</a>
+                        {% endif %}
+
+                        {% if ms.member.children is not empty %}
+                        <br>
+                        <ul>
+                            {% for child in ms.member.children %}
+                                <li>{{ child.fullname }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ ('subscription_type_enum.' ~ ms.type) | trans }}</td>
+                    <td>{{ ms.invoices|length }}
+                        {% if ms.invoices|length < 1 %}
+                        <!-- todo btn to create invoice -->
+                        {% endif %}
+
+                        <a href="{{ path("view_invoice_by_subscription_id", {id: ms.id}) }}">
+                            💵 {{ (ms.getDueAmount/100)|format_currency('CHF') }}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endblock main %}

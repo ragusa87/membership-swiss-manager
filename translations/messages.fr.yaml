@@ -5,3 +5,12 @@ pdf:
 subscription_type_enum:
     member: membre
     supporter: sympatisant
+dashboard:
+    number_member_count: 'Nombre de membres: %count%'
+    current_subscription_name: 'Inscription courante: %name%'
+    subscription:
+        title: 'Inscriptions'
+        header:
+            member: 'membres'
+            type: 'type'
+            invoices: 'factures'

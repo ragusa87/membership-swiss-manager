@@ -63,4 +63,15 @@ class SubscriptionRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function getCurrentSubscription(?string $name)
+    {
+        $name = $name ?? date('Y');
+
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.name = :val')
+            ->setParameter('val', $name)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

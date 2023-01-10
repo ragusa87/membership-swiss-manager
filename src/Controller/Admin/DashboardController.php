@@ -8,10 +8,12 @@ use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
 use App\Repository\DashboardRepository;
 use App\Repository\InvoiceRepository;
+use App\Repository\MemberSubscriptionRepository;
+use App\Repository\SubscriptionRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,28 +22,26 @@ class DashboardController extends AbstractDashboardController
     public static function getSubscribedServices(): array
     {
         return array_merge(parent::getSubscribedServices(), [
+            SubscriptionRepository::class => '?'.SubscriptionRepository::class,
             DashboardRepository::class => '?'.DashboardRepository::class,
             InvoiceRepository::class => '?'.InvoiceRepository::class,
+            MemberSubscriptionRepository::class => '?'.MemberSubscriptionRepository::class,
+            RequestStack::class => '?'.RequestStack::class,
         ]);
     }
 
     #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
-        // return parent::index();
+        $subscriptionName = $this->container->get(RequestStack::class)->getCurrentRequest()->query->get('subscription') ?? null;
+        $subscription = $this->getSubscriptionRepo()->getCurrentSubscription($subscriptionName);
+        $memberSubscriptions = $this->getMemberSubscriptionRepository()->getActiveSubscriptions($subscription);
 
-        // Option 1. You can make your dashboard redirect to some common page of your backend
-        //
-        $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
-
-        $data = [
-            'countMembers' => $this->getDashboardRepo()->countMembers(),
-        ];
-
-        return $this->render('dashboard.twig', $data);
-//        return $this->render('@EasyAdmin/page/content.html.twig', [
-//            'dashboard_controller_filepath' => (new \ReflectionClass(static::class))->getFileName(),
-//        ]);
+        return $this->render('dashboard.twig', [
+                'subscription' => $subscription,
+                'memberSubscriptions' => $memberSubscriptions,
+                'countMembers' => $this->getDashboardRepo()->countMembers(),
+       ]);
     }
 
     public function configureDashboard(): Dashboard
@@ -70,5 +70,15 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Members', 'fas fa-list', Member::class)->setBadge($countMembers);
         yield MenuItem::linkToCrud('SubscriptionMember', 'fas fa-list', MemberSubscription::class);
         yield MenuItem::linkToCrud('Invoices', 'fas fa-list', Invoice::class)->setBadge($countDueInvoices);
+    }
+
+    private function getSubscriptionRepo(): SubscriptionRepository
+    {
+        return $this->container->get(SubscriptionRepository::class);
+    }
+
+    private function getMemberSubscriptionRepository(): MemberSubscriptionRepository
+    {
+        return $this->container->get(MemberSubscriptionRepository::class);
     }
 }
