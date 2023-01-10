@@ -19,7 +19,7 @@ class XlsReadFilter implements IReadFilter
         $this->columns = $columns;
     }
 
-    public function readCell($columnAddress, $row, $worksheetName = '')
+    public function readCell($columnAddress, $row, $worksheetName = ''): bool
     {
         if ($row >= $this->startRow && ($row <= $this->endRow || null === $this->endRow)) {
             if (in_array($columnAddress, $this->columns)) {
