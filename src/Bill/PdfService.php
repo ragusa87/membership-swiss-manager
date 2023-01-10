@@ -117,7 +117,7 @@ class PdfService implements LoggerAwareInterface
         $fpdf->SetTitle(1 == count($invoices) ? 'Invoice '.$invoices[0]->getReference() : 'Invoices');
         foreach ($invoices as $invoice) {
             $fpdf->AddPage();
-            $output = new FpdfOutput($this->convert($invoice), $this->language, $fpdf);
+            $output = new FpdfOutput($this->convert($invoice), $this->translator->getLocale() ?? $this->language, $fpdf);
             $this->insertHeader($fpdf, $invoice);
             // @phpstan-ignore-next-line
             $output
