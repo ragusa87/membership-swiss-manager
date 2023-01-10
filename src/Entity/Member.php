@@ -265,6 +265,7 @@ class Member
         $this->setZip($copy->getZip());
         $this->setPhone($copy->getPhone());
         $this->setComment($copy->getComment());
+        $this->setParent($copy->getParent());
 
         return $this;
     }
