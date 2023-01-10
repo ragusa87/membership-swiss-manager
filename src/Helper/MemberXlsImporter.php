@@ -36,7 +36,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         MemberXlsImporter::HEADER_PHONE,
     ];
 
-    public function __construct(protected ?LoggerInterface $logger = null)
+    public function __construct(protected AddressConverterService $addressConverterService, protected ?LoggerInterface $logger = null)
     {
     }
 
@@ -131,7 +131,8 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             $m->setLastname($firstname);
             $m->setFirstname($lastname);
             $m->setEmail($row[self::HEADER_EMAIL]);
-            list($address, $addressNumber) = $this->convertAddress($row[self::HEADER_ADDRESS]);
+            list($address, $addressNumber) = $this->addressConverterService->split($row[self::HEADER_ADDRESS]);
+
             $m->setAddress($address);
             $m->setAddressNumber($addressNumber);
             $m->setCityAndZip($row[self::HEADER_CITY]);
@@ -191,18 +192,5 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
-    }
-
-    /**
-     * @return array Address at index 0, address number at index 1
-     */
-    private function convertAddress(string $address): array
-    {
-        $matches = [];
-        if (false !== preg_match('/(.*)([0-9]+)$/', $address, $matches)) {
-            return [trim($matches[0]), trim($matches[1])];
-        }
-
-        return [$address, null];
     }
 }

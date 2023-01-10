@@ -9,14 +9,12 @@ use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
 use PHPUnit\Framework\TestCase;
-use Sprain\SwissQrBill\QrBill;
-use Symfony\Contracts\Translation\Test\TranslatorTest;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
 class PdfServiceTest extends TestCase
 {
-    public function testGenerate():void
+    public function testGenerate(): void
     {
         $service = $this->getPdfService();
         $response = $service->generate($this->getFullInvoice());
@@ -29,7 +27,7 @@ class PdfServiceTest extends TestCase
         $this->assertNotFalse(strpos($responseBody, 'PDF-'), $responseBody);
     }
 
-    public function testConvert():void
+    public function testConvert(): void
     {
         $service = $this->getPdfService();
 
@@ -48,14 +46,14 @@ class PdfServiceTest extends TestCase
         $invoice->setStatusFromEnum(InvoiceStatusEnum::CREATED);
 
         $member = new Member();
-        $member->setFirstname("Jon");
-        $member->setLastname("Doe");
-        $member->setAddress("Chemin du Blé");
-        $member->setCity("Lausanne");
+        $member->setFirstname('Jon');
+        $member->setLastname('Doe');
+        $member->setAddress('Chemin du Blé');
+        $member->setCity('Lausanne');
         $member->setZip(1003);
 
         $subscription = new Subscription();
-        $subscription->setName("2023");
+        $subscription->setName('2023');
 
         $memberSubscription = new MemberSubscription();
         $memberSubscription->setPrice(12);
@@ -69,12 +67,10 @@ class PdfServiceTest extends TestCase
 
     private function getPdfService(string $iban = 'CH4431999123000889012'): PdfService
     {
-
         $translator = new class() implements TranslatorInterface {
             use TranslatorTrait;
         };
 
         return new PdfService($translator, $iban, '12', 'Association du Vanil', 'Chemin du Vanil', 'Lausanne', 1003, 'CH', 'fr', true);
-
     }
 }
