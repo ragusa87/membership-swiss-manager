@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-/**
+/*
  * @template T
  */
-class ParseResult extends \ArrayIterator implements \iterable
+class ParseResult extends \ArrayIterator
 {
     private array $extra;
 
