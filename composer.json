@@ -16,7 +16,7 @@
         "fpdf/fpdf": "^1.85",
         "giggsey/libphonenumber-for-php": "^8.13",
         "mpdf/mpdf": "^6.1",
-        "phpoffice/phpspreadsheet": "dev-NumberFormatMask-Helpers",
+        "phpoffice/phpspreadsheet": "^1.26",
         "sprain/swiss-qr-bill": "^4.8",
         "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/console": "6.2.*",
