@@ -65,6 +65,7 @@ jobs:
 
       - name: Run phpunit
         run: |
+            mkdir -p db
             composer run-script db-create-test
             composer phpunit
 
