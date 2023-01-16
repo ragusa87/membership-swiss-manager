@@ -46,7 +46,7 @@ class ImportXlsxCommand extends Command
         // Parse members from xlsx
         $members = $this->memberXlsImporter->parse($src);
         // Try to match each member with an existing member
-        $matches = array_map(fn (Member $member) => $this->matcher->find($member), $members);
+        $matches = array_map(fn (Member $member) => $this->matcher->find($member), $members->getArrayCopy());
 
         // Display the result of matches
         $this->formatter->fillMatches(new Table($output), $matches)->render();

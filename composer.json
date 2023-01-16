@@ -66,6 +66,9 @@
         "phpunit": {
             "phpunit": "@php ./vendor/bin/simple-phpunit"
         },
+        "db-create-test": {
+            "db-create": "rm -f db/test.sqlite &&  php ./bin/console doctrine:schema:create --env=test"
+        },
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"

@@ -64,7 +64,9 @@ jobs:
           echo "::endgroup::"
 
       - name: Run phpunit
-        run: composer phpunit
+        run: |
+            composer run-script db-create-test
+            composer phpunit
 
       - name: Run phpstan
         run: composer phpstan
