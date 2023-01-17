@@ -33,8 +33,7 @@ class ImportXlsxCommand extends Command
     protected function configure(): void
     {
         $this
-            // TODO Force the source parameter with InputOption::VALUE_REQUIRED
-            ->addArgument('source', InputArgument::OPTIONAL, 'File source')
+            ->addArgument('source', InputOption::VALUE_REQUIRED, 'File source')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force import')
             ->addOption('subscription', null, InputOption::VALUE_REQUIRED, 'Subscribe users');
     }
