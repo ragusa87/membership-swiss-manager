@@ -132,6 +132,7 @@ class ImportXlsxCommand extends Command
     {
         /** @var MemberSubscriptionRepository $repo */
         $repo = $this->managerRegistry->getRepository(MemberSubscription::class);
+        // TODO Skip children (no subsciption), support for subscription type, set price too
         $repo->subscribe($subscription, $users);
     }
 
