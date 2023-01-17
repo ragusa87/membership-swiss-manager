@@ -28,7 +28,7 @@ class MemberMatcher
 
     protected function findByFullName(Member $user, array $criteria = []): ?MemberMatch
     {
-        if (empty($user->getFirstname()) || empty($user->getLastname())) {
+        if (empty($user->getFirstname()) && empty($user->getLastname())) {
             return null;
         }
 

@@ -75,7 +75,7 @@ class Member
         return $this->firstname;
     }
 
-    public function setFirstname(string $firstname): self
+    public function setFirstname(?string $firstname = null): self
     {
         $this->firstname = $firstname;
 

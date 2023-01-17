@@ -135,8 +135,8 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         foreach ($names as $name) {
             $members[] = $m = new Member();
             list($firstname, $lastname) = self::splitName($name);
-            $m->setLastname($firstname);
-            $m->setFirstname($lastname);
+            $m->setLastname($lastname);
+            $m->setFirstname($firstname);
             $m->setEmail($row[self::HEADER_EMAIL]);
             list($address, $addressNumber) = $this->addressConverterService->split($row[self::HEADER_ADDRESS]);
 
@@ -187,9 +187,10 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     private static function splitName(string $name): array
     {
         $exploded = explode(' ', $name);
-        $first = array_shift($exploded);
+        $temp = array_merge([], $exploded);
+        $firstname = array_pop($temp);
 
-        return [implode(' ', $exploded), $first];
+        return count($exploded) == 1 ? [$firstname, null] : [$firstname, implode(' ', $temp), ];
     }
 
     private static function trimArray(array &$line): void
