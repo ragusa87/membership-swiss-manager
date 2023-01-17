@@ -15,6 +15,8 @@ class MemberXlsImporterTest extends TestCase
         $importer = new MemberXlsImporter(new AddressConverterService(), $logger);
 
         $result = $importer->parse(__DIR__.'/../../src/DataFixtures/members_fixtures.xlsx');
+        // Clear logs
+        $logger->cleanLogs();
 
         // 23 user are parsed
         $this->assertCount(23, $result);
@@ -23,7 +25,10 @@ class MemberXlsImporterTest extends TestCase
         $this->assertEquals($result[2]->getParent(), $result[1]);
 
         // Klara Ballouhey's parent is Rodrigo Scheurer
-        $this->assertEquals($result[7]->getParent(), $result[6]);
+        $this->assertEquals('Ballouhey Klara', $result[7]->getFullname());
+        $this->assertEquals('Scheurer Rodrigo', $result[6]->getFullname());
+        $this->assertNotNull($result[7]->getParent(), 'Ballouhey Klara should have a parent');
+        $this->assertEquals($result[6], $result[7]->getParent());
 
         // Klara Ballouhey extra parsed parent columns contains Rodrigo Scheurer.
         $this->assertEquals('Rodrigo Scheurer', $result->getExtra($result[7], MemberXlsImporter::HEADER_PARENT));

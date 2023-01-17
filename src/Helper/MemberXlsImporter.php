@@ -242,7 +242,12 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
 
         /** @var Member $user */
         foreach ($importedUsers as $user) {
+            // Match by firstname lastname
             if ($user->getFullname() === $parentName) {
+                return $user;
+            }
+            // Match by lastname firstname
+            if (implode(' ', [$user->getLastname(), $user->getFirstname()]) === $parentName) {
                 return $user;
             }
         }
