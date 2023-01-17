@@ -190,7 +190,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         $temp = array_merge([], $exploded);
         $firstname = array_pop($temp);
 
-        return count($exploded) == 1 ? [$firstname, null] : [$firstname, implode(' ', $temp), ];
+        return 1 == count($exploded) ? [$firstname, null] : [$firstname, implode(' ', $temp)];
     }
 
     private static function trimArray(array &$line): void
