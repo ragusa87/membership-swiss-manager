@@ -7,7 +7,7 @@ parameters:
     pdf.iban: "%env(IBAN)%"
     pdf.customerIdentificationNumber: "%env(CUSTOMER_IDENTIFICATION_NUMBER)%"
     pdf.addressName: "%env(ADDRESS_NAME)%"
-    env(ADDRESS_NAME): "Association Voisins Du Vanil"
+    env(ADDRESS_NAME): "VV Voisins du Vanil 10-12-14"
     pdf.addressStreet: "%env(ADDRESS_STREET)%"
     env(ADDRESS_STREET): "Chemin du Vanil"
     pdf.addressCity: "%env(ADDRESS_CITY)%"
