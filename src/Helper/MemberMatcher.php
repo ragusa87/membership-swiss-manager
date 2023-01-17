@@ -100,6 +100,7 @@ class MemberMatcher
             $this->findByFullNameAndAddress($user, ['parent' => $parent]) ??
             $this->findByFullName($user, ['parent' => $parent]) ??
             $this->findByEmail($user, ['parent' => $parent]) ??
+            $this->findByPhone($user, ['parent' => $parent]) ??
             MemberMatch::zero($user);
     }
 
@@ -122,5 +123,16 @@ class MemberMatcher
                 'city' => $user->getCity(),
                 'zip' => $user->getZip(),
             ] + $criteria, MemberMatch::SCORE_HIGH, 'fullname+address');
+    }
+
+    private function findByPhone(Member $user, array $criteria)
+    {
+        if (empty($user->getPhone())) {
+            return null;
+        }
+
+        return $this->matches($user, [
+                'phone' => $user->getPhone(),
+            ] + $criteria, MemberMatch::SCORE_LOW, 'phone');
     }
 }
