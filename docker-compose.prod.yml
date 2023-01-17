@@ -3,6 +3,9 @@ version: "3.4"
 # Production environment override
 services:
   php:
+    build:
+      args:
+        APP_ENV: prod
     environment:
       APP_SECRET: ${APP_SECRET}
       MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET}
