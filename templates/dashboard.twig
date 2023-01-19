@@ -1,6 +1,6 @@
 {% extends '@EasyAdmin/layout.html.twig' %}
 {% block content_title %}
-    {{ 'Dashboard'|trans }}
+    {{ 'dashboard.subscription.title'|trans({'%name%': subscription.name|default('none')}) }}
 {% endblock content_title %}
     {% block head_stylesheets %}
         {{ parent() }}
@@ -13,29 +13,27 @@
             }
             .text-danger a { color: inherit; }
             .text-success a { color: inherit; }
+
+            .dashboard table{ color: var(--table-cell-color); }
+            .dashboard .table-striped > tbody > tr:nth-of-type(2n+1) > * { color: var(--table-cell-color);}
+            ul.children{
+                padding-left: 1rem;
+            }
+            ul.children li::marker {
+                content: '+ ';
+            }
         </style>
     {% endblock head_stylesheets %}
 
 
 {% block main %}
-<div class="no-print">
-    <div>
-        <h2>{{ 'dashboard.number_member_count' | trans({'%count%': countMembers}) }}</h2>
-    </div>
-    <div>
-        <h2>{{ 'dashboard.current_subscription_name' | trans({'%name%': subscription.name|default('none')}) }}</h2>
-    </div>
-</div>
-<br>
-<br>
-<div>
-    <h2>{{ 'dashboard.subscription.title'|trans }}</h2>
-    <div class="table-responsive">
-    <table class="table table-bordered table-dark table-hover table-sm">
+<div class="dashboard">
+    <div class="table-responsive datagrid">
+    <table class="table table-sm">
         <thead>
             <tr>
-                <td>{{ 'dashboard.subscription.header.member'|trans|capitalize }}</td>
-                <td>{{ 'dashboard.subscription.header.invoices'|trans|capitalize }}</td>
+                <th>{{ 'dashboard.subscription.header.member'|trans|capitalize }}</th>
+                <th>{{ 'dashboard.subscription.header.invoices'|trans|capitalize }}</th>
             </tr>
         </thead>
         <tbody>
@@ -57,8 +55,7 @@
 
 
                         {% if ms.member.children is not empty %}
-                        <br>
-                        <ul>
+                        <ul class="children">
                             {% for child in ms.member.children %}
                                 <li>{{ child.firstname }} {{- " " ~ child.lastname | upper -}}</li>
                             {% endfor %}
@@ -79,6 +76,11 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <div class="no-print">
+        {{ 'dashboard.number_member_count' | trans({'%count%': countMembers}) }}
+    </div>
+
     </div>
 </div>
 {% endblock main %}
