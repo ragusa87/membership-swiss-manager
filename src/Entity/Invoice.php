@@ -15,17 +15,17 @@ class Invoice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    protected ?int $id = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $reference = null;
+    protected ?int $reference = null;
 
     #[ORM\ManyToOne(inversedBy: 'invoices')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?MemberSubscription $memberSubscription = null;
+    protected ?MemberSubscription $memberSubscription = null;
 
     #[ORM\Column(length: 10, nullable: false, options: ['default' => 'created']) ]
-    private string $status;
+    protected string $status;
 
     public function __construct()
     {
@@ -35,6 +35,10 @@ class Invoice
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(?int $id): void{
+        $this->id = $id;
     }
 
     public function getReference(): ?int
