@@ -12,5 +12,4 @@ dashboard:
         title: 'Inscriptions'
         header:
             member: 'membres'
-            type: 'type'
-            invoices: 'factures'
+            invoices: 'A payer'

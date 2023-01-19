@@ -2,65 +2,83 @@
 {% block content_title %}
     {{ 'Dashboard'|trans }}
 {% endblock content_title %}
+    {% block head_stylesheets %}
+        {{ parent() }}
+        <style type="text/css">
+            @media print {
+                .no-print{
+                    display:none;
+                }
+
+            }
+            .text-danger a { color: inherit; }
+            .text-success a { color: inherit; }
+        </style>
+    {% endblock head_stylesheets %}
 
 
 {% block main %}
-<div>
-    <h2>{{ 'dashboard.number_member_count' | trans({'%count%': countMembers}) }}</h2>
+<div class="no-print">
+    <div>
+        <h2>{{ 'dashboard.number_member_count' | trans({'%count%': countMembers}) }}</h2>
+    </div>
+    <div>
+        <h2>{{ 'dashboard.current_subscription_name' | trans({'%name%': subscription.name|default('none')}) }}</h2>
+    </div>
 </div>
-<div>
-    <h2>{{ 'dashboard.current_subscription_name' | trans({'%name%': subscription.name|default('none')}) }}</h2>
-</div>
-
 <br>
 <br>
-<tb>
+<div>
     <h2>{{ 'dashboard.subscription.title'|trans }}</h2>
-    <td>
-
-        <table class="table table-bordered table-dark table-hover">
-            <thead>
+    <div class="table-responsive">
+    <table class="table table-bordered table-dark table-hover table-sm">
+        <thead>
             <tr>
                 <td>{{ 'dashboard.subscription.header.member'|trans|capitalize }}</td>
-                <td>{{ 'dashboard.subscription.header.type'|trans|capitalize }}</td>
                 <td>{{ 'dashboard.subscription.header.invoices'|trans|capitalize }}</td>
             </tr>
-            </thead>
-            <tbody>
+        </thead>
+        <tbody>
             {% for ms in memberSubscriptions %}
-
                 <tr>
                     <td>
-                        <div title="{{ ms.member.getFullAddressLine1 ~ ' ' ~ ms.member.getFullAddressLine2 }}">{{ ms.member.fullname }}</div>
-                        {% if ms.member.phone %}
-                            <a href="tel:{{ ms.member.phone }}">📞</a>
-                        {% endif %}
-                        {% if ms.member.email %}
-                            <a href="mailto:{{ ms.member.email }}">✉</a>
-                        {% endif %}
+                        <div title="{{ ms.member.getFullAddressLine1 ~ ' ' ~ ms.member.getFullAddressLine2 }}">
+                            {{ ms.member.firstname }} {{- " " ~ ms.member.lastname | upper -}}
+                            {{ "&nbsp"|raw }}{{ "(" }}{{ ('subscription_type_enum.' ~ ms.type) | trans }}{{ ")" }}
+
+                            {% if ms.member.phone %}
+                                <a class="no-print" href="tel:{{ ms.member.phone }}">📞</a>
+                            {% endif %}
+                            {% if ms.member.email %}
+                                <a class="no-print"  href="mailto:{{ ms.member.email }}">✉</a>
+                            {% endif %}
+
+                        </div>
+
 
                         {% if ms.member.children is not empty %}
                         <br>
                         <ul>
                             {% for child in ms.member.children %}
-                                <li>{{ child.fullname }}</li>
+                                <li>{{ child.firstname }} {{- " " ~ child.lastname | upper -}}</li>
                             {% endfor %}
                         </ul>
                         {% endif %}
                     </td>
-
-                    <td>{{ ('subscription_type_enum.' ~ ms.type) | trans }}</td>
-                    <td>{{ ms.invoices|length }}
+                    <td class="{{ ms.getDueAmount > 0 ? 'text-danger' : 'text-success' }}">
+{#                        <span class="no-print">{{ ms.invoices|length }}</span>#}
                         {% if ms.invoices|length < 1 %}
                         <!-- todo btn to create invoice -->
                         {% endif %}
 
                         <a href="{{ path("view_invoice_by_subscription_id", {id: ms.id}) }}">
-                            💵 {{ (ms.getDueAmount/100)|format_currency('CHF') }}
+                             {{ (ms.getDueAmount/100)|format_currency('CHF') }} <span class="no-print">💵</span>
                         </a>
                     </td>
                 </tr>
             {% endfor %}
-            </tbody>
-        </table>
-        {% endblock main %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock main %}
