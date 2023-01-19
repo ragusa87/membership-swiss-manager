@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,6 +41,8 @@ class MemberSubscriptionCrudController extends AbstractCrudController
         } else {
             yield AssociationField::new('subscription')->setDisabled();
         }
+
+        yield ChoiceField::new('type')->setChoices(SubscriptionTypeEnum::choices());
 
         yield MoneyField::new('price')
             ->setNumDecimals(2)
