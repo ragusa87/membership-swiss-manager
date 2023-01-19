@@ -319,6 +319,6 @@ class Member
             return null;
         }
 
-        return trim(sprintf('%s %s', $this->getCity() ?? '', $this->getZip()));
+        return trim(sprintf('%s %s', $this->getZip() ?? '', $this->getCity() ?? ''));
     }
 }
