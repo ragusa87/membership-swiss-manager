@@ -87,9 +87,19 @@ class MemberSubscriptionRepository extends ServiceEntityRepository
         if (null === $subscription) {
             return [];
         }
+        $qb = $this->createQueryBuilder('memberSubscription')
+            ->where('memberSubscription.subscription = :subscription')
+            ->setParameter('subscription', $subscription)
+            ->leftJoin('memberSubscription.member', 'm')
+            ->leftJoin('memberSubscription.subscription', 's')
+            ->leftJoin('memberSubscription.invoices', 'i')
+            ->leftJoin('m.children', 'c')
+            ->addSelect('m')
+            ->addSelect('s')
+            ->addSelect('i')
+            ->addSelect('c')
+            ->orderBy('memberSubscription.type', 'asc');
 
-        return $this->findBy([
-            'subscription' => $subscription,
-        ], ['type' => 'asc']);
+        return $qb->getQuery()->getResult();
     }
 }
