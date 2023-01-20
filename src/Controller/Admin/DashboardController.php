@@ -40,7 +40,7 @@ class DashboardController extends AbstractDashboardController
         return $this->render('dashboard.twig', [
                 'subscription' => $subscription,
                 'memberSubscriptions' => $memberSubscriptions,
-                'countMembers' => $this->getDashboardRepo()->countMembers($subscription),
+                'countMembers' => $subscription ? $this->getDashboardRepo()->countMembers($subscription) : 0,
        ]);
     }
 

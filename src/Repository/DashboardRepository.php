@@ -20,8 +20,7 @@ class DashboardRepository
 
     /**
      * We count each member and children for the given subscription.
-     *
-     * @return int or 0 if no subscription
+     * Count all user on empty subscription.
      */
     public function countMembers(?Subscription $subscription = null): int
     {
@@ -32,7 +31,7 @@ class DashboardRepository
         $memberRepository = $manager->getRepository(Member::class);
 
         if (null === $subscription) {
-            return 0;
+            return $memberRepository->count([]);
         }
 
         // Create the list of member_count and nb_children per user.
