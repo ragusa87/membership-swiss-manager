@@ -29,6 +29,9 @@ class Invoice
     #[ORM\Column(length: 10, nullable: false, options: ['default' => 'created']) ]
     protected string $status;
 
+    #[ORM\Column(nullable: false, options: ['default' => 0]) ]
+    protected int $reminder = 0;
+
     public function __construct()
     {
         $this->status = InvoiceStatusEnum::CREATED->value;
@@ -90,5 +93,20 @@ class Invoice
         $this->status = $status;
 
         return $this;
+    }
+
+    public function getReminder(): int
+    {
+        return $this->reminder;
+    }
+
+    public function isReminder(): bool
+    {
+        return $this->reminder > 0;
+    }
+
+    public function setReminder(int $reminder): void
+    {
+        $this->reminder = $reminder;
     }
 }

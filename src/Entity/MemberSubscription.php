@@ -165,4 +165,15 @@ class MemberSubscription
 
         return $expected - $paid;
     }
+
+    public function generateNewInvoice(): Invoice
+    {
+        $invoice = new Invoice();
+        $invoice->setMemberSubscription($this);
+        $invoice->setPrice(self::getPriceByType($this->getTypeEnum()));
+        $invoice->setStatusFromEnum(InvoiceStatusEnum::CREATED);
+        $this->addInvoice($invoice);
+
+        return $invoice;
+    }
 }

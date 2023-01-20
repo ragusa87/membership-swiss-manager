@@ -30,4 +30,15 @@ class DefaultController extends AbstractController
 
         return $this->redirect($url);
     }
+
+    #[Route(path: '/invoice-id/{id}', name: 'view_invoice_by_id')]
+    public function getInvoicesById(int $id, AdminUrlGenerator $generator)
+    {
+        $url = $generator->setController(InvoiceCrudController::class)
+            ->set('filters[id][comparison]', '=')
+            ->set('filters[id][value]', $id)
+            ->generateUrl();
+
+        return $this->redirect($url);
+    }
 }

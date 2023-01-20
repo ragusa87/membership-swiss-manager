@@ -56,6 +56,6 @@ class DashboardRepository
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('nb', 'nb');
 
-        return $manager->createNativeQuery($subQuery, $rsm)->getSingleScalarResult();
+        return $manager->createNativeQuery($subQuery, $rsm)->getSingleScalarResult() ?? 0;
     }
 }
