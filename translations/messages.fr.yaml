@@ -12,3 +12,26 @@ dashboard:
         header:
             member: 'membres'
             invoices: 'A payer'
+Overview: Aperçu
+Subscription: Inscription
+Members: Membres
+SubscriptionMember: InscriptionsMembres
+MemberSubscription: InscriptionsMembres
+Type: Type
+Due Amount: Montant Dû
+View Invoices: Voir les factures
+Invoices: Factures
+Generate invoices: Générer factures
+Print invoices: Imprimer les factures
+Member: Membre
+Firstname: Prénom
+Lastname: Nom
+Email: Email
+Comment: Commentaire
+Parent: Parent
+Address: Rue
+Address Number: Numéro de rue
+City: Ville
+Zip: Code Postale
+Phone: Téléphone
+Price: Prix

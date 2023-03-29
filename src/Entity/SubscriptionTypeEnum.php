@@ -13,7 +13,7 @@ enum SubscriptionTypeEnum: string
             return $enum->value;
         }, self::cases());
         $choicesLabels = array_map(function (SubscriptionTypeEnum $enum) {
-            return $enum->name;
+            return sprintf('subscription_type_enum.%s', $enum->value);
         }, self::cases());
 
         return array_combine($choicesLabels, $choicesValues);
