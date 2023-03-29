@@ -209,6 +209,9 @@ class PdfService implements LoggerAwareInterface
     private function addReference(QrBill $qrBill, Invoice $invoice): void
     {
         if ($this->isIbanCompatibleWithQRCodeReference()) {
+            if ('' === trim($this->customerIdentificationNumber)) {
+                throw new \InvalidArgumentException('You must configure the customer identification number');
+            }
             $referenceNumber = QrPaymentReferenceGenerator::generate(
                 $this->customerIdentificationNumber,
                 $invoice->getReference()
