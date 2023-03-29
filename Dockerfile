@@ -6,6 +6,10 @@
 
 # Prod image
 FROM php:8.1-fpm-alpine AS app_php
+ARG USER_ID=1000
+ARG GROUP_ID=1001
+ENV USER_ID=${USER_ID}
+ENV GROUP_ID=${GROUP_ID}
 
 # Allow to use development versions of Symfony
 ARG STABILITY="stable"
@@ -94,6 +98,15 @@ RUN set -eux; \
 		composer run-script --no-dev post-install-cmd; \
 		chmod +x bin/console; sync; \
     fi
+
+# Make sure www-data use the same UID&GID as locally \
+# And move existing group to id 2000 if already taken (for MacOs)
+RUN echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories ;\
+    apk add --no-cache --virtual .mod shadow; \
+	ash -c 'usermod -u $USER_ID www-data'; \
+    ash -c '[ "$(getent group $GROUP_ID | cut -d: -f1)" = "" ] && echo "No need to override $GROUP_ID" || groupmod -g 20000 $(getent group $GROUP_ID | cut -d: -f1)'; \
+    apk del .mod;
+
 
 # Dev image
 FROM app_php AS app_php_dev
