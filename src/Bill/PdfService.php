@@ -167,11 +167,11 @@ class PdfService implements LoggerAwareInterface
         $fpdf->Ln(10);
 
         $member = $invoice->getMemberSubscription()->getMember();
-        $fpdf->Write(0, $member->getFullname());
+        $fpdf->Write(0, utf8_decode($member->getFullname()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, $member->getFullAddressLine1());
+        $fpdf->Write(0, utf8_decode($member->getFullAddressLine1()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, $member->getFullAddressLine2());
+        $fpdf->Write(0, utf8_decode($member->getFullAddressLine2()));
         $fpdf->Ln(5);
         $fpdf->Write(0, $member->getEmail());
         $fpdf->Ln(5);
