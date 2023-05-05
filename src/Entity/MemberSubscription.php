@@ -66,6 +66,13 @@ class MemberSubscription
         return $this->type;
     }
 
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
     public function setTypeEnum(SubscriptionTypeEnum $type): self
     {
         $this->type = $type->value;
