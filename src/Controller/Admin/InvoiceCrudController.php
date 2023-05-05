@@ -45,6 +45,7 @@ class InvoiceCrudController extends AbstractCrudController
                 ->setChoices(InvoiceStatusEnum::choices())
             )
             ->add('price')
+            ->add('reminder')
             ->add($sub);
         // ->add(EntityFilter::new('memberSubscription.member'));
     }
@@ -63,6 +64,7 @@ class InvoiceCrudController extends AbstractCrudController
         yield MoneyField::new('price')->setStoredAsCents(true)->setCurrency('CHF');
         yield DateField::new('created_at')->onlyOnIndex();
         yield DateField::new('updated_at')->onlyOnIndex();
+        yield IntegerField::new('reminder')->hideWhenCreating();
     }
 
     public function configureActions(Actions $actions): Actions
