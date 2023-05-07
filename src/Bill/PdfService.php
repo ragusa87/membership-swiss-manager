@@ -158,30 +158,30 @@ class PdfService implements LoggerAwareInterface
     protected function insertHeader(Fpdf $fpdf, Invoice $invoice)
     {
         $fpdf->SetFont('Arial', 'B', 16);
-        $fpdf->Write(0, $this->addressName);
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->addressName));
         $fpdf->Ln(5);
 
         $fpdf->SetFont('Arial', '', 10);
 
-        $fpdf->Write(0, $this->getInvoiceName($invoice));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->getInvoiceName($invoice)));
         $fpdf->Ln(10);
 
         $member = $invoice->getMemberSubscription()->getMember();
-        $fpdf->Write(0, utf8_decode($member->getFullname()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getFullname()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, utf8_decode($member->getFullAddressLine1()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getFullAddressLine1()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, utf8_decode($member->getFullAddressLine2()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getFullAddressLine2()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, $member->getEmail());
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getEmail()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, $member->getPhone());
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getPhone()));
         $fpdf->Ln(5);
         if ($member->getChildren()->count() > 0) {
-            $fpdf->Write(0, 'Avec:');
+            $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('With: ')));
             $fpdf->Ln(5);
             foreach ($member->getChildren() as $child) {
-                $fpdf->Write(0, $child->getFullname());
+                $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $child->getFullname()));
                 $fpdf->Ln(5);
             }
         }
