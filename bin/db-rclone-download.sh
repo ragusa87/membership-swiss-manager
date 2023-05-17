@@ -2,7 +2,12 @@
 set -e
 source bin/db-rclone-common.sh
 
-if [ -f $FILENAME ]; then
+FORCE=0
+if [[ "$1" == "-f" ]]; then
+ FORCE=1
+fi
+
+if [ -f $FILENAME ] && [ $FORCE -eq 0 ]; then
 	echo "File $FILENAME already exists";
 	exit 1
 fi
