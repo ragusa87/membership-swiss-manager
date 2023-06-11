@@ -27,9 +27,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvoiceCrudController extends AbstractCrudController
 {
+    public const ACTION_UPLOAD_CAMT = 'uploadCamt';
+
     public static function getEntityFqcn(): string
     {
         return Invoice::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->showEntityActionsInlined()
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
