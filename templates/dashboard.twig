@@ -110,9 +110,10 @@
             {{ 'dashboard.number_member_count' | trans({'%count%': countMembers}) }}
         </div>
         {% if memberSubscriptions|length > 0 %}
-        <div class="no-print">
+        <div class="no-print btn-group mr-2">
             <a class="btn btn-secondary" href="{{ path('admin_generate_invoices', {'subscriptionName': subscription.name ?? ''}) }}">{{ "Generate invoices"|trans }}</a>
             <a class="btn btn-secondary" href="{{ path('admin_print_invoices', {'subscriptionName': subscription.name ?? ''}) }}">{{ "Print invoices"|trans }}</a>
+            <a class="btn btn-secondary" href="{{ path('admin_import_camt') }}">{{ "Import Camt"|trans }}</a>
         </div>
         {% endif %}
     </div>

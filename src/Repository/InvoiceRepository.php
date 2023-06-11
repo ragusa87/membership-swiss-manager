@@ -58,4 +58,17 @@ class InvoiceRepository extends ServiceEntityRepository
 
         return $query->getQuery()->getSingleScalarResult();
     }
+
+    public function findByReferences(array $refs)
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->where($qb->expr()->in('i.reference', ':refs'));
+        $qb->setParameter('refs', $refs);
+        $qb->join('i.memberSubscription', 'ms');
+        $qb->join('ms.member', 'm');
+        $qb->select('i, ms, m');
+        $qb->indexBy('i', 'i.reference');
+
+        return $qb->getQuery()->getResult();
+    }
 }

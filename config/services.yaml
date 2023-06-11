@@ -51,4 +51,8 @@ services:
           $addressCountry: "%pdf.addressCountry%"
           $language: "%pdf.language%"
           $printable: "%pdf.printable%"
-    
+        
+    App\Bill\CamtProcessor:
+        bind:
+            $iban: "%pdf.iban%"
+            $customerIdentificationNumber: "%pdf.customerIdentificationNumber%"

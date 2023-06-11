@@ -28,6 +28,6 @@ trait PriceEntityTrait
             return null;
         }
 
-        return number_format($this->price / 10.0, 2);
+        return number_format($this->price / 100.0, 2);
     }
 }

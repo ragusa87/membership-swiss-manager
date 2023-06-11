@@ -2,11 +2,13 @@
 
 namespace App\Controller\Admin;
 
+use App\Bill\CamtProcessor;
 use App\Bill\PdfService;
 use App\Entity\Invoice;
 use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
+use App\Form\CamtUploadType;
 use App\Helper\InvoiceHelper;
 use App\Repository\DashboardRepository;
 use App\Repository\InvoiceRepository;
@@ -14,7 +16,11 @@ use App\Repository\MemberSubscriptionRepository;
 use App\Repository\SubscriptionRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use Genkgo\Camt\Config;
+use Genkgo\Camt\Reader;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,6 +39,26 @@ class DashboardController extends AbstractDashboardController
             RequestStack::class => '?'.RequestStack::class,
             InvoiceHelper::class => '?'.InvoiceHelper::class,
             PdfService::class => '?'.PdfService::class,
+            CamtProcessor::class => '?'.CamtProcessor::class,
+        ]);
+    }
+
+    #[Route('/camt/process/{id}', name: 'camt_process')]
+    public function camtProcess(Request $request, $id): Response
+    {
+        $object = $request->getSession()->get('camt_'.$id);
+        if (null === $object) {
+            $this->addFlash('error', 'No camt file found in session');
+
+            return $this->redirectToRoute('admin_import_camt');
+        }
+
+        /** @var CamtProcessor $processor */
+        $processor = $this->container->get(CamtProcessor::class);
+        $results = $processor->parse($object);
+
+        return $this->render('camt_result.html.twig', [
+            'results' => $results,
         ]);
     }
 
@@ -150,5 +176,38 @@ class DashboardController extends AbstractDashboardController
     private function getInvoiceHelper(): InvoiceHelper
     {
         return $this->container->get(InvoiceHelper::class);
+    }
+
+    #[Route('/admin/camt/import', name: 'admin_import_camt')]
+    public function importCamt(AdminContext $context, Request $request): Response
+    {
+        $form = $this->createForm(CamtUploadType::class);
+        $form->handleRequest($request);
+        if (false === $form->isSubmitted()) {
+            return $this->render('form.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
+
+        if (null === $form->get('file')->getData() || false === $form->isValid()) {
+            $this->addFlash('error', 'No file selected');
+
+            return $this->render('form.html.twig', [
+                'form' => $form->createView(),
+            ]);
+        }
+
+        /** @var UploadedFile $file */
+        $file = $form->get('file')->getData();
+
+        $reader = new Reader(Config::getDefault());
+        $message = $reader->readFile($file->getPathname());
+
+        $id = md5_file($file->getPathname());
+        unlink($file->getPathname());
+
+        $request->getSession()->set('camt_'.$id, $message);
+
+        return $this->redirectToRoute('camt_process', ['id' => $id]);
     }
 }
