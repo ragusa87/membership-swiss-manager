@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
@@ -54,6 +55,8 @@ class MemberSubscriptionCrudController extends AbstractCrudController
             ->setStoredAsCents(true)
             ->setCurrency('CHF')
             ->onlyOnIndex();
+
+        yield BooleanField::new('active')->setDisabled(Crud::PAGE_INDEX === $pageName);
     }
 
     public function configureCrud(Crud $crud): Crud

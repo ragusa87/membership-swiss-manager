@@ -89,7 +89,9 @@ class MemberSubscriptionRepository extends ServiceEntityRepository
         }
         $qb = $this->createQueryBuilder('memberSubscription')
             ->where('memberSubscription.subscription = :subscription')
+            ->andWhere('memberSubscription.active = :active')
             ->setParameter('subscription', $subscription)
+            ->setParameter('active', true)
             ->leftJoin('memberSubscription.member', 'm')
             ->leftJoin('memberSubscription.subscription', 's')
             ->leftJoin('memberSubscription.invoices', 'i')
