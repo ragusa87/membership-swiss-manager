@@ -70,7 +70,7 @@ class DashboardController extends AbstractDashboardController
     #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
-        /** @var Request $request */
+        /** @var Request|null $request */
         $request = $this->container->get(RequestStack::class)->getCurrentRequest();
         $subscriptionName = $request?->get('routeParams') ?? [];
         $subscriptionName = $subscriptionName['subscription'] ?? null;

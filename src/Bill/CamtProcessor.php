@@ -14,13 +14,11 @@ class CamtProcessor
 {
     private string $iban;
     private InvoiceRepository $invoiceRepository;
-    private string $customerIdentificationNumber;
 
-    public function __construct(string $iban, string $customerIdentificationNumber, InvoiceRepository $invoiceRepository)
+    public function __construct(string $iban, InvoiceRepository $invoiceRepository)
     {
         $this->iban = str_replace(' ', '', $iban);
         $this->invoiceRepository = $invoiceRepository;
-        $this->customerIdentificationNumber = $customerIdentificationNumber;
     }
 
     public function parse(Message $message): CamtResultList
