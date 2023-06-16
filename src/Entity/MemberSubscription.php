@@ -37,6 +37,9 @@ class MemberSubscription
     #[ORM\JoinColumn(nullable: false)]
     private ?Member $member = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $active = true;
+
     #[ORM\OneToMany(mappedBy: 'memberSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
     private Collection $invoices;
 
@@ -182,5 +185,17 @@ class MemberSubscription
         $this->addInvoice($invoice);
 
         return $invoice;
+    }
+
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
     }
 }
