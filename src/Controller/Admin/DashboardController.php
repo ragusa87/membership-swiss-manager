@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Bill\CamtProcessor;
+use App\Bill\CamtSessionStorage;
 use App\Bill\PdfService;
 use App\Entity\Invoice;
 use App\Entity\Member;
@@ -45,9 +46,9 @@ class DashboardController extends AbstractDashboardController
     }
 
     #[Route('/camt/process/{id}', name: 'camt_process')]
-    public function camtProcess(Request $request, $id): Response
+    public function camtProcess(Request $request, string $id, CamtSessionStorage $storage): Response
     {
-        $object = $request->getSession()->get('camt_'.$id);
+        $object = $storage->get($id);
         if (null === $object) {
             $this->addFlash('error', 'No camt file found in session');
 
@@ -185,7 +186,7 @@ class DashboardController extends AbstractDashboardController
     }
 
     #[Route('/admin/camt/import', name: 'admin_import_camt')]
-    public function importCamt(AdminContext $context, Request $request): Response
+    public function importCamt(AdminContext $context, Request $request, CamtSessionStorage $storage): Response
     {
         $form = $this->createForm(CamtUploadType::class);
         $form->handleRequest($request);
@@ -212,7 +213,7 @@ class DashboardController extends AbstractDashboardController
         $id = md5_file($file->getPathname());
         unlink($file->getPathname());
 
-        $request->getSession()->set('camt_'.$id, $message);
+        $storage->set($id, $message);
 
         return $this->redirectToRoute('camt_process', ['id' => $id]);
     }
