@@ -12,13 +12,17 @@ class CamtResultItem
         public readonly Entry $entry,
         public readonly ?string $message,
         public readonly ?string $ref,
+        public readonly ?string $contact,
+        public readonly ?string $transactionId,
         protected ?Invoice $invoice = null,
     ) {
     }
 
-    public function setInvoice(Invoice $invoice = null)
+    public function setInvoice(Invoice $invoice = null): self
     {
         $this->invoice = $invoice;
+
+        return $this;
     }
 
     public function getInvoice(): ?Invoice

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Controller\Admin\DashboardController;
 use App\Controller\Admin\InvoiceCrudController;
+use App\Controller\Admin\MemberSubscriptionCrudController;
 use App\Entity\InvoiceStatusEnum;
 use App\Repository\InvoiceRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -46,6 +47,17 @@ class DefaultController extends AbstractController
         return $this->redirect($url);
     }
 
+    #[Route(path: '/member-subscription/{id}', name: 'view_membersubscription_by_id')]
+    public function viewMemberSubscriptionById(int $id, AdminUrlGenerator $generator)
+    {
+        $url = $generator->setController(MemberSubscriptionCrudController::class)
+            ->set('filters[id][comparison]', '=')
+            ->set('filters[id][value]', $id)
+            ->generateUrl();
+
+        return $this->redirect($url);
+    }
+
     #[Route(path: '/pay-invoice-id/{id}', name: 'pay_invoice_by_id')]
     public function payInvoicesById(int $id, Request $request, EntityManagerInterface $em, InvoiceRepository $invoiceRepository)
     {
@@ -60,6 +72,11 @@ class DefaultController extends AbstractController
         $status = $request->query->get('status');
         if (false === in_array($status, [null, 'paid'], true)) {
             throw $this->createAccessDeniedException('Unsupported status '.$status);
+        }
+
+        $transactionId = $request->query->get('transactionId');
+        if ('' !== trim($transactionId)) {
+            $invoice->setTransactionId($transactionId);
         }
 
         $invoice->setStatusFromEnum(InvoiceStatusEnum::PAID);

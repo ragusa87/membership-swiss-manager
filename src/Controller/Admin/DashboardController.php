@@ -6,6 +6,7 @@ use App\Bill\CamtProcessor;
 use App\Bill\CamtSessionStorage;
 use App\Bill\PdfService;
 use App\Entity\Invoice;
+use App\Entity\InvoiceStatusEnum;
 use App\Entity\Member;
 use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
@@ -58,7 +59,7 @@ class DashboardController extends AbstractDashboardController
 
         /** @var CamtProcessor $processor */
         $processor = $this->container->get(CamtProcessor::class);
-        $results = $processor->parse($object);
+        $results = $processor->parse($object)->sortByStatuses([InvoiceStatusEnum::PAID->value => 10]);
 
         return $this->render('camt_result.html.twig', [
             'results' => $results,

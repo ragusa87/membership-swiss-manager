@@ -32,6 +32,9 @@ class Invoice
     #[ORM\Column(nullable: false, options: ['default' => 0]) ]
     protected int $reminder = 0;
 
+    #[ORM\Column(nullable: true, length: 255)]
+    protected ?string $transactionId = null;
+
     public function __construct()
     {
         $this->status = InvoiceStatusEnum::CREATED->value;
@@ -108,5 +111,17 @@ class Invoice
     public function setReminder(int $reminder): void
     {
         $this->reminder = $reminder;
+    }
+
+    public function getTransactionId(): ?string
+    {
+        return $this->transactionId;
+    }
+
+    public function setTransactionId(?string $transactionId): self
+    {
+        $this->transactionId = $transactionId;
+
+        return $this;
     }
 }

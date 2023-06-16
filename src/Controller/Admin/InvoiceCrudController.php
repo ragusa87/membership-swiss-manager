@@ -74,6 +74,7 @@ class InvoiceCrudController extends AbstractCrudController
         yield DateField::new('created_at')->onlyOnIndex();
         yield DateField::new('updated_at')->onlyOnIndex();
         yield IntegerField::new('reminder')->hideWhenCreating();
+        yield TextField::new('transactionId')->hideWhenCreating();
     }
 
     public function configureActions(Actions $actions): Actions
