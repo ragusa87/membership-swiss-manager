@@ -56,3 +56,7 @@ services:
         bind:
             $iban: "%pdf.iban%"
             $customerIdentificationNumber: "%pdf.customerIdentificationNumber%"
+    
+    App\Twig\TwigEnvironmentInjector:
+        arguments:
+            - "%env(DATABASE_URL)%"
