@@ -9,7 +9,6 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class InvoiceHelper implements LoggerAwareInterface
@@ -35,7 +34,7 @@ class InvoiceHelper implements LoggerAwareInterface
         $createdInvoices = [];
 
         foreach ($memberSubscriptions as $memberSubscription) {
-            if (0 == $memberSubscription->getDueAmount()) {
+            if (0 == $memberSubscription->getDueAmount() || false === $memberSubscription->isActive()) {
                 continue;
             }
 
@@ -49,43 +48,70 @@ class InvoiceHelper implements LoggerAwareInterface
             }
 
             foreach ($memberSubscription->getInvoices() as $invoice) {
-                if (InvoiceStatusEnum::PAID === $invoice->getStatusAsEnum()) {
-                    continue;
-                }
-
-                if (InvoiceStatusEnum::PENDING === $invoice->getStatusAsEnum()) {
-                    continue;
-                }
-
-                if ($invoice->getCreatedAt() < new \DateTime('30 days ago 00:00:00')) {
-                    // Create a reminder
-                    $this->logger()->info('Generating reminder', [
-                        'subscription' => $memberSubscription->getId(),
-                        'invoice_id' => $invoice->getId(),
-                        'invoice_created' => $invoice->getCreatedAt(),
-                        'invoice_status' => $invoice->getStatus(),
-                        'invoice_reminder' => $invoice->getReminder(),
-                        'reminder' => $invoice->getReminder() + 1,
-                    ]);
-
-                    $reminder = $memberSubscription->generateNewInvoice();
-                    $reminder->setReminder($invoice->getReminder() + 1);
-                    // The "old" invoice is not to be paid anymore
-                    $invoice->setStatusFromEnum(InvoiceStatusEnum::PENDING);
-                    $this->getManagerInvoices()->persist($reminder);
-                    $this->getManagerInvoices()->persist($invoice);
-                    $createdInvoices[] = $reminder;
-                }
+                $createdInvoices[] = $this->generateReminder($invoice);
             }
         }
         $this->getManagerInvoices()->flush();
+        $createdInvoices = array_filter($createdInvoices);
 
         return $createdInvoices;
     }
 
-    private function logger(): LoggerInterface
+    public function generateReminder(Invoice $invoice)
     {
-        return $this->logger ?? new NullLogger();
+        if (null === $invoice->getMemberSubscription()) {
+            $this->logger()->warn('Missing member subscription for invoice', ['invoice_id' => $invoice->getId()]);
+
+            return null;
+        }
+
+        if (InvoiceStatusEnum::PENDING !== $invoice->getStatusAsEnum()) {
+            $this->logger()->debug('Only pending invoice can have reminders', [
+                'invoice_id' => $invoice->getId(),
+                'invoice_status' => $invoice->getStatus(),
+                'invoice_updated' => $invoice->getUpdatedAt(),
+            ]);
+
+            return null;
+        }
+
+        if ($invoice->getUpdatedAt() >= new \DateTime('30 days ago')) {
+            $this->logger()->debug('Skipping reminder generation for invoice, as last reminder was done recently', [
+                'invoice_id' => $invoice->getId(),
+                'invoice_updated' => $invoice->getUpdatedAt(),
+                'invoice_status' => $invoice->getStatus(),
+                'invoice_reminder' => $invoice->getReminder(),
+            ]);
+
+            return null;
+        }
+
+        $this->logger()->info('Generating reminder', [
+            'member_subscription' => $invoice->getMemberSubscription()->getId(),
+            'invoice_id' => $invoice->getId(),
+            'invoice_created' => $invoice->getCreatedAt(),
+            'invoice_status' => $invoice->getStatus(),
+            'invoice_reminder' => $invoice->getReminder(),
+            'reminder' => $invoice->getReminder() + 1,
+        ]);
+
+        $reminder = $invoice->getMemberSubscription()->generateNewInvoice();
+        $reminder->setReminder($invoice->getReminder() + 1);
+        // The "old" invoice is not to be paid anymore
+        $invoice->setStatusFromEnum(InvoiceStatusEnum::CANCELED);
+
+        $this->getManagerInvoices()->persist($reminder);
+        $this->getManagerInvoices()->persist($invoice);
+
+        return $reminder;
+    }
+
+    public function logger(): BufferedLogger
+    {
+        static $logger = new BufferedLogger();
+        $logger->setLogger($this->logger ??= new NullLogger());
+
+        return $logger;
     }
 
     /**

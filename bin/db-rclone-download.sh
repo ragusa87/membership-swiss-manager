@@ -13,3 +13,5 @@ if [ -f $FILENAME ] && [ $FORCE -eq 0 ]; then
 fi
 
 rclone -v copy membershipmanager:${BUCKET_NAME}/${FILENAME} $(dirname ${FILENAME})
+
+echo ${FILENAME};

@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Genkgo\Camt\Config;
 use Genkgo\Camt\Reader;
+use Psr\Log\LogLevel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -86,6 +87,20 @@ class DashboardController extends AbstractDashboardController
             'memberSubscriptions' => $memberSubscriptions,
             'countMembers' => $subscription ? $this->getDashboardRepo()->countMembers($subscription) : 0,
         ]);
+    }
+
+    #[Route('/admin/mark-invoice-as-pending/{subscriptionName}', name: 'mark_invoice_as_pending')]
+    public function markInvoicesAsPending(string $subscriptionName = null): Response
+    {
+        $subscription = $this->getSubscriptionRepo()->getCurrentSubscription($subscriptionName);
+        if (null === $subscriptionName && null !== $subscription) {
+            return $this->redirectToDashboardSubscription($subscription->getName());
+        }
+
+        $nb = $this->getInvoiceRepo()->markCreatedInvoicesAsPending($subscription);
+        $this->addFlash('success', $nb);
+
+        return $this->redirectToDashboardSubscription($subscription->getName());
     }
 
     public function configureDashboard(): Dashboard
@@ -161,7 +176,14 @@ class DashboardController extends AbstractDashboardController
         $invoices = $this->getInvoiceHelper()->generate($memberSubscriptions);
 
         $message = new TranslatableMessage('%d created invoices', ['%d' => count($invoices)]);
+
         $this->addFlash('success', $message);
+        foreach ($this->getInvoiceHelper()->logger()->getLogs() as $log) {
+//            if($log['level'] <= LogLevel::DEBUG) {
+//                continue;
+//            }
+            $this->addFlash($log['level'], $log['message'].' '.json_encode($log['context']));
+        }
 
         return $this->redirectToDashboardSubscription($subscriptionName);
     }

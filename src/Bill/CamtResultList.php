@@ -26,7 +26,7 @@ class CamtResultList
     public function sortByStatuses(array $statusMap = []): self
     {
         uasort($this->results, function (CamtResultItem $a, CamtResultItem $b) use ($statusMap) {
-            return $statusMap[$a->getInvoice()->getStatus() ?? null] ?? 0 <=> $statusMap[$b->getInvoice()->getStatus() ?? null] ?? 0;
+            return ($statusMap[$a->getInvoice()->getStatus() ?? null] ?? 0) <=> ($statusMap[$b->getInvoice()->getStatus() ?? null] ?? 0);
         });
 
         return $this;
