@@ -42,6 +42,7 @@ class DashboardController extends AbstractDashboardController
             InvoiceHelper::class => '?'.InvoiceHelper::class,
             PdfService::class => '?'.PdfService::class,
             CamtProcessor::class => '?'.CamtProcessor::class,
+            CamtSessionStorage::class => '?'.CamtSessionStorage::class,
         ]);
     }
 
@@ -107,6 +108,11 @@ class DashboardController extends AbstractDashboardController
         return $this->container->get(DashboardRepository::class);
     }
 
+    protected function getCamtStorage(): CamtSessionStorage
+    {
+        return $this->container->get(CamtSessionStorage::class);
+    }
+
     public function configureMenuItems(): iterable
     {
         $countMembers = $this->getDashboardRepo()->countMembers();
@@ -121,7 +127,15 @@ class DashboardController extends AbstractDashboardController
         }
         $dashboardLink->setSubItems($subMenu);
 
+        $dashboardCamtLink = MenuItem::subMenu('Camt', 'fa fa-receipt');
+        $subMenuCamt = [MenuItem::linkToRoute('import_campt', 'fa fa-upload', 'admin_import_camt')];
+        foreach ($this->getCamtStorage()->getIds() as $camtIds) {
+            $subMenuCamt[] = MenuItem::linkToRoute($camtIds, 'fa fa-receipt', 'camt_process', ['id' => $camtIds]);
+        }
+        $dashboardCamtLink->setSubItems($subMenuCamt);
+
         yield !empty($subMenu) ? $dashboardLink : MenuItem::linkToDashboard('Overview', 'fa fa-home');
+        yield $dashboardCamtLink;
         yield MenuItem::linkToCrud('Subscription', 'fas fa-list', Subscription::class);
         yield MenuItem::linkToCrud('Members', 'fas fa-list', Member::class)->setBadge($countMembers);
         yield MenuItem::linkToCrud('SubscriptionMember', 'fas fa-list', MemberSubscription::class);
