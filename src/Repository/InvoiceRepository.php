@@ -71,4 +71,17 @@ class InvoiceRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findByTransactionIds(array $transactionIds)
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb->where($qb->expr()->in('i.transactionId', ':transactionIds'));
+        $qb->setParameter('transactionIds', $transactionIds);
+        $qb->join('i.memberSubscription', 'ms');
+        $qb->join('ms.member', 'm');
+        $qb->select('i, ms, m');
+        $qb->indexBy('i', 'i.transactionId');
+
+        return $qb->getQuery()->getResult();
+    }
 }

@@ -16,7 +16,7 @@ unknown_transactions_num: >-
     {num, plural,
             =0    {Transaction inconnue}
             =1    {Transaction inconnue}
-            other {Transactions inconnues #}
+            other {Transactions inconnues (#)}
     }
 
 statuses:
@@ -26,3 +26,4 @@ statuses:
 'With: ': 'Avec: '
 "bill_amount_overpaid": "Montant payé en trop"
 "bill_amount_underpaid": "Montant manquant"
+bill_reference_missmatch: 'Invoice transaction missmatch {transactionId}'

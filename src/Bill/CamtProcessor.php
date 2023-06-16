@@ -3,6 +3,7 @@
 namespace App\Bill;
 
 use App\Repository\InvoiceRepository;
+use Genkgo\Camt\DTO\Entry;
 use Genkgo\Camt\DTO\Message;
 use Genkgo\Camt\DTO\RemittanceInformation;
 use kmukku\phpIso11649\phpIso11649;
@@ -29,7 +30,7 @@ class CamtProcessor
         foreach ($message->getRecords() as $messageNum => $record) {
             $id = $record->getAccount()->getIdentification();
             if ($id !== $this->iban) {
-                $errors->add(new ConstraintViolation('IBAN mismatch', null, [], null, 'account', $id, null, null, null, $record));
+                $errors->add(new ConstraintViolation('IBAN mismatch', null, ['iban' => $id], null, 'account', $id, null, null, null, $record));
                 continue;
             }
             foreach ($record->getEntries() as $entryNum => $entry) {
@@ -37,11 +38,11 @@ class CamtProcessor
 
                 $amount = $entry->getAmount()->getAmount();
                 if ($amount < 0) {
-                    $errors->add(new ConstraintViolation('Negative amount', null, [], null, $path.'amount', $amount, null, null, null, $entry));
+                    // $errors->add(new ConstraintViolation('Negative amount', null, ['amount' => $amount], null, $path.'amount', $amount, null, null, null, $entry));
                     continue;
                 }
                 if ('CHF' !== $entry->getAmount()->getCurrency()->getCode()) {
-                    $errors->add(new ConstraintViolation('Currency should be CHF', null, [], null, $path.'amount', $amount, null, null, null, $entry));
+                    $errors->add(new ConstraintViolation('Currency should be CHF', null, ['currency' => $entry->getAmount()->getCurrency()->getCode()], null, $path.'amount', $amount, null, null, null, $entry));
                     continue;
                 }
 
@@ -58,15 +59,13 @@ class CamtProcessor
                     continue;
                 }
 
-                $results[] = new CamtResultItem(
-                    $amount,
-                    $entry,
-                    $infos->getStructuredBlock()?->getAdditionalRemittanceInformation(),
-                    $infos->getStructuredBlock()?->getCreditorReferenceInformation()?->getRef(),
-                );
+                $results[] = $this->createResultItemFromEntry($entry);
             }
         }
-        $result = new CamtResultList($errors, $results);
+
+        $recoveredResults = $this->convertErrorToTransactionBasedOnInvoiceTransactionId($errors, $results);
+
+        $result = new CamtResultList($errors, array_merge($results, $recoveredResults));
         $this->fillInvoices($result);
 
         return $result;
@@ -96,5 +95,72 @@ class CamtProcessor
                 unset($map[$result->ref]);
             }
         }
+    }
+
+    private function getContact(Entry $entry): ?string
+    {
+        return ($entry->getTransactionDetail()?->getRelatedParties()[1])?->getRelatedPartyType()?->getName() ?? null;
+    }
+
+    private function getTransactionId(Entry $entry): ?string
+    {
+        return $entry->getTransactionDetail()?->getReference()?->getTransactionId() ?? null;
+    }
+
+    private function convertErrorToTransactionBasedOnInvoiceTransactionId(ConstraintViolationList $errors, array $results): array
+    {
+        $transactionIds = [];
+        $result = [];
+        foreach ($errors as $error) {
+            if (false === $error->getCause() instanceof Entry) {
+                continue;
+            }
+            $transactionIds[] = $this->getTransactionId($error->getCause());
+        }
+        // Remove null transaction ids
+        $transactionIds = array_filter($transactionIds);
+
+        $invoices = $this->invoiceRepository->findByTransactionIds($transactionIds);
+
+        foreach ($errors as $key => $error) {
+            if (false === $error->getCause() instanceof Entry) {
+                continue;
+            }
+            $transactionId = $this->getTransactionId($error->getCause());
+            if (null === $transactionId || false === array_key_exists($transactionId, $invoices)) {
+                continue;
+            }
+
+            // The error is now handled
+            $errors->remove($key);
+
+            $result[] = $this->createResultItemFromEntry($error->getCause())->setInvoice($invoices[$transactionId]);
+        }
+
+        return $result;
+    }
+
+    private function createResultItemFromEntry(Entry $entry): CamtResultItem
+    {
+        /** @var RemittanceInformation|null $infos */
+        $infos = $entry->getTransactionDetail()?->getRemittanceInformation();
+
+        $message = $infos?->getStructuredBlock()?->getAdditionalRemittanceInformation();
+        if (null === $message) {
+            $message = $infos?->getUnstructuredBlock()?->getMessage();
+        }
+        if (null === $message) {
+            $message = $entry->getAdditionalInfo();
+        }
+        $ref = $infos?->getStructuredBlock()?->getCreditorReferenceInformation()?->getRef();
+
+        return new CamtResultItem(
+            $entry->getAmount()->getAmount(),
+            $entry,
+            $message,
+            $ref,
+            $this->getContact($entry),
+            $this->getTransactionId($entry),
+        );
     }
 }

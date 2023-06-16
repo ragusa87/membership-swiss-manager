@@ -8,7 +8,7 @@ class CamtResultList
 {
     public function __construct(
         private readonly ConstraintViolationList $errors,
-        private readonly array $results
+        private array $results
     ) {
     }
 
@@ -21,5 +21,14 @@ class CamtResultList
     public function getResults(): array
     {
         return $this->results;
+    }
+
+    public function sortByStatuses(array $statusMap = []): self
+    {
+        uasort($this->results, function (CamtResultItem $a, CamtResultItem $b) use ($statusMap) {
+            return $statusMap[$a->getInvoice()->getStatus() ?? null] ?? 0 <=> $statusMap[$b->getInvoice()->getStatus() ?? null] ?? 0;
+        });
+
+        return $this;
     }
 }
