@@ -71,7 +71,7 @@ class PdfService implements LoggerAwareInterface
                 $this->iban // This is a special QR-IBAN. Classic IBANs will not be valid here.
             ));
 
-        $member = $invoice->getMemberSubscription()?->getMember();
+        $member = $invoice->getMemberSubscription()->getMember();
 
         // Who has to pay the invoice?
         try {
@@ -141,7 +141,7 @@ class PdfService implements LoggerAwareInterface
             $member->getFullname(),
             $member->getFullAddressLine1(),
             $member->getFullAddressLine2(),
-            $member->getCountry() ?? 'CH',
+            $member->getCountry(),
         );
     }
 

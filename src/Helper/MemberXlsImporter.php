@@ -224,7 +224,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             /** @var Member $user */
             $user = $parentsByHash[$hash];
             // Find the parent by fullName and assign it to the corresponding user.
-            /** @var Member $parent */
+            /** @var Member|null $parent */
             $parent = $this->searchImportedUserByName($parentName, $users);
             $parentName = $parent?->getFullName();
             $userName = $user->getFullname();

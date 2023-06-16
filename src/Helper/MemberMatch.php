@@ -63,7 +63,7 @@ class MemberMatch
             default => '<fg=default>',
         };
 
-        return $tag ? new TableCellStyle(['cellFormat' => $tag.'%s</>']) : new TableCellStyle();
+        return new TableCellStyle(['cellFormat' => $tag.'%s</>']);
     }
 
     public function __toString(): string

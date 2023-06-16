@@ -55,7 +55,6 @@ services:
     App\Bill\CamtProcessor:
         bind:
             $iban: "%pdf.iban%"
-            $customerIdentificationNumber: "%pdf.customerIdentificationNumber%"
     
     App\Twig\TwigEnvironmentInjector:
         arguments:
