@@ -1,0 +1,3 @@
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block body_attr %}{{- parent() -}} data-environment="{{- getEnvironment() -}}"{% endblock %}

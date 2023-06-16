@@ -14,6 +14,7 @@ use App\Repository\DashboardRepository;
 use App\Repository\InvoiceRepository;
 use App\Repository\MemberSubscriptionRepository;
 use App\Repository\SubscriptionRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
@@ -88,6 +89,11 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('App');
+    }
+
+    public function configureAssets(): Assets
+    {
+        return Assets::new()->addCssFile('css/environment.css');
     }
 
     protected function getInvoiceRepo(): InvoiceRepository
