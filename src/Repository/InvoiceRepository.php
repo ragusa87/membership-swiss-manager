@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Invoice;
 use App\Entity\InvoiceStatusEnum;
+use App\Entity\Subscription;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -83,5 +84,29 @@ class InvoiceRepository extends ServiceEntityRepository
         $qb->indexBy('i', 'i.transactionId');
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function markCreatedInvoicesAsPending(Subscription $subscription): int
+    {
+        $qb = $this->createQueryBuilder('i');
+        $qb = $qb->update();
+
+        $qb->set('i.status', ':newStatus');
+        $qb->set('i.updatedAt', ':updatedAT');
+        $qb->setParameter('newStatus', InvoiceStatusEnum::PENDING->value);
+        $qb->setParameter('updatedAT', new \DateTime());
+
+        $subQuery = $this->createQueryBuilder('j');
+        $subQuery->select('j.id');
+        $subQuery->join('j.memberSubscription', 'ms');
+        $subQuery->join('ms.subscription', 'sub');
+        $subQuery->where('sub = :subscriptionParam');
+        $subQuery->andWhere($qb->expr()->eq('j.status', ':oldStatus'));
+
+        $qb->setParameter('subscriptionParam', $subscription);
+        $qb->where($qb->expr()->in('i.id', $subQuery->getQuery()->getDQL()));
+        $qb->setParameter('oldStatus', InvoiceStatusEnum::CREATED->value);
+
+        return $qb->getQuery()->execute();
     }
 }

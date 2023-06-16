@@ -9,7 +9,7 @@
 {% endmacro %}
 
 {% block content_title %}
-    {{ 'dashboard.subscription.title'|trans({'%name%': subscription.name|default('none')}) }}
+    {{ 'dashboard.subscription.title'|trans({'name': subscription.name|default('none')}) }}
 {% endblock content_title %}
     {% block head_stylesheets %}
         {{ parent() }}
@@ -50,7 +50,7 @@
                     <tr>
                         <td>
                             <div title="{{ ms.member.getFullAddressLine1 ~ ' ' ~ ms.member.getFullAddressLine2 }}">
-                                {{ ms.member.firstname }} {{- " " ~ ms.member.lastname | upper -}}
+                                <a href="{{ path('view_membersubscription_by_id', {id: ms.id}) }}">{{ ms.member.firstname }} {{- " " ~ ms.member.lastname | upper -}}</a>
                                 {{ "&nbsp"|raw }}{{ "(" }}{{ ('subscription_type_enum.' ~ ms.type) | trans }}{{ ")" }}
 
                                 {% if ms.member.phone %}
@@ -60,6 +60,7 @@
                                     {{ _self.display_email(ms.member.email) }}
                                 {% endif %}
 
+                                {{ (ms.price/100) | format_currency('CHF') }}
                             </div>
 
 
@@ -78,10 +79,14 @@
                                 {% endfor %}
                             </ul>
                             {% endif %}
+
+                            {% if ms.comment %}
+                            <span class="comment">{{ ms.comment }}</span>
+                            {% endif %}
                         </td>
                         <td>
                             <a class="{{ ms.getDueAmount > 0 ? 'text-danger' : 'text-success' }}" href="{{ path("view_invoice_by_subscription_id", {id: ms.id}) }}">
-                                 {{ (ms.getDueAmount/100)|format_currency('CHF') }} <span class="no-print">💵</span>
+                                 {{ ((ms.getDueAmount/100)*-1)|format_currency('CHF') }} <span class="no-print">💵</span>
                             </a>
 
                             {% if ms.invoices|length > 0 %}
@@ -92,11 +97,12 @@
                                             <span class="createdAt">{{  invoice.createdAt|format_date('short') }}</span>
                                             <span class="status">{{  invoice.status }}</span>
                                             <span class="reference">Ref {{ invoice.reference }}</span>
-
+                                            <span class="price">Ref {{ (invoice.price /100) | format_currency('CHF') }}</span>
+                                            <span class="reminder">Reminder {{ invoice.reminder}}</span>
                                         </a>
                                     </li>
-                                    </ul>
                                 {% endfor %}
+                                </ul>
                                 <!-- todo btn to create invoice -->
                             {% endif %}
 
@@ -107,13 +113,14 @@
         </table>
 
         <div class="no-print">
-            {{ 'dashboard.number_member_count' | trans({'%count%': countMembers}) }}
+            {{ 'dashboard.number_member_count' | trans({'count': countMembers}) }}
         </div>
         {% if memberSubscriptions|length > 0 %}
         <div class="no-print btn-group mr-2">
             <a class="btn btn-secondary" href="{{ path('admin_generate_invoices', {'subscriptionName': subscription.name ?? ''}) }}">{{ "Generate invoices"|trans }}</a>
             <a class="btn btn-secondary" href="{{ path('admin_print_invoices', {'subscriptionName': subscription.name ?? ''}) }}">{{ "Print invoices"|trans }}</a>
             <a class="btn btn-secondary" href="{{ path('admin_import_camt') }}">{{ "Import Camt"|trans }}</a>
+            <a class="btn btn-secondary" href="{{ path('mark_invoice_as_pending',{'subscriptionName': subscription.name ?? ''}) }}">{{ "Mark open invoices as pending"|trans }}</a>
         </div>
         {% endif %}
     </div>

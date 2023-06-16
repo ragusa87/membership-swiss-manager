@@ -1,14 +1,14 @@
 pdf:
-    message: 'Price: {{ priceMember }} CHF per area, {{ priceSupporter }} CHF for supporting members'
-    invoice.ref: 'Invoice number: {{ ref }}' 
-    invoice.name: 'Subscription {{ type }} {{ name }}'
+    message: 'Price: {priceMember} CHF per area, {priceSupporter} CHF for supporting members'
+    invoice.ref: 'Invoice number: {ref}' 
+    invoice.name: 'Subscription {type} {name}'
 subscription_type_enum:
     member: member
     supporter: supporter
 dashboard:
-    number_member_count: 'Number of members: %count%'
+    number_member_count: 'Number of members: {count}'
     subscription:
-        title: 'Subscription %name%'
+        title: 'Subscription {name}'
         header:
             member: 'membres'
             invoices: 'To pay'
@@ -23,6 +23,7 @@ statuses:
     paid: 'payé'
     pending: 'en attente de paiement'
     created: 'créé'
+    canceled: 'annulée'
 'With: ': 'Avec: '
 "bill_amount_overpaid": "Montant payé en trop"
 "bill_amount_underpaid": "Montant manquant"

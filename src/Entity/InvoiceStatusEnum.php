@@ -8,6 +8,8 @@ enum InvoiceStatusEnum: string
     case PENDING = 'pending';
     case CREATED = 'created';
 
+    case CANCELED = 'canceled';
+
     public static function choices(): array
     {
         $choicesValues = array_map(function (self $enum) {

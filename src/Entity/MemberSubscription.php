@@ -43,6 +43,9 @@ class MemberSubscription
     #[ORM\OneToMany(mappedBy: 'memberSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
     private Collection $invoices;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $comment = null;
+
     public function __construct()
     {
         $this->type = SubscriptionTypeEnum::MEMBER->value;
@@ -180,7 +183,10 @@ class MemberSubscription
     {
         $invoice = new Invoice();
         $invoice->setMemberSubscription($this);
-        $invoice->setPrice(self::getPriceByType($this->getTypeEnum()));
+
+        $fixedPrice = self::getPriceByType($this->getTypeEnum());
+        $invoice->setPrice($this->getDueAmount() > 0 ? $this->getDueAmount() : $fixedPrice);
+
         $invoice->setStatusFromEnum(InvoiceStatusEnum::CREATED);
         $this->addInvoice($invoice);
 
@@ -197,5 +203,15 @@ class MemberSubscription
     public function isActive(): bool
     {
         return $this->active;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): void
+    {
+        $this->comment = $comment;
     }
 }

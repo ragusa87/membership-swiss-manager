@@ -150,8 +150,8 @@ class PdfService implements LoggerAwareInterface
         $subscription = $invoice->getMemberSubscription()->getSubscription();
 
         return $this->translator->trans('pdf.invoice.name', [
-            '{{ name }}' => $subscription->getName(),
-            '{{ type }}' => $this->translator->trans('subscription_type_enum.'.$invoice->getMemberSubscription()->getTypeEnum()->value),
+            'name' => $subscription->getName(),
+            'type' => $this->translator->trans('subscription_type_enum.'.$invoice->getMemberSubscription()->getTypeEnum()->value),
         ]);
     }
 
@@ -187,14 +187,14 @@ class PdfService implements LoggerAwareInterface
         }
 
         $fpdf->Ln(15);
-        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('pdf.invoice.ref', ['{{ ref }}' => $invoice->getReference()])));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('pdf.invoice.ref', ['ref' => $invoice->getReference()])));
         $fpdf->Ln(5);
 
         $priceMember = MemberSubscription::getPriceByType(SubscriptionTypeEnum::MEMBER);
         $priceSupporter = MemberSubscription::getPriceByType(SubscriptionTypeEnum::SUPPORTER);
         $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('pdf.message', [
-            '{{ priceMember }}' => $priceMember / 100,
-            '{{ priceSupporter }}' => $priceSupporter / 100,
+            'priceMember' => $priceMember / 100,
+            'priceSupporter' => $priceSupporter / 100,
         ])));
     }
 

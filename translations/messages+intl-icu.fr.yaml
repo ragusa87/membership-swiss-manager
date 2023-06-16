@@ -1,14 +1,14 @@
 pdf:
-    message: 'Cotisation: {{ priceMember }} CHF par carré, {{ priceSupporter }} CHF Membres sympatisants'
-    invoice.ref: 'Facture Numéro: {{ ref }}' 
-    invoice.name: 'Cotisation {{ type }} {{ name }}'
+    message: 'Cotisation: {priceMember} CHF par carré, {priceSupporter} CHF Membres sympatisants'
+    invoice.ref: 'Facture Numéro: {ref}' 
+    invoice.name: 'Cotisation {type} {name}'
 subscription_type_enum:
     member: membre
     supporter: sympatisant
 dashboard:
-    number_member_count: 'Nombre de membres: %count%'
+    number_member_count: 'Nombre de membres: {count}'
     subscription:
-        title: 'Inscriptions %name%'
+        title: 'Inscriptions {name}'
         header:
             member: 'membres'
             invoices: 'A payer'
@@ -49,6 +49,7 @@ statuses:
     paid: 'payé'
     pending: 'en attente de paiement'
     created: 'créé'
+    canceled: 'annulée'
 'With: ': 'Avec: '
 "bill_amount_overpaid": "Montant payé en trop"
 "bill_amount_underpaid": "Montant manquant"

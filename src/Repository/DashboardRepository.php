@@ -40,7 +40,7 @@ class DashboardRepository
             ->groupBy('m.id')
         ->addSelect('count(children.id) as nb_children')
             ->leftJoin('m.children', 'children')
-            ->join('m.memberSubscription', 'ms')
+            ->join('m.memberSubscription', 'ms', 'WITH', 'ms.active = 1')
             ->join('ms.subscription', 'sub')
             ->where('sub = '.(int) $subscription->getId()); // we avoid using a parameter to simplify the query
 
