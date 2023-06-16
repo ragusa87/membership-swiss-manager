@@ -23,6 +23,9 @@ class Subscription
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'subscription', targetEntity: MemberSubscription::class, orphanRemoval: true)]
+    /**
+     * @var Collection<int, MemberSubscription>
+     */
     private Collection $subscription;
 
     public function __construct()

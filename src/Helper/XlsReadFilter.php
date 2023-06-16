@@ -10,8 +10,14 @@ class XlsReadFilter implements IReadFilter
 
     private ?int $endRow = null;
 
+    /**
+     * @var array<string>
+     */
     private array $columns = [];
 
+    /**
+     * @param array<string> $columns
+     */
     public function __construct(int $startRow, ?int $endRow, array $columns)
     {
         $this->startRow = $startRow;
@@ -22,7 +28,7 @@ class XlsReadFilter implements IReadFilter
     public function readCell($columnAddress, $row, $worksheetName = ''): bool
     {
         if ($row >= $this->startRow && ($row <= $this->endRow || null === $this->endRow)) {
-            if (in_array($columnAddress, $this->columns)) {
+            if (in_array($columnAddress, $this->columns, true)) {
                 return true;
             }
         }

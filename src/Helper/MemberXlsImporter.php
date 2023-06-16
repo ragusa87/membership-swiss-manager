@@ -47,6 +47,9 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     {
     }
 
+    /**
+     * @var array|string[]
+     */
     private array $expectedHeaders = self::HEADERS_DIRTY;
 
     /**
@@ -65,7 +68,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
 
         if (!empty($this->expectedHeaders)) {
             if ($diff = array_diff(array_values($this->expectedHeaders), array_values($data[0]))) {
-                throw new \InvalidArgumentException(sprintf('Incompatible xlsx headers. Got %s, expect %s. Diff %s', json_encode($data[0], true), json_encode($this->expectedHeaders, true), json_encode($diff, true)));
+                throw new \InvalidArgumentException(sprintf('Incompatible xlsx headers. Got %s, expect %s. Diff %s', json_encode($data[0]), json_encode($this->expectedHeaders), json_encode($diff)));
             }
         }
 
@@ -89,6 +92,9 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         return new ParseResult($users, $extras);
     }
 
+    /**
+     * @return array<string[]>
+     */
     protected function read(string $filename): array
     {
         if (!file_exists($filename) || !is_readable($filename)) {
@@ -110,6 +116,9 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         return $data;
     }
 
+    /**
+     * @param array|string[] $expectedHeaders
+     */
     public function setExpectedHeaders(array $expectedHeaders): self
     {
         $this->expectedHeaders = $expectedHeaders;
@@ -117,6 +126,12 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         return $this;
     }
 
+    /**
+     * @param array<string>   $row
+     * @param array<string[]> $extra
+     *
+     * @return array<Member>
+     */
     private function convertToMembers(array $row, array &$extra): array
     {
         $this->logger?->debug('row: '.print_r($row, true));
@@ -183,6 +198,8 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     /**
      * Guess the name
      * Return array with firstname, lastname.
+     *
+     * @return array<string>
      */
     private static function splitName(string $name): array
     {
@@ -193,6 +210,9 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         return 1 == count($exploded) ? [$firstname, null] : [$firstname, implode(' ', $temp)];
     }
 
+    /**
+     * @param array<?string> $line
+     */
     private static function trimArray(array &$line): void
     {
         $line = array_map(fn ($s) => null === $s ? null : trim($s), $line);
@@ -206,6 +226,10 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         $this->logger = $logger;
     }
 
+    /**
+     * @param array<Member> $users
+     * @param array<Member> $parents
+     */
     private function fixParents(array $users, array $parents): void
     {
         // Hash all the imported user in array index
@@ -234,13 +258,15 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         }
     }
 
+    /**
+     * @param array<Member> $importedUsers
+     */
     private function searchImportedUserByName(?string $parentName, array $importedUsers): ?Member
     {
         if (null === $parentName) {
             return null;
         }
 
-        /** @var Member $user */
         foreach ($importedUsers as $user) {
             // Match by firstname lastname
             if ($user->getFullname() === $parentName) {

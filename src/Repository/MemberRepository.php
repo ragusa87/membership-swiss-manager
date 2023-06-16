@@ -40,6 +40,8 @@ class MemberRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param array<int> $ids
+     *
      * @return Member[] Returns an array of Member objects
      */
     public function findByIdWithSubscription(array $ids): array

@@ -63,7 +63,7 @@ class SubscriptionRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-    public function getCurrentSubscription(?string $name)
+    public function getCurrentSubscription(?string $name): ?Subscription
     {
         $name = $name ?? date('Y');
 

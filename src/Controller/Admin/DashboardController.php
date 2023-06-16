@@ -169,7 +169,7 @@ class DashboardController extends AbstractDashboardController
     }
 
     #[Route('/admin/generate/{subscriptionName}', name: 'admin_generate_invoices')]
-    public function generateInvoices(string $subscriptionName = null)
+    public function generateInvoices(string $subscriptionName = null): Response
     {
         $subscription = $this->getSubscriptionRepo()->getCurrentSubscription($subscriptionName);
         $memberSubscriptions = $this->getMemberSubscriptionRepository()->getActiveSubscriptions($subscription);

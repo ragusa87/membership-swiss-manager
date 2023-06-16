@@ -12,11 +12,17 @@ class MemberMatcher
     {
     }
 
+    /**
+     * @return \Doctrine\Persistence\ObjectRepository<Member>
+     */
     protected function getRepo(): \Doctrine\Persistence\ObjectRepository
     {
         return $this->managerRegistry->getManager()->getRepository(Member::class);
     }
 
+    /**
+     * @param array<mixed> $criteria
+     */
     protected function matches(Member $source, array $criteria, int $score, ?string $hint): ?MemberMatch
     {
         $match = $this->getRepo()->findOneBy(
@@ -26,6 +32,9 @@ class MemberMatcher
         return $match ? (new MemberMatch($source, $match, $score))->setHint($hint) : null;
     }
 
+    /**
+     * @param array<mixed> $criteria
+     */
     protected function findByFullName(Member $user, array $criteria = []): ?MemberMatch
     {
         if (empty($user->getFirstname()) && empty($user->getLastname())) {
@@ -38,6 +47,9 @@ class MemberMatcher
             ] + $criteria, MemberMatch::SCORE_MEDIUM, 'fullname');
     }
 
+    /**
+     * @param array<mixed> $criteria
+     */
     protected function findByPhoneAndFirstName(Member $user, array $criteria = []): ?MemberMatch
     {
         if (empty($user->getPhone()) || empty($user->getFirstname())) {
@@ -50,6 +62,9 @@ class MemberMatcher
             ] + $criteria, MemberMatch::SCORE_HIGH, 'phone+firstname');
     }
 
+    /**
+     * @param array<mixed> $criteria
+     */
     protected function findByEmailAndFirstName(Member $user, array $criteria = []): ?MemberMatch
     {
         if (empty($user->getEmail())) {
@@ -62,6 +77,9 @@ class MemberMatcher
             ] + $criteria, MemberMatch::SCORE_HIGH, 'email+firstname');
     }
 
+    /**
+     * @param array<mixed> $criteria
+     */
     protected function findByEmail(Member $user, array $criteria = []): ?MemberMatch
     {
         if (empty($user->getEmail())) {
@@ -104,7 +122,10 @@ class MemberMatcher
             MemberMatch::zero($user);
     }
 
-    private function findByFullNameAndAddress(Member $user, array $criteria = [])
+    /**
+     * @param array<mixed> $criteria
+     */
+    private function findByFullNameAndAddress(Member $user, array $criteria = []): ?MemberMatch
     {
         if (
             empty($user->getFirstname()) ||
@@ -125,7 +146,10 @@ class MemberMatcher
             ] + $criteria, MemberMatch::SCORE_HIGH, 'fullname+address');
     }
 
-    private function findByPhone(Member $user, array $criteria)
+    /**
+     * @param array<mixed> $criteria
+     */
+    private function findByPhone(Member $user, array $criteria): ?MemberMatch
     {
         if (empty($user->getPhone())) {
             return null;

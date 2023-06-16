@@ -64,8 +64,15 @@ class ImportXlsxCommand extends Command
         }
 
         $mergedUsers = new \WeakMap();
+        /**
+         * @var Member[] $users
+         */
         $users = [];
+        /**
+         * @var Member[] $users
+         */
         $toVerify = [];
+
         $nbCreated = 0;
         // Merge each matched user (without handling children)
         // Note that the list concern every imported member, child and parents.
@@ -116,7 +123,7 @@ class ImportXlsxCommand extends Command
 
         if ($subscriptionName) {
             $subscription = $this->createSubscription($subscriptionName, $subscription);
-            $this->createMemberSubscription($io, $subscription, $users);
+            $this->createMemberSubscription($subscription, $users);
         }
 
         // $match->getResult() !== null ? $this->managerRegistry->getManager()->persist($match->getResult()) : null;
@@ -127,12 +134,15 @@ class ImportXlsxCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function createMemberSubscription(SymfonyStyle $io, Subscription $subscription, array $users)
+    /**
+     * @param array<Member> $members
+     */
+    private function createMemberSubscription(Subscription $subscription, array $members): void
     {
         /** @var MemberSubscriptionRepository $repo */
         $repo = $this->managerRegistry->getRepository(MemberSubscription::class);
-        // TODO Skip children (no subsciption), support for subscription type, set price too
-        $repo->subscribe($subscription, $users);
+        // TODO Skip children (no subscription), support for subscription type, set price too
+        $repo->subscribe($subscription, $members);
     }
 
     private function createSubscription(string $subscriptionName, ?Subscription $subscription): Subscription

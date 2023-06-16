@@ -74,7 +74,7 @@ class AppFixtures extends Fixture
         $y = (int) date('Y');
         for ($i = $y - 1; $i <= $y + 1; ++$i) {
             $sub = new Subscription();
-            $sub->setName($i);
+            $sub->setName((string) $i);
             $manager->persist($sub);
             $this->addReference(Subscription::class.'_'.$i, $sub);
         }
@@ -85,7 +85,7 @@ class AppFixtures extends Fixture
     {
         $invoice = new Invoice();
         $invoice->setMemberSubscription($memberSubscription);
-        $invoice->setPrice($memberSubscription->getPrice() * $ratio);
+        $invoice->setPrice((int) ($memberSubscription->getPrice() * $ratio));
         $manager->persist($invoice);
 
         return $invoice;

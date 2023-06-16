@@ -18,7 +18,7 @@ class CamtSessionStorage
         $this->requestStack = $requestStack;
     }
 
-    public function set(string $id, Message $message)
+    public function set(string $id, Message $message): void
     {
         $this->getSession()->set($id, $message);
         $this->addId($id);
@@ -29,7 +29,7 @@ class CamtSessionStorage
         return $this->getSession()->get($id);
     }
 
-    public function remove(string $id)
+    public function remove(string $id): void
     {
         $this->getSession()->remove($id);
         $this->removeId($id);
@@ -44,19 +44,22 @@ class CamtSessionStorage
         }
     }
 
-    public function getIds()
+    /**
+     * @return array<string>
+     */
+    public function getIds(): array
     {
         return $this->getSession()->get('camt_ids', []);
     }
 
-    private function addId(string $id)
+    private function addId(string $id): void
     {
         $ids = $this->getSession()->get('camt_ids', []);
         $ids[] = $id;
         $this->getSession()->set('camt_ids', $ids);
     }
 
-    private function removeId(string $id)
+    private function removeId(string $id): void
     {
         $ids = $this->getSession()->get('camt_ids', []);
         $key = array_search($id, $ids, true);

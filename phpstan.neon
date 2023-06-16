@@ -1,6 +1,7 @@
 parameters:
-    level: 4
+    level: 6
     paths:
         - src
     scanDirectories:
         - vendor
+    checkGenericClassInNonGenericObjectType: false

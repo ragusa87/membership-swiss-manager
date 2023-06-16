@@ -104,7 +104,7 @@ class PdfService implements LoggerAwareInterface
 
         if (false === $qrBill->isValid()) {
             $error = $qrBill->getViolations()->get(0);
-            throw new \RuntimeException(sprintf('Invalid bill, %s', $error));
+            throw new \RuntimeException(sprintf('Invalid bill, %s', $error->getMessage()));
         }
 
         return $qrBill;
@@ -155,7 +155,7 @@ class PdfService implements LoggerAwareInterface
         ]);
     }
 
-    protected function insertHeader(Fpdf $fpdf, Invoice $invoice)
+    protected function insertHeader(Fpdf $fpdf, Invoice $invoice): void
     {
         $fpdf->SetFont('Arial', 'B', 16);
         $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->addressName));
@@ -198,7 +198,7 @@ class PdfService implements LoggerAwareInterface
         ])));
     }
 
-    private function isIbanCompatibleWithQRCodeReference()
+    private function isIbanCompatibleWithQRCodeReference(): bool
     {
         $iban = str_replace(' ', '', $this->iban);
         $qrIid = substr($iban, 4, 5);
@@ -214,7 +214,7 @@ class PdfService implements LoggerAwareInterface
             }
             $referenceNumber = QrPaymentReferenceGenerator::generate(
                 $this->customerIdentificationNumber,
-                $invoice->getReference()
+                (string) $invoice->getReference()
             );
             $qrBill->setPaymentReference(
                 PaymentReference::create(
@@ -225,7 +225,7 @@ class PdfService implements LoggerAwareInterface
             return;
         }
         $referenceNumber = RfCreditorReferenceGenerator::generate(
-            str_pad($invoice->getReference(), 21, '0', STR_PAD_LEFT)
+            str_pad((string) $invoice->getReference(), 21, '0', STR_PAD_LEFT)
         );
         $qrBill->setPaymentReference(
             PaymentReference::create(

@@ -13,6 +13,9 @@ class BufferedLogger implements LoggerInterface, LoggerAwareInterface
     use LoggerAwareTrait;
     use LoggerTrait;
 
+    /**
+     * @var array<array{level: string, message: string, context: array}>|array<mixed[]>
+     */
     protected array $buffer = [];
 
     public function log($level, \Stringable|string $message, array $context = []): void
@@ -25,6 +28,9 @@ class BufferedLogger implements LoggerInterface, LoggerAwareInterface
         $this->logger()->log($level, $message, $context);
     }
 
+    /**
+     * @return array<array{level: string, message: string, context: array}>|array<mixed[]>
+     */
     public function getLogs(): array
     {
         $buffer = $this->buffer;

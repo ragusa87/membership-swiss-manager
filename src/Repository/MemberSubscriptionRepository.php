@@ -41,35 +41,14 @@ class MemberSubscriptionRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return MemberSubscription[] Returns an array of MemberSubscription objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?MemberSubscription
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
-    public function subscribe(Subscription $subscription, array $users)
+    /**
+     * @param array<int>|array<Member> $usersIds
+     */
+    public function subscribe(Subscription $subscription, array $usersIds): void
     {
         /** @var MemberRepository $memberRepository */
         $memberRepository = $this->getEntityManager()->getRepository(Member::class);
-        foreach ($memberRepository->findByIdWithSubscription($users) as $user) {
+        foreach ($memberRepository->findByIdWithSubscription($usersIds) as $user) {
             if (null !== $user->getMemberSubscriptionBySubscription($subscription)) {
                 continue;
             }
@@ -82,7 +61,7 @@ class MemberSubscriptionRepository extends ServiceEntityRepository
         }
     }
 
-    public function getActiveSubscriptions(?Subscription $subscription)
+    public function getActiveSubscriptions(?Subscription $subscription): mixed
     {
         if (null === $subscription) {
             return [];

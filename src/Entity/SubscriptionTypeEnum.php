@@ -7,6 +7,9 @@ enum SubscriptionTypeEnum: string
     case MEMBER = 'member';
     case SUPPORTER = 'supporter';
 
+    /**
+     * @return array<string,string>
+     */
     public static function choices(): array
     {
         $choicesValues = array_map(function (SubscriptionTypeEnum $enum) {

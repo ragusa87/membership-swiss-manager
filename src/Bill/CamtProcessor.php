@@ -61,7 +61,7 @@ class CamtProcessor
             }
         }
 
-        $recoveredResults = $this->convertErrorToTransactionBasedOnInvoiceTransactionId($errors, $results);
+        $recoveredResults = $this->convertErrorToTransactionBasedOnInvoiceTransactionId($errors);
 
         $result = new CamtResultList($errors, array_merge($results, $recoveredResults));
         $this->fillInvoices($result);
@@ -69,7 +69,7 @@ class CamtProcessor
         return $result;
     }
 
-    private function fillInvoices(CamtResultList $results)
+    private function fillInvoices(CamtResultList $results): void
     {
         $refs = [];
         $map = [];
@@ -105,7 +105,10 @@ class CamtProcessor
         return $entry->getTransactionDetail()?->getReference()?->getTransactionId() ?? null;
     }
 
-    private function convertErrorToTransactionBasedOnInvoiceTransactionId(ConstraintViolationList $errors, array $results): array
+    /**
+     * @return array<CamtResultItem>
+     */
+    private function convertErrorToTransactionBasedOnInvoiceTransactionId(ConstraintViolationList $errors): array
     {
         $transactionIds = [];
         $result = [];
@@ -153,7 +156,7 @@ class CamtProcessor
         $ref = $infos?->getStructuredBlock()?->getCreditorReferenceInformation()?->getRef();
 
         return new CamtResultItem(
-            $entry->getAmount()->getAmount(),
+            (int) $entry->getAmount()->getAmount(),
             $entry,
             $message,
             $ref,

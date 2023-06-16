@@ -12,12 +12,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
 {
     #[Route('/')]
-    public function index(AdminUrlGenerator $adminUrlGenerator)
+    public function index(AdminUrlGenerator $adminUrlGenerator): Response
     {
         return $this->redirect($adminUrlGenerator
             ->setController(DashboardController::class)
@@ -26,7 +27,7 @@ class DefaultController extends AbstractController
     }
 
     #[Route(path: '/subscription-id/{id}', name: 'view_invoice_by_subscription_id')]
-    public function getInvoicesBySubscriptionId(int $id, AdminUrlGenerator $generator)
+    public function getInvoicesBySubscriptionId(int $id, AdminUrlGenerator $generator): Response
     {
         $url = $generator->setController(InvoiceCrudController::class)
             ->set('filters[memberSubscription][comparison]', '=')
@@ -37,7 +38,7 @@ class DefaultController extends AbstractController
     }
 
     #[Route(path: '/invoice-id/{id}', name: 'view_invoice_by_id')]
-    public function getInvoicesById(int $id, AdminUrlGenerator $generator)
+    public function getInvoicesById(int $id, AdminUrlGenerator $generator): Response
     {
         $url = $generator->setController(InvoiceCrudController::class)
             ->set('filters[id][comparison]', '=')
@@ -48,7 +49,7 @@ class DefaultController extends AbstractController
     }
 
     #[Route(path: '/member-subscription/{id}', name: 'view_membersubscription_by_id')]
-    public function viewMemberSubscriptionById(int $id, AdminUrlGenerator $generator)
+    public function viewMemberSubscriptionById(int $id, AdminUrlGenerator $generator): Response
     {
         $url = $generator->setController(MemberSubscriptionCrudController::class)
             ->set('filters[id][comparison]', '=')
@@ -59,7 +60,7 @@ class DefaultController extends AbstractController
     }
 
     #[Route(path: '/pay-invoice-id/{id}', name: 'pay_invoice_by_id')]
-    public function payInvoicesById(int $id, Request $request, EntityManagerInterface $em, InvoiceRepository $invoiceRepository)
+    public function payInvoicesById(int $id, Request $request, EntityManagerInterface $em, InvoiceRepository $invoiceRepository): Response
     {
         $invoice = $invoiceRepository->find($id);
         if (null === $invoice) {

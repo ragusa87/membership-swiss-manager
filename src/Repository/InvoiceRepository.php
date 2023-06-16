@@ -41,7 +41,7 @@ class InvoiceRepository extends ServiceEntityRepository
         }
     }
 
-    public function updateReferences()
+    public function updateReferences(): void
     {
         $qb = $this->createQueryBuilder('i');
         $query = $qb->update($this->_entityName, 'i')
@@ -60,7 +60,12 @@ class InvoiceRepository extends ServiceEntityRepository
         return $query->getQuery()->getSingleScalarResult();
     }
 
-    public function findByReferences(array $refs)
+    /**
+     * @param array<int> $refs
+     *
+     * @return Invoice[]
+     */
+    public function findByReferences(array $refs): mixed
     {
         $qb = $this->createQueryBuilder('i');
         $qb->where($qb->expr()->in('i.reference', ':refs'));
@@ -73,7 +78,12 @@ class InvoiceRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findByTransactionIds(array $transactionIds)
+    /**
+     * @param array<string> $transactionIds
+     *
+     * @return Invoice[]
+     */
+    public function findByTransactionIds(array $transactionIds): mixed
     {
         $qb = $this->createQueryBuilder('i');
         $qb->where($qb->expr()->in('i.transactionId', ':transactionIds'));

@@ -41,6 +41,9 @@ class MemberSubscription
     private bool $active = true;
 
     #[ORM\OneToMany(mappedBy: 'memberSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
+    /**
+     * @var Collection<int, Invoice>
+     */
     private Collection $invoices;
 
     #[ORM\Column(type: 'text', nullable: true)]

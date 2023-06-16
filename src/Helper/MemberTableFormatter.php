@@ -10,10 +10,12 @@ use Symfony\Component\Console\Helper\TableSeparator;
 
 class MemberTableFormatter
 {
+    /**
+     * @param MemberMatch[] $matches
+     */
     public function fillMatches(Table $table, array $matches): Table
     {
         $table->setHeaders(['Firstname', 'Lastname', 'Email', 'Address', 'City', 'Phone', 'Parent', 'Score', 'Action']);
-        /** @var MemberMatch $match */
         foreach ($matches as $match) {
             $importedMember = $match->getMember();
             $existingMember = $match->getResult();
@@ -53,6 +55,9 @@ class MemberTableFormatter
         return $table;
     }
 
+    /**
+     * @return array<string|null>
+     */
     protected function userAsRow(Member $member): array
     {
         return [

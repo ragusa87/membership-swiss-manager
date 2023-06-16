@@ -5,7 +5,7 @@ namespace App\Helper;
 class AddressConverterService
 {
     /**
-     * @return array Address at index 0, address number at index 1
+     * @return array{0: string, 1: string|null}
      */
     public function split(?string $address): array
     {

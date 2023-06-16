@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 
 class SubscriptionCrudController extends AbstractCrudController
 {
@@ -25,11 +26,11 @@ class SubscriptionCrudController extends AbstractCrudController
         return Subscription::class;
     }
 
-    public function createEntity(string $entityFqcn)
+    public function createEntity(string $entityFqcn): Subscription
     {
         /** @var Subscription $entity */
         $entity = parent::createEntity($entityFqcn);
-        $entity->setName((int) date('Y'));
+        $entity->setName(date('Y'));
 
         return $entity;
     }
@@ -53,7 +54,7 @@ class SubscriptionCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, $viewMembers);
     }
 
-    public function viewMembers(AdminContext $context)
+    public function viewMembers(AdminContext $context): Response
     {
         /** @var Subscription $subscription */
         $subscription = $context->getEntity()->getInstance();

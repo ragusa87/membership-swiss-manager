@@ -10,6 +10,9 @@ enum InvoiceStatusEnum: string
 
     case CANCELED = 'canceled';
 
+    /**
+     * @return array<string,string>
+     */
     public static function choices(): array
     {
         $choicesValues = array_map(function (self $enum) {
