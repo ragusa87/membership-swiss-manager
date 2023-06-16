@@ -18,8 +18,17 @@ Members: Membres
 SubscriptionMember: InscriptionsMembres
 MemberSubscription: InscriptionsMembres
 Type: Type
+Reminder: Rappel
 Due Amount: Montant Dû
 View Invoices: Voir les factures
+View Invoice: Voir la facture
+Camt Result: Résultat camt
+unknown_transactions_num: >-
+    {num, plural,
+            =0    {Transaction inconnue}
+            =1    {Transaction inconnue}
+            other {Transactions inconnues #}
+    }
 Invoices: Factures
 Generate invoices: Générer factures
 Print invoices: Imprimer les factures
@@ -35,4 +44,11 @@ City: Ville
 Zip: Code Postale
 Phone: Téléphone
 Price: Prix
+status: status
+statuses:
+    paid: 'payé'
+    pending: 'en attente de paiement'
+    created: 'créé'
 'With: ': 'Avec: '
+"bill_amount_overpaid": "Montant payé en trop"
+"bill_amount_underpaid": "Montant manquant"
