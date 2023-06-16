@@ -15,7 +15,10 @@
                 .error{
                     color: red;
                 }
-                .violation-details, .invoice-details{
+                .success{
+                    color: green;
+                }
+                .invoice-details{
                     background-color: rgb(48, 48, 48);
                     color: #b5b5b5;
                     padding: 5px;
@@ -31,55 +34,81 @@
 
 
 {% block main %}
-<h1>Camt Result</h1>
-<ul>
-    {% for violation in results.errors %}
-        <li>
-            {% if violation.cause is not null and violation.cause.additionalInfo is defined %}
-               <span class="violation-details">
-                   {{ violation.cause.amount.amount / 100 }} CHF<br>
-                   {{ violation.cause.additionalInfo }}<br>
-               </span>
-            {% endif %}
-            <span class="error">{{ violation.message }}</span>
-        </li>
-    {% endfor %}
-</ul>
+    <h1>Camt Result</h1>
+
+    <div class="accordion accordion-flush" id="accordionFlushExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="flush-headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                    Unknown transactions ({{ results.errors|length }})
+                </button>
+            </h2>
+            <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                <div class="accordion-body">
+                    {{ block('issues') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ block('results') }}
+
+{% endblock %}
 
 
-<hr>
+{% block issues %}
+    <ul>
+        {% for violation in results.errors %}
+            <li>
+                {% if violation.cause is not null and violation.cause.additionalInfo is defined %}
+                    <span class="violation-details">
+                                       {{ violation.cause.amount.amount / 100 }} CHF<br>
+                                       {{ violation.cause.additionalInfo }}<br>
+                                   </span>
+                {% endif %}
+                <span class="error">{{ violation.message }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block results %}
 <ul>
     {% for result  in results.getResults %}
-        <li>
-            {{ (result.amount/100) ~ " CHF"}}
-            {{ result.ref }}
-            {{ result.message }}
+    <li>
+        {{ (result.amount/100) ~ " CHF"}}
+        {{ result.ref }}
+        {{ result.message }}
 
-            {% if result.invoice is not null %}
-                <div class="invoice-details">
-                    <a href="{{ path('view_invoice_by_id', {'id': result.invoice.id}) }}">view</a><br>
+        {% if result.invoice is not null %}
+            {% if result.invoice.status == 'paid' %}<span class="success">paid</span>{% endif %}
+        <div class="invoice-details">
+            <a href="{{ path('view_invoice_by_id', {'id': result.invoice.id}) }}">view</a><br>
 
-                    {% if result.amount >= result.invoice.price %}
-{#                        <a class="btn" href="{{ path('view_invoice_by_id', {'id': result.invoice.id, 'status': 'paid', 'amount': result.amount }) }}">Mark as paid</a>#}
-                        {%  if result.amount > result.invoice.price %}
-                           <span class="amount more">BONUS {{ (result.amount - result.invoice.price )/100 }} CHF</span>
-                        {% endif %}
-                        {%  if result.amount < result.invoice.price %}
-                            <span class="amount less">MALUS {{ (result.amount - result.invoice.price )/100 }} CHF</span>
-                        {% endif %}
-                        <br>
-                    {% endif %}
-
-                    Status: {{ result.invoice.status }}<br>
-                    Reminder: {{ result.invoice.reminder }}<br>
-                    Amount Due: {{ result.invoice.getFormattedPrice }}<br>
-
-                    {% if result.invoice.memberSubscription is not null %}
-                        Member: {{ result.invoice.memberSubscription.member.fullname }}<br>
-                    {% endif %}
-                </div>
+            {% if result.amount >= result.invoice.price and result.invoice.status != "paid" %}
+                <a class="btn" href="{{ path('pay_invoice_by_id', {'id': result.invoice.id, 'status': 'paid', 'amount': result.amount }) }}">Mark as paid</a>
             {% endif %}
-        </li>
+
+            {% if result.amount > result.invoice.price %}
+                <span class="amount more">BONUS {{ (result.amount - result.invoice.price )/100 }} CHF</span>
+            {% endif %}
+            {% if result.amount < result.invoice.price %}
+                <span class="amount less">MALUS {{ (result.amount - result.invoice.price )/100 }} CHF</span>
+            {% endif %}
+            <br>
+
+            Status: {{ result.invoice.status }}<br>
+            Reminder: {{ result.invoice.reminder }}<br>
+            Amount Due: {{ result.invoice.getFormattedPrice }}<br>
+
+            {% if result.invoice.memberSubscription is not null %}
+                Member: {{ result.invoice.memberSubscription.member.fullname }}<br>
+            {% endif %}
+        </div>
+        {% else %}
+            <span class="error">No invoice found</span>
+        {% endif %}
+    </li>
     {% endfor %}
 </ul>
 {% endblock %}
