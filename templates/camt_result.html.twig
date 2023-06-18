@@ -196,6 +196,7 @@
                         {# Display reference missmatch with invoice #}
                         {% if result.invoice.transactionId != result.transactionId and (result.invoice.status != 'created') %}
                             <span class="error">{{ 'bill_reference_missmatch'|trans({'transactionId': result.invoice.transactionId}) }}</span>
+                            {{ result.transactionId }}
                         {% endif %}
                     </div>
                 {% else %}

@@ -64,6 +64,7 @@ class DashboardController extends AbstractDashboardController
 
         return $this->render('camt_result.html.twig', [
             'results' => $results,
+            'object' => $object,
         ]);
     }
 
