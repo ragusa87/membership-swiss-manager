@@ -160,7 +160,7 @@ class MemberSubscription
 
     public function getPrice(): ?int
     {
-        return null == $this->price ? self::getPriceByType($this->getTypeEnum()) : $this->price;
+        return $this->price;
     }
 
     public function getDueAmount(): int

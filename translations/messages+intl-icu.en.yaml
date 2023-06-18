@@ -7,6 +7,10 @@ subscription_type_enum:
     supporter: supporter
 dashboard:
     number_member_count: 'Number of members: {count}'
+    due_amount: 'Subscription due amount: {amount}'
+    paid_amount: "Subscription paid amount: {amount}"
+    pending_amount: 'Pending bill amount: {amount}'
+
     subscription:
         title: 'Subscription {name}'
         header:
