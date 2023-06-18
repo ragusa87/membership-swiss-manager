@@ -102,6 +102,7 @@ class MemberSubscriptionCrudController extends AbstractCrudController
             ->setController(InvoiceCrudController::class)
             ->setAction(Action::INDEX)
             ->setEntityId(null)
+            ->unset('filters')
             ->set('filters[memberSubscription][value]', $memberSubscription->getId())
             ->set('filters[memberSubscription][comparison]', '=')
             ->generateUrl();
