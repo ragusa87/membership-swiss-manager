@@ -2,8 +2,10 @@
 
 namespace App\Bill;
 
+use _PHPStan_a2a733b6a\React\Http\Io\Transaction;
 use App\Repository\InvoiceRepository;
 use Genkgo\Camt\DTO\Entry;
+use Genkgo\Camt\DTO\EntryTransactionDetail;
 use Genkgo\Camt\DTO\Message;
 use Genkgo\Camt\DTO\RemittanceInformation;
 use kmukku\phpIso11649\phpIso11649;
@@ -25,27 +27,34 @@ class CamtProcessor
     {
         $errors = new ConstraintViolationList();
         $results = [];
-        foreach ($message->getRecords() as $messageNum => $record) {
-            $id = $record->getAccount()->getIdentification();
+
+        foreach ($message->getEntries() as $entryNum => $entry) {
+            $id = $entry->getRecord()->getAccount()->getIdentification();
             if ($id !== $this->iban) {
-                $errors->add(new ConstraintViolation('IBAN mismatch', null, ['iban' => $id], null, 'account', $id, null, null, null, $record));
+                $errors->add(new ConstraintViolation('IBAN mismatch', null, ['iban' => $id], null, 'account', $id, null, null, null, $entry));
                 continue;
             }
-            foreach ($record->getEntries() as $entryNum => $entry) {
-                $path = sprintf('[%s][%s]', $messageNum, $entryNum);
 
-                $amount = $entry->getAmount()->getAmount();
-                if ($amount < 0) {
-                    // $errors->add(new ConstraintViolation('Negative amount', null, ['amount' => $amount], null, $path.'amount', $amount, null, null, null, $entry));
-                    continue;
-                }
-                if ('CHF' !== $entry->getAmount()->getCurrency()->getCode()) {
-                    $errors->add(new ConstraintViolation('Currency should be CHF', null, ['currency' => $entry->getAmount()->getCurrency()->getCode()], null, $path.'amount', $amount, null, null, null, $entry));
-                    continue;
-                }
+            $path = sprintf('[%s]', $entryNum);
 
+            $amount = $entry->getAmount()->getAmount();
+            if ($amount < 0) {
+                $errors->add(new ConstraintViolation('Negative amount', null, ['amount' => $amount], null, $path.'amount', $amount, null, null, null, $entry));
+                continue;
+            }
+            if ('CHF' !== $entry->getAmount()->getCurrency()->getCode()) {
+                $errors->add(new ConstraintViolation('Currency should be CHF', null, ['currency' => $entry->getAmount()->getCurrency()->getCode()], null, $path.'amount', $amount, null, null, null, $entry));
+                continue;
+            }
+
+            $nb = count($entry->getTransactionDetails());
+            if ($nb > 1) {
+                $errors->add(new ConstraintViolation('Too much transaction details information', null, [], null, $path.'transactionDetails', $amount, null, null, null, $entry));
+            }
+
+            foreach ($entry->getTransactionDetails() as $transactionDetail) {
                 /** @var RemittanceInformation|null $infos */
-                $infos = $entry->getTransactionDetail()?->getRemittanceInformation();
+                $infos = $transactionDetail->getRemittanceInformation();
 
                 if (null === $infos) {
                     $errors->add(new ConstraintViolation('No remitance information', null, [], null, $path.'transactionDetails', $amount, null, null, null, $entry));
@@ -57,7 +66,7 @@ class CamtProcessor
                     continue;
                 }
 
-                $results[] = $this->createResultItemFromEntry($entry);
+                $results[] = $this->createResultItemFromEntry($entry, $transactionDetail);
             }
         }
 
@@ -71,38 +80,56 @@ class CamtProcessor
 
     private function fillInvoices(CamtResultList $results): void
     {
-        $refs = [];
+        $references = [];
         $map = [];
+        $transactionsIds = [];
         $iso = new phpIso11649();
 
         foreach ($results->getResults() as $result) {
+            $transactionsIds[] = $result->transactionId;
             if (false === $iso->validateRfReference($result->ref)) {
                 continue;
             }
-            $ref = (int) substr($result->ref, 4);
-            $map[$result->ref] = $ref;
-            $refs[] = $ref;
+            $refId = (int) substr($result->ref, 4);
+            $references[$result->ref] = $refId;
         }
-        $invoices = $this->invoiceRepository->findByReferences($refs);
-        foreach ($results->getResults() as $result) {
-            $refId = $map[$result->ref] ?? null;
 
-            if (null !== $refId && array_key_exists($refId, $invoices)) {
-                $result->setInvoice($invoices[$refId]);
-                unset($invoices[$refId]);
-                unset($map[$result->ref]);
+        $invoices = $this->invoiceRepository->findByTransactionIds($transactionsIds);
+        foreach ($results->getResults() as $result) {
+            if (null !== $result->getInvoice() || null == $result->transactionId) {
+                continue;
+            }
+            if (false === array_key_exists($result->transactionId, $invoices)) {
+                continue;
+            }
+
+            $result->setInvoice($invoices[$result->transactionId]);
+            unset($invoices[$result->transactionId]);
+        }
+
+        $invoices = $this->invoiceRepository->findByReferences($references);
+        foreach ($results->getResults() as $result) {
+            $index = $references[$result->ref] ?? null;
+            if (null !== $result->ref && null !== $index) {
+                $result->setInvoice($invoices[$index]);
+                unset($invoices[$index]);
             }
         }
     }
 
-    private function getContact(Entry $entry): ?string
+    private function getContact(Entry $entry, EntryTransactionDetail $detail): ?string
     {
-        return ($entry->getTransactionDetail()?->getRelatedParties()[1])?->getRelatedPartyType()?->getName() ?? null;
+        $parties = $detail?->getRelatedParties() ?? [];
+        if (empty($parties)) {
+            return $entry->getAdditionalInfo();
+        }
+
+        return ($detail?->getRelatedParties()[1])?->getRelatedPartyType()?->getName() ?? null;
     }
 
-    private function getTransactionId(Entry $entry): ?string
+    private function getTransactionId(EntryTransactionDetail $detail): ?string
     {
-        return $entry->getTransactionDetail()?->getReference()?->getTransactionId() ?? null;
+        return $detail?->getReference()?->getTransactionId() ?? null;
     }
 
     /**
@@ -116,7 +143,7 @@ class CamtProcessor
             if (false === $error->getCause() instanceof Entry) {
                 continue;
             }
-            $transactionIds[] = $this->getTransactionId($error->getCause());
+            $transactionIds[] = $this->getTransactionId($error->getCause()->getTransactionDetail());
         }
         // Remove null transaction ids
         $transactionIds = array_filter($transactionIds);
@@ -127,7 +154,7 @@ class CamtProcessor
             if (false === $error->getCause() instanceof Entry) {
                 continue;
             }
-            $transactionId = $this->getTransactionId($error->getCause());
+            $transactionId = $this->getTransactionId($error->getCause()->getTransactionDetail());
             if (null === $transactionId || false === array_key_exists($transactionId, $invoices)) {
                 continue;
             }
@@ -135,16 +162,20 @@ class CamtProcessor
             // The error is now handled
             $errors->remove($key);
 
-            $result[] = $this->createResultItemFromEntry($error->getCause())->setInvoice($invoices[$transactionId]);
+            $entry = $error->getCause();
+
+            foreach ($entry->getTransactionDetails() as $infos) {
+                $result[] = $this->createResultItemFromEntry($entry, $infos)->setInvoice($invoices[$transactionId]);
+            }
         }
 
         return $result;
     }
 
-    private function createResultItemFromEntry(Entry $entry): CamtResultItem
+    private function createResultItemFromEntry(Entry $entry, EntryTransactionDetail $transactionDetail): CamtResultItem
     {
         /** @var RemittanceInformation|null $infos */
-        $infos = $entry->getTransactionDetail()?->getRemittanceInformation();
+        $infos = $transactionDetail->getRemittanceInformation();
 
         $message = $infos?->getStructuredBlock()?->getAdditionalRemittanceInformation();
         if (null === $message) {
@@ -153,15 +184,21 @@ class CamtProcessor
         if (null === $message) {
             $message = $entry->getAdditionalInfo();
         }
+
         $ref = $infos?->getStructuredBlock()?->getCreditorReferenceInformation()?->getRef();
 
+        if (count($entry->getTransactionDetails()) > 1) {
+            $message .= ' to much references';
+            $ref = null;
+        }
+
         return new CamtResultItem(
-            (int) $entry->getAmount()->getAmount(),
+            (int) $transactionDetail->getAmount()?->getAmount(),
             $entry,
             $message,
             $ref,
-            $this->getContact($entry),
-            $this->getTransactionId($entry),
+            $this->getContact($entry, $transactionDetail),
+            $this->getTransactionId($transactionDetail),
         );
     }
 }
