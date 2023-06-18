@@ -77,7 +77,17 @@ class MemberSubscriptionCrudController extends AbstractCrudController
             )
             ->add('member')
             ->add('subscription')
-            ->add('id');
+            ->add('id')
+            ->add('active');
+    }
+
+    public function createEntity(string $entityFqcn): MemberSubscription
+    {
+        /** @var MemberSubscription $e */
+        $e = new $entityFqcn();
+        $e->setPrice(MemberSubscription::getPriceByType($e->getTypeEnum()));
+
+        return $e;
     }
 
     public function configureActions(Actions $actions): Actions

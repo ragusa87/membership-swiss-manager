@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\InvoiceStatusEnum;
 use App\Entity\Member;
+use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\Parser;
@@ -57,5 +59,62 @@ class DashboardRepository
         $rsm->addScalarResult('nb', 'nb');
 
         return $manager->createNativeQuery($subQuery, $rsm)->getSingleScalarResult() ?? 0;
+    }
+
+    public function getPaidAmount(string $subscriptionName): int
+    {
+        /** @var EntityManager $manager */
+        $manager = $this->registry->getManagerForClass(Member::class);
+
+        $memberSubRepository = $manager->getRepository(MemberSubscription::class);
+
+        $qb = $memberSubRepository->createQueryBuilder('ms')
+            ->select('sum(i.price)')
+            ->join('ms.subscription', 's')
+            ->leftJoin('ms.invoices', 'i', 'WITH', 'i.status = :paid')
+            ->setParameter('paid', InvoiceStatusEnum::PAID->value)
+            ->where('s.name = :name')
+            ->setParameter('name', $subscriptionName)
+            ->andWhere('ms.active = 1');
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getPendingAmount(string $subscriptionName): int
+    {
+        /** @var EntityManager $manager */
+        $manager = $this->registry->getManagerForClass(Member::class);
+
+        $memberSubRepository = $manager->getRepository(MemberSubscription::class);
+
+        $qb = $memberSubRepository->createQueryBuilder('ms')
+            ->select('sum(i.price)')
+            ->join('ms.subscription', 's')
+            ->leftJoin('ms.invoices', 'i', 'WITH', 'i.status = :pending')
+            ->setParameter('pending', InvoiceStatusEnum::PENDING->value)
+            ->where('s.name = :name')
+            ->setParameter('name', $subscriptionName)
+            ->andWhere('ms.active = 1');
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function getDueAmount(string $subscriptionName): int
+    {
+        /** @var EntityManager $manager */
+        $manager = $this->registry->getManagerForClass(Member::class);
+
+        $memberSubRepository = $manager->getRepository(MemberSubscription::class);
+
+        $qb = $memberSubRepository->createQueryBuilder('ms')
+            ->select('sum(ms.price) - sum(i.price)')
+            ->join('ms.subscription', 's')
+            ->leftJoin('ms.invoices', 'i', 'WITH', 'i.status = :paid')
+            ->setParameter('paid', InvoiceStatusEnum::PAID->value)
+            ->where('s.name = :name')
+            ->setParameter('name', $subscriptionName)
+            ->andWhere('ms.active = 1');
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 }

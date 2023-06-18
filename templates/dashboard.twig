@@ -113,7 +113,10 @@
         </table>
 
         <div class="no-print">
-            {{ 'dashboard.number_member_count' | trans({'count': countMembers}) }}
+            {{ 'dashboard.number_member_count' | trans({'count': countMembers}) }}<br>
+            {{ 'dashboard.due_amount' | trans({'amount': (dueAmount/100)|format_currency('CHF') }) }}<br>
+            {{ 'dashboard.pending_amount' | trans({'amount': (pendingAmount/100)|format_currency('CHF') }) }}<br>
+            {{ 'dashboard.paid_amount' | trans({'amount': (paidAmount/100)|format_currency('CHF') }) }}
         </div>
         {% if memberSubscriptions|length > 0 %}
         <div class="no-print btn-group mr-2">

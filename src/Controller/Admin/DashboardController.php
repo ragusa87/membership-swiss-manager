@@ -87,6 +87,9 @@ class DashboardController extends AbstractDashboardController
             'subscription' => $subscription,
             'memberSubscriptions' => $memberSubscriptions,
             'countMembers' => $subscription ? $this->getDashboardRepo()->countMembers($subscription) : 0,
+            'dueAmount' => $subscription ? $this->getDashboardRepo()->getDueAmount($subscription->getName()) : null,
+            'pendingAmount' => $subscription ? $this->getDashboardRepo()->getPendingAmount($subscription->getName()) : null,
+            'paidAmount' => $subscription ? $this->getDashboardRepo()->getPaidAmount($subscription->getName()) : null,
         ]);
     }
 

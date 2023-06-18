@@ -7,6 +7,9 @@ subscription_type_enum:
     supporter: sympatisant
 dashboard:
     number_member_count: 'Nombre de membres: {count}'
+    due_amount: "Montant d'inscriptions à encaisser: {amount}"
+    paid_amount: "Montant d'inscriptions payé: {amount}"
+    pending_amount: 'Montant en attente: {amount}'
     subscription:
         title: 'Inscriptions {name}'
         header:
