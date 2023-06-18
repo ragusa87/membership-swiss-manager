@@ -83,6 +83,7 @@
 {% block main %}
     <h1>{{ "Camt Result" | trans }}</h1>
 
+    {% if results.errors|length > 0 %}
     <div class="accordion accordion-flush" id="accordionFlushExample">
         <div class="accordion-item">
             <h2 class="accordion-header" id="flush-headingOne">
@@ -97,6 +98,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     {{ block('results') }}
 
@@ -139,6 +141,10 @@
                 <span class="line message">{{ result.message }}</span>
                 <span class="line transactionId">{{ result.transactionId }}</span>
 
+                {% for party in result.transactionDetail.getRelatedParties|slice(1) %}
+                    {{- party.getRelatedPartyType.name }}<br>{{ (party.getRelatedPartyType.address.addressLines|join(', ')) }}<br>
+                {% endfor %}
+
                 {# We found a linked invoice #}
                 {% if result.invoice is not null %}
 
@@ -170,6 +176,7 @@
                         {# Display invoice information #}
                         {{ "Reminder"|trans}}: {{ result.invoice.reminder }}<br>
                         {{ "Due Amount"|trans }}: {{ result.invoice.getFormattedPrice }}<br>
+                        {{ "Transaction Id"|trans }}: {{ result.invoice.transactionId }}<br>
 
                         {# Display subscription members #}
                         {% if result.invoice.memberSubscription is not null %}
@@ -194,13 +201,17 @@
                         {% endif %}
 
                         {# Display reference missmatch with invoice #}
-                        {% if result.invoice.transactionId != result.transactionId and (result.invoice.status != 'created') %}
+                        {% if result.invoice.transactionId != null and result.invoice.transactionId != result.transactionId and (result.invoice.status != 'created') %}
                             <span class="error">{{ 'bill_reference_missmatch'|trans({'transactionId': result.invoice.transactionId}) }}</span>
                             {{ result.transactionId }}
                         {% endif %}
                     </div>
                 {% else %}
+                    <div>
+                            {{- result.transactionDetail.additionalTransactionInformation }}<br>
+                    </div>
                     <span class="error">{{ "No invoice found"|trans}}</span>
+
                 {% endif %}
             </li>
         {% endfor %}

@@ -8,7 +8,6 @@ use Genkgo\Camt\DTO\Entry;
 use Genkgo\Camt\DTO\EntryTransactionDetail;
 use Genkgo\Camt\DTO\Message;
 use Genkgo\Camt\DTO\RemittanceInformation;
-use kmukku\phpIso11649\phpIso11649;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -39,7 +38,7 @@ class CamtProcessor
 
             $amount = $entry->getAmount()->getAmount();
             if ($amount < 0) {
-                $errors->add(new ConstraintViolation('Negative amount', null, ['amount' => $amount], null, $path.'amount', $amount, null, null, null, $entry));
+                // $errors->add(new ConstraintViolation('Negative amount', null, ['amount' => $amount], null, $path.'amount', $amount, null, null, null, $entry));
                 continue;
             }
             if ('CHF' !== $entry->getAmount()->getCurrency()->getCode()) {
@@ -47,22 +46,17 @@ class CamtProcessor
                 continue;
             }
 
-            $nb = count($entry->getTransactionDetails());
-            if ($nb > 1) {
-                $errors->add(new ConstraintViolation('Too much transaction details information', null, [], null, $path.'transactionDetails', $amount, null, null, null, $entry));
-            }
-
             foreach ($entry->getTransactionDetails() as $transactionDetail) {
                 /** @var RemittanceInformation|null $infos */
                 $infos = $transactionDetail->getRemittanceInformation();
 
                 if (null === $infos) {
-                    $errors->add(new ConstraintViolation('No remitance information', null, [], null, $path.'transactionDetails', $amount, null, null, null, $entry));
+                    $errors->add(new ConstraintViolation('No remitance information', null, [], $transactionDetail, $path.'transactionDetails', $amount, null, null, null, $entry));
                     continue;
                 }
 
                 if ('SCOR' !== $infos->getStructuredBlock()?->getCreditorReferenceInformation()?->getCode()) {
-                    $errors->add(new ConstraintViolation('No SCOR reference', null, [], null, $path.'CreditorReferenceInformation', $amount, null, null, null, $entry));
+                    $errors->add(new ConstraintViolation('No SCOR reference', null, [], $transactionDetail, $path.'CreditorReferenceInformation', $amount, null, null, null, $entry));
                     continue;
                 }
 
@@ -80,56 +74,65 @@ class CamtProcessor
 
     private function fillInvoices(CamtResultList $results): void
     {
+        /** @var array<string,int> $references */
         $references = [];
-        $map = [];
+        /** @var array<string> $transactionsIds */
         $transactionsIds = [];
-        $iso = new phpIso11649();
 
+        // Fetch all the references and transactions Ids
         foreach ($results->getResults() as $result) {
             $transactionsIds[] = $result->transactionId;
-            if (false === $iso->validateRfReference($result->ref)) {
-                continue;
-            }
-            $refId = (int) substr($result->ref, 4);
-            $references[$result->ref] = $refId;
+            $references[$result->getReferenceString()] = $result->getReferenceInt();
         }
 
-        $invoices = $this->invoiceRepository->findByTransactionIds($transactionsIds);
+        // Fetch and set the invoices by transaction Ids
+        $invoicesByTransactionIds = $this->invoiceRepository->findByTransactionIds($transactionsIds);
         foreach ($results->getResults() as $result) {
-            if (null !== $result->getInvoice() || null == $result->transactionId) {
+            if (null !== $result->getInvoice() || null === $result->transactionId) {
                 continue;
             }
-            if (false === array_key_exists($result->transactionId, $invoices)) {
+            if (false === array_key_exists($result->transactionId, $invoicesByTransactionIds)) {
                 continue;
             }
 
-            $result->setInvoice($invoices[$result->transactionId]);
-            unset($invoices[$result->transactionId]);
+            $result->setInvoice($invoicesByTransactionIds[$result->transactionId]);
+            unset($invoicesByTransactionIds[$result->transactionId]);
         }
+        unset($invoicesByTransactionIds);
 
-        $invoices = $this->invoiceRepository->findByReferences($references);
+        // Fetch and set the invoices by references
+        $invoicesByReferences = $this->invoiceRepository->findByReferences($references);
         foreach ($results->getResults() as $result) {
+            if (null === $result->ref || null !== $result->getInvoice()) {
+                continue;
+            }
             $index = $references[$result->ref] ?? null;
-            if (null !== $result->ref && null !== $index) {
-                $result->setInvoice($invoices[$index]);
-                unset($invoices[$index]);
+            if (null !== $index) {
+                $result->setInvoice($invoicesByReferences[$index]);
+                unset($invoicesByReferences[$index]);
+            }
+        }
+
+        foreach ($results->getResults() as $result) {
+            if (null === $result->getInvoice()) {
+                $a = 1;
             }
         }
     }
 
     private function getContact(Entry $entry, EntryTransactionDetail $detail): ?string
     {
-        $parties = $detail?->getRelatedParties() ?? [];
+        $parties = $detail->getRelatedParties();
         if (empty($parties)) {
             return $entry->getAdditionalInfo();
         }
 
-        return ($detail?->getRelatedParties()[1])?->getRelatedPartyType()?->getName() ?? null;
+        return $detail->getRelatedParties()[1]->getRelatedPartyType()->getName();
     }
 
     private function getTransactionId(EntryTransactionDetail $detail): ?string
     {
-        return $detail?->getReference()?->getTransactionId() ?? null;
+        return $detail->getReference()?->getTransactionId();
     }
 
     /**
@@ -187,6 +190,7 @@ class CamtProcessor
 
         $ref = $infos?->getStructuredBlock()?->getCreditorReferenceInformation()?->getRef();
 
+        // Sometimes, multiple payment are done with the same reference. In this case we force manual matching.
         if (count($entry->getTransactionDetails()) > 1) {
             $message .= ' to much references';
             $ref = null;
@@ -195,6 +199,7 @@ class CamtProcessor
         return new CamtResultItem(
             (int) $transactionDetail->getAmount()?->getAmount(),
             $entry,
+            $transactionDetail,
             $message,
             $ref,
             $this->getContact($entry, $transactionDetail),
