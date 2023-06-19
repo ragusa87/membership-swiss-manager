@@ -37,10 +37,26 @@ class MemberSubscriptionXlsExporter
     {
         $response = new StreamedResponse(function () use ($memberSubscriptions) {
             $spreadsheet = $this->export($memberSubscriptions);
-            $writer = IOFactory::createWriter($spreadsheet, 'Xls');
+            $writer = IOFactory::createWriter($spreadsheet, IOFactory::WRITER_XLSX);
             $writer->save('php://output');
         });
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'inline');
+
+        return $response;
+    }
+
+    /**
+     * @param array<MemberSubscription> $memberSubscriptions
+     */
+    public function exportToHtml(array $memberSubscriptions): StreamedResponse
+    {
+        $response = new StreamedResponse(function () use ($memberSubscriptions) {
+            $spreadsheet = $this->export($memberSubscriptions);
+            $writer = IOFactory::createWriter($spreadsheet, IOFactory::WRITER_HTML);
+            $writer->save('php://output');
+        });
+        $response->headers->set('Content-Type', 'text/html');
         $response->headers->set('Content-Disposition', 'inline');
 
         return $response;
