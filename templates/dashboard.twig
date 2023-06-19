@@ -124,6 +124,7 @@
             <a class="btn btn-secondary" href="{{ path('admin_print_invoices', {'subscriptionName': subscription.name ?? ''}) }}">{{ "Print invoices"|trans }}</a>
             <a class="btn btn-secondary" href="{{ path('admin_import_camt') }}">{{ "Import Camt"|trans }}</a>
             <a class="btn btn-secondary" href="{{ path('mark_invoice_as_pending',{'subscriptionName': subscription.name ?? ''}) }}">{{ "Mark open invoices as pending"|trans }}</a>
+            <a class="btn btn-secondary" href="{{ path('export_member_subscriptions_by_subscription_name',{'subscriptionName': subscription.name ?? ''}) }}">{{ "Export"|trans }}</a>
         </div>
         {% endif %}
     </div>

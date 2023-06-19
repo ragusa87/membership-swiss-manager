@@ -12,6 +12,7 @@ use App\Entity\MemberSubscription;
 use App\Entity\Subscription;
 use App\Form\CamtUploadType;
 use App\Helper\InvoiceHelper;
+use App\Helper\MemberSubscriptionXlsExporter;
 use App\Repository\DashboardRepository;
 use App\Repository\InvoiceRepository;
 use App\Repository\MemberSubscriptionRepository;
@@ -45,6 +46,7 @@ class DashboardController extends AbstractDashboardController
             PdfService::class => '?'.PdfService::class,
             CamtProcessor::class => '?'.CamtProcessor::class,
             CamtSessionStorage::class => '?'.CamtSessionStorage::class,
+            MemberSubscriptionXlsExporter::class => '?'.MemberSubscriptionXlsExporter::class,
         ]);
     }
 
@@ -91,6 +93,22 @@ class DashboardController extends AbstractDashboardController
             'pendingAmount' => $subscription ? $this->getDashboardRepo()->getPendingAmount($subscription->getName()) : null,
             'paidAmount' => $subscription ? $this->getDashboardRepo()->getPaidAmount($subscription->getName()) : null,
         ]);
+    }
+
+    #[Route('/admin/export/{subscriptionName}', name: 'export_member_subscriptions_by_subscription_name')]
+    public function exportMemberSubscriptionBySubscriptionName(string $subscriptionName = null): Response
+    {
+        $subscription = $this->getSubscriptionRepo()->getCurrentSubscription($subscriptionName);
+        if (null === $subscriptionName && null !== $subscription) {
+            return $this->redirectToDashboardSubscription($subscription->getName());
+        }
+
+        $memberSubscriptions = $this->getMemberSubscriptionRepository()->getActiveSubscriptions($subscription);
+
+        /** @var MemberSubscriptionXlsExporter $service */
+        $service = $this->container->get(MemberSubscriptionXlsExporter::class);
+
+        return $service->exportToXlsx($memberSubscriptions);
     }
 
     #[Route('/admin/mark-invoice-as-pending/{subscriptionName}', name: 'mark_invoice_as_pending')]
