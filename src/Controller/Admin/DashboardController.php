@@ -95,8 +95,8 @@ class DashboardController extends AbstractDashboardController
         ]);
     }
 
-    #[Route('/admin/export/{subscriptionName}', name: 'export_member_subscriptions_by_subscription_name')]
-    public function exportMemberSubscriptionBySubscriptionName(string $subscriptionName = null): Response
+    #[Route('/admin/export/{subscriptionName}.{ext}', name: 'export_member_subscriptions_by_subscription_name', requirements: ['ext' => 'xlsx|html'], defaults: ['ext' => 'xlsx'])]
+    public function exportMemberSubscriptionBySubscriptionName(string $ext, string $subscriptionName = null): Response
     {
         $subscription = $this->getSubscriptionRepo()->getCurrentSubscription($subscriptionName);
         if (null === $subscriptionName && null !== $subscription) {
@@ -108,7 +108,11 @@ class DashboardController extends AbstractDashboardController
         /** @var MemberSubscriptionXlsExporter $service */
         $service = $this->container->get(MemberSubscriptionXlsExporter::class);
 
-        return $service->exportToXlsx($memberSubscriptions);
+        return match ($ext) {
+            'xlsx' => $service->exportToXlsx($memberSubscriptions),
+            'html' => $service->exportToHtml($memberSubscriptions),
+            default => $service->exportToXlsx($memberSubscriptions),
+        };
     }
 
     #[Route('/admin/mark-invoice-as-pending/{subscriptionName}', name: 'mark_invoice_as_pending')]
