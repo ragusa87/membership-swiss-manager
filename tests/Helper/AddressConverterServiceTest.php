@@ -17,6 +17,7 @@ class AddressConverterServiceTest extends TestCase
         $this->assertSame($expectedNumber, $number);
     }
 
+     /** @return array<?string[]> */
      public function provideTrimData(): array
      {
          return [

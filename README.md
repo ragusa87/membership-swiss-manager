@@ -53,7 +53,7 @@ What is implemented:
 ## Fixtures
 
 Load fixtures:
-> docker-compose exec php bin/console doctrine:fixtures:load -n
+> docker-compose exec php bin/console doctrine:fixtures:load --env=test
 
 ## Code style & checks
 > docker-compose exec php composer run-script phpcs

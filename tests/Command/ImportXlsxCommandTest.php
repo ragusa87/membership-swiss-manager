@@ -8,7 +8,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class ImportXlsxCommandTest extends KernelTestCase
 {
-    public function testExecute()
+    public function testExecute(): void
     {
         $kernel = static::createKernel();
         $kernel->boot();

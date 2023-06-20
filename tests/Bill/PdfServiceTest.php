@@ -71,6 +71,6 @@ class PdfServiceTest extends TestCase
             use TranslatorTrait;
         };
 
-        return new PdfService($translator, $iban, '12', 'Association du Vanil', 'Chemin du Vanil', 'Lausanne', 1003, 'CH', 'fr', true);
+        return new PdfService($translator, $iban, '12', 'Association du Vanil', 'Chemin du Vanil', 'Lausanne', '1003', 'CH', 'fr', true);
     }
 }
