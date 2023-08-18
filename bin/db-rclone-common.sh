@@ -14,6 +14,11 @@ if [ -z $SECRET_ACCESS_KEY ]; then
 	exit 1
 fi
 
+if [ "$#" -ne 0 ] && ( [ "$1" == 'dev' ] ||  [ "$1" == 'prod' ] ) ; then
+	DB_ENV=$1
+	shift
+fi
+
 export RCLONE_CONFIG_MEMBERSHIPMANAGER_TYPE=${RCLONE_CONFIG_MEMBERSHIPMANAGER_TYPE:-s3}
 export RCLONE_CONFIG_MEMBERSHIPMANAGER_ENDPOINT=${RCLONE_CONFIG_MEMBERSHIPMANAGER_ENDPOINT:-sos-ch-gva-2.exo.io}
 export RCLONE_CONFIG_MEMBERSHIPMANAGER_PROVIDER=${RCLONE_CONFIG_MEMBERSHIPMANAGER_PROVIDER:-Other}
@@ -25,5 +30,4 @@ export BUCKET_NAME=${BUCKET_NAME:-vanil-association}
 export DB_ENV=${DB_ENV:-dev}
 export FILENAME=${FILENAME:-db/${DB_ENV}.sqlite}
 
-
-
+echo "Using env ${DB_ENV}, accepted: prod/dev"

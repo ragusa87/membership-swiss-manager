@@ -72,6 +72,9 @@
             "db-create": "php ./bin/console doctrine:database:create --env=test",
             "schema-create": "php ./bin/console doctrine:schema:create --env=test"
         },
+        "migrate": {
+            "db-migrate": "php ./bin/console doctrine:migrations:migrate"
+        },
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
