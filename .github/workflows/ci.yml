@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
-  pull_request:
+    branches:
+      - main
+  pull_request: ~
+  workflow_dispatch: ~
 
 defaults:
   run:
@@ -16,39 +19,31 @@ permissions:
   contents: read
 
 jobs:
-
   tests:
     name: Tests
-
-    env:
-      extensions: amqp,apcu,igbinary,intl,mbstring,memcached,redis
-
-    strategy:
-      matrix:
-        include:
-          - php: '8.1'
-#          - php: '8.2'
-            #mode: experimental
-      fail-fast: false
-
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      -
+        name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build Docker images
+        uses: docker/bake-action@v3
         with:
-          fetch-depth: 2
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          coverage: "none"
-          ini-values: date.timezone=UTC,memory_limit=-1,default_socket_timeout=10,session.gc_probability=0,apc.enable_cli=1,zend.assertions=1
-          php-version: "${{ matrix.php }}"
-          extensions: "${{ env.extensions }}"
-          tools: composer:v2, php-cs, phpunit, phpstan
-
-      - name: Configure environment
+          pull: true
+          load: true
+          files: |
+            docker-compose.yml
+            docker-compose.override.yml
+          set: |
+            *.cache-from=type=gha,scope=${{github.ref}}
+            *.cache-from=type=gha,scope=refs/heads/main
+            *.cache-to=type=gha,scope=${{github.ref}},mode=max
+      -
+        name: Configure environment
         run: |
           git config --global user.email ""
           git config --global user.name "CI"
@@ -56,21 +51,51 @@ jobs:
           git config --global advice.detachedHead false
 
           COMPOSER_HOME="$(composer config home)"
-# echo COMPOSER_UP='composer update --no-progress --ansi'$([[ "${{ matrix.php }}" = "8.2" ]] && echo ' --ignore-platform-req=php+') >> $GITHUB_ENV
+      # composer install ?
       - name: Install dependencies
         run: |
           echo "::group::composer update"
           composer install
-          echo "::endgroup::"
-
-      - name: Run phpunit
-        run: |
-            mkdir -p db
-            composer run-script db-create-test
-            composer phpunit
-
-      - name: Run phpstan
+          echo "::endgroup::"        
+        
+      -
+        name: Start services
+        run: docker compose up --wait --no-build
+      -
+        name: Check HTTP reachability
+        run: curl -v -o /dev/null http://localhost
+      -
+        name: Check HTTPS reachability
+        run: curl -vk -o /dev/null https://localhost
+      -
+        name: Create test database
+        if: false # Remove this line if Doctrine ORM is installed
+        run: docker compose exec -T php bin/console -e test doctrine:database:create
+      -
+        name: Run migrations
+        if: false # Remove this line if Doctrine Migrations is installed
+        run: docker compose exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
+      -
+        name: Run phpstan
         run: composer phpstan
-
-      - name: Run phpcs
+      -
+        name: Run phpcs
         run: composer phpcs
+      -
+        name: Run PHPUnit
+        run: docker compose exec -T composer phpunit
+      - 
+        name: Doctrine Schema Validator
+        run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+  lint:
+    name: Docker Lint
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true

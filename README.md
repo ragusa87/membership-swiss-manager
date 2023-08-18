@@ -40,11 +40,11 @@ What is implemented:
 
 1. If not already done, [install Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
 2. Run `mkdir -p var db`
-2. Run `docker compose build --pull --no-cache` to build fresh images
+2. Run `docker compose build --no-cache` to build fresh images
 3. Choose the configuration you need:
     - For traefik `cp docker-compose.override.traefik.yml docker-compose.override.yml`
     - For localhost `cp docker-compose.override.linux.yml docker-compose.override.yml`
-3. Run `docker compose up` (the logs will be displayed in the current shell)
+3. Run `docker compose up --pull --wait` (the logs will be displayed in the current shell)
 4. Create the database `docker-compose exec php bin/console doctrine:database:create`
 4. Create the schema `docker-compose exec php bin/console doctrine:migration:migrate`
 5. Import the fixtures `docker-compose exec php bin/console doctrine:fixtures:load`
