@@ -69,6 +69,7 @@
         },
         "db-create-test": {
             "cleanup": "rm -f db/test.sqlite",
+            "mk-dir": "mkdir -p db",
             "db-create": "php ./bin/console doctrine:database:create --env=test",
             "schema-create": "php ./bin/console doctrine:schema:create --env=test"
         },

@@ -47,9 +47,9 @@ RUN set -eux; \
 
 ###> recipes ###
 ###> doctrine/doctrine-bundle ###
-RUN apk add --no-cache --virtual .pgsql-deps postgresql-dev; \
+RUN apk add --no-cache --virtual .pgsql-deps postgresql-dev>=15.4; \
 	docker-php-ext-install -j$(nproc) pdo_pgsql; \
-	apk add --no-cache --virtual .pgsql-rundeps so:libpq.so.5; \
+	apk add --no-cache --virtual .pgsql-rundeps so:libpq.so.5>=15.4; \
 	apk del .pgsql-deps
 ###< doctrine/doctrine-bundle ###
 ###< recipes ###
@@ -120,7 +120,7 @@ RUN set -eux; \
 # And move existing group to id 2000 if already taken (for MacOs)
 RUN echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories ;\
     apk add --no-cache --virtual .mod shadow; \
-	ash -c 'usermod -u $USER_ID www-data'; \
+	ash -c 'usermod -u ${USER_ID} www-data'; \
     ash -c '[ "$(getent group $GROUP_ID | cut -d: -f1)" = "" ] && echo "No need to override $GROUP_ID" || groupmod -g 20000 $(getent group $GROUP_ID | cut -d: -f1)'; \
     apk del .mod;
 

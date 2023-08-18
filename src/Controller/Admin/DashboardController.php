@@ -205,9 +205,9 @@ class DashboardController extends AbstractDashboardController
 
         $this->addFlash('success', $message);
         foreach ($this->getInvoiceHelper()->logger()->getLogs() as $log) {
-//            if($log['level'] <= LogLevel::DEBUG) {
-//                continue;
-//            }
+            //            if($log['level'] <= LogLevel::DEBUG) {
+            //                continue;
+            //            }
             $this->addFlash($log['level'], $log['message'].' '.json_encode($log['context']));
         }
 

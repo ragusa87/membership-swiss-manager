@@ -17,34 +17,34 @@ class AddressConverterServiceTest extends TestCase
         $this->assertSame($expectedNumber, $number);
     }
 
-     public function provideTrimData(): array
-     {
-         return [
-             [
-                 'Chemin du Vanil 10b',
-                 'Chemin du Vanil',
-                 '10b',
-             ],
-             [
-                 'Chemin du Vanil 10b.',
-                 'Chemin du Vanil',
-                 '10b',
-             ],
-             [
-                 'Chemin du Peuple',
-                 'Chemin du Peuple',
-                 null,
-             ],
-             [
-                 'Chemin du Peuple.',
-                 'Chemin du Peuple',
-                 null,
-             ],
-             [
-                 null,
-                 null,
-                 null,
-             ],
-         ];
-     }
+    public function provideTrimData(): array
+    {
+        return [
+            [
+                'Chemin du Vanil 10b',
+                'Chemin du Vanil',
+                '10b',
+            ],
+            [
+                'Chemin du Vanil 10b.',
+                'Chemin du Vanil',
+                '10b',
+            ],
+            [
+                'Chemin du Peuple',
+                'Chemin du Peuple',
+                null,
+            ],
+            [
+                'Chemin du Peuple.',
+                'Chemin du Peuple',
+                null,
+            ],
+            [
+                null,
+                null,
+                null,
+            ],
+        ];
+    }
 }

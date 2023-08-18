@@ -23,10 +23,10 @@ class TwigEnvironmentInjector extends AbstractExtension
         return 'dev';
     }
 
-        public function getFunctions(): array
-        {
-            return [
-                new TwigFunction('getEnvironment', [$this, 'getEnvironment']),
-            ];
-        }
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('getEnvironment', [$this, 'getEnvironment']),
+        ];
+    }
 }

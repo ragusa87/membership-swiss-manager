@@ -128,11 +128,11 @@ class MemberMatcher
     private function findByFullNameAndAddress(Member $user, array $criteria = []): ?MemberMatch
     {
         if (
-            empty($user->getFirstname()) ||
-            empty($user->getLastname()) ||
-            empty($user->getAddress() ||
-                empty($user->getCity()) ||
-                empty($user->getZip())
+            empty($user->getFirstname())
+            || empty($user->getLastname())
+            || empty($user->getAddress()
+                || empty($user->getCity())
+                || empty($user->getZip())
             )) {
             return null;
         }

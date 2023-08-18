@@ -30,6 +30,15 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
+        name: Set up override
+        run: |
+          cp -f docker-compose.override.linux.yml docker-compose.override.yml
+          export USER_ID=$(id -u)
+          export GROUP_ID=$(id -g)
+          sed -i "s/USER_ID: 1000/USER_ID: ${USER_ID}/" docker-compose.override.yml
+          sed -i "s/GROUP_ID: 1000/GROUP_ID: ${GROUP_ID}/" docker-compose.override.yml
+          cat docker-compose.override.yml
+      -
         name: Build Docker images
         uses: docker/bake-action@v3
         with:
@@ -49,44 +58,30 @@ jobs:
           git config --global user.name "CI"
           git config --global init.defaultBranch main
           git config --global advice.detachedHead false
-
-          COMPOSER_HOME="$(composer config home)"
-      # composer install ?
-      - name: Install dependencies
-        run: |
-          echo "::group::composer update"
-          composer install
-          echo "::endgroup::"        
-        
       -
         name: Start services
         run: docker compose up --wait --no-build
       -
         name: Check HTTP reachability
-        run: curl -v -o /dev/null http://localhost
+        run: curl -v -o /dev/null http://localhost:8045
       -
         name: Check HTTPS reachability
-        run: curl -vk -o /dev/null https://localhost
+        run: curl -vk -o /dev/null https://localhost:44333
       -
         name: Create test database
-        if: false # Remove this line if Doctrine ORM is installed
-        run: docker compose exec -T php bin/console -e test doctrine:database:create
-      -
-        name: Run migrations
-        if: false # Remove this line if Doctrine Migrations is installed
-        run: docker compose exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
-      -
-        name: Run phpstan
-        run: composer phpstan
+        run: docker compose exec -T php composer db-create-test
       -
         name: Run phpcs
-        run: composer phpcs
+        run: docker compose exec -T php composer phpcs
       -
         name: Run PHPUnit
-        run: docker compose exec -T composer phpunit
+        run: docker compose exec -T php composer phpunit
       - 
         name: Doctrine Schema Validator
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+      -
+        name: Run phpstan
+        run: docker compose exec -T php composer phpstan -- --no-progress
   lint:
     name: Docker Lint
     runs-on: ubuntu-latest

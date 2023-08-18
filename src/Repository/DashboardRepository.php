@@ -24,7 +24,7 @@ class DashboardRepository
      * We count each member and children for the given subscription.
      * Count all user on empty subscription.
      */
-    public function countMembers(?Subscription $subscription = null): int
+    public function countMembers(Subscription $subscription = null): int
     {
         /** @var EntityManager $manager */
         $manager = $this->registry->getManagerForClass(Member::class);
