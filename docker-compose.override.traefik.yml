@@ -4,6 +4,8 @@ version: "3.4"
 services:
   php:
     build:
+      context: .
+      target: php_dev
       args:
        USER_ID: 1000
        GROUP_ID: 1000
@@ -22,12 +24,15 @@ services:
       - host.docker.internal:host-gateway
 
   caddy:
+    command: [ "caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile", "--watch" ]
+    build:
+      context: .
+      target: caddy_base
     volumes:
       - ./public:/srv/app/public:ro
       - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-###> symfony/mercure-bundle ###
-###< symfony/mercure-bundle ###
     environment:
+      MERCURE_EXTRA_DIRECTIVES: demo
       SERVER_NAME: "${PROJECT_NAME}.${PROJECT_DOMAIN}:80"
       CADDY_EXTRA_CONFIG: "tls internal"
     labels:
