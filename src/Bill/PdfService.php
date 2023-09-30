@@ -149,10 +149,16 @@ class PdfService implements LoggerAwareInterface
     {
         $subscription = $invoice->getMemberSubscription()->getSubscription();
 
-        return $this->translator->trans('pdf.invoice.name', [
+        $name = $this->translator->trans('pdf.invoice.name', [
             'name' => $subscription->getName(),
             'type' => $this->translator->trans('subscription_type_enum.'.$invoice->getMemberSubscription()->getTypeEnum()->value),
         ]);
+
+        if ($invoice->getReminder() > 0) {
+            $name .= ' - '.$this->translator->trans('reminders_num', ['num' => $invoice->getReminder()]);
+        }
+
+        return $name;
     }
 
     protected function insertHeader(Fpdf $fpdf, Invoice $invoice): void
@@ -196,6 +202,14 @@ class PdfService implements LoggerAwareInterface
             'priceMember' => $priceMember / 100,
             'priceSupporter' => $priceSupporter / 100,
         ])));
+
+        if ($invoice->getMemberSubscription()->getDueAmount() > 0 && $invoice->getMemberSubscription()->getDueAmount() !== $invoice->getMemberSubscription()->getPrice()) {
+            $fpdf->Ln(15);
+            $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('bill_amount_underpaid_{amount}', [
+                'amount' => $invoice->getMemberSubscription()->getDueAmount() / 100,
+            ])));
+            $fpdf->Ln(5);
+        }
     }
 
     private function isIbanCompatibleWithQRCodeReference(): bool

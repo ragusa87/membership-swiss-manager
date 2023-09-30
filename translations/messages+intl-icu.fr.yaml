@@ -23,6 +23,15 @@ SubscriptionMember: InscriptionsMembres
 MemberSubscription: InscriptionsMembres
 Type: Type
 Reminder: Rappel
+reminders_num: >-
+    {num, plural,
+            =0    {Transaction inconnue}
+            =1    {Premier rappel}
+            =2    {Deuxième rappel}
+            =3    {Troisième rappel}
+            other {# rappel}
+    }
+
 Due Amount: Montant Dû
 View Invoices: Voir les factures
 View Invoice: Voir la facture
@@ -61,3 +70,4 @@ No invoice found: 'Facture non trouvée'
 bill_reference_missmatch: 'Référence de facture {transactionId} incorrecte'
 Export to {format}: 'Export en {format}'
 Mark open invoices as pending: 'Marquer les factures ouvertes comme en attente'
+bill_amount_underpaid_{amount}: 'Il manque {amount} CHF'

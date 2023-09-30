@@ -35,3 +35,12 @@ statuses:
 "bill_amount_underpaid": "Montant manquant"
 bill_reference_missmatch: 'Invoice transaction missmatch {transactionId}'
 Export to {format}: 'Export to {format}'
+bill_amount_underpaid_{amount}: '{amount} CHF is missing'
+reminders_num: >-
+    {num, plural,
+            =0    {Transaction inconnue}
+            =1    {first reminder}
+            =2    {second reminder}
+            =3    {third reminder}
+            other {# reminder}
+    }
