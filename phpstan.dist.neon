@@ -6,7 +6,5 @@ parameters:
         - public/
         - src/
         - tests/
-    scanDirectories:
-        - vendor
-    checkGenericClassInNonGenericObjectType: false
+
 
