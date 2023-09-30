@@ -6,12 +6,6 @@ FROM mlocati/php-extension-installer:2 AS php_extension_installer_upstream
 FROM composer/composer:2-bin AS composer_upstream
 FROM caddy:2-alpine AS caddy_upstream
 
-# Permission issue hack
-ARG USER_ID=1000
-ARG GROUP_ID=1001
-ENV USER_ID=${USER_ID}
-ENV GROUP_ID=${GROUP_ID}
-
 # The different stages of this Dockerfile are meant to be built into separate images
 # https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
 # https://docs.docker.com/compose/compose-file/#target
@@ -19,6 +13,12 @@ ENV GROUP_ID=${GROUP_ID}
 
 # Base PHP image
 FROM php_upstream AS php_base
+# Permission issue hack
+ARG USER_ID=1000
+ARG GROUP_ID=1001
+ENV USER_ID=$USER_ID
+ENV GROUP_ID=$GROUP_ID
+
 
 WORKDIR /srv/app
 
@@ -70,6 +70,15 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 # Writable sessions
 RUN mkdir -p /php-sessions && chown -R www-data:www-data /php-sessions && chmod -R 777 /php-sessions
 
+# Make sure www-data use the same UID&GID as locally \
+# And move existing group to id 2000 if already taken (for MacOs)
+RUN echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories ;\
+    apk add --no-cache --virtual .mod shadow; \
+	ash -c 'usermod -u ${USER_ID} www-data'; \
+    ash -c '[ "$(getent group ${GROUP_ID} | cut -d: -f1)" = "" ] && echo "No need to override ${GROUP_ID}" || groupmod -g 20000 $(getent group ${GROUP_ID} | cut -d: -f1)'; \
+    apk del .mod;
+
+
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
@@ -118,14 +127,6 @@ RUN set -eux; \
 	composer dump-env prod; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; sync;
-
-# Make sure www-data use the same UID&GID as locally \
-# And move existing group to id 2000 if already taken (for MacOs)
-RUN echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories ;\
-    apk add --no-cache --virtual .mod shadow; \
-	ash -c 'usermod -u ${USER_ID} www-data'; \
-    ash -c '[ "$(getent group $GROUP_ID | cut -d: -f1)" = "" ] && echo "No need to override $GROUP_ID" || groupmod -g 20000 $(getent group $GROUP_ID | cut -d: -f1)'; \
-    apk del .mod;
 
 
 # Base Caddy image
