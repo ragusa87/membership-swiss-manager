@@ -274,6 +274,9 @@ class DashboardController extends AbstractDashboardController
         $message = $reader->readFile($file->getPathname());
 
         $id = md5_file($file->getPathname());
+        if (false === $id) {
+            throw new \RuntimeException('Unable to generate md5 from file');
+        }
         unlink($file->getPathname());
 
         $storage->set($id, $message);

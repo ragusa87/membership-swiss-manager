@@ -40,7 +40,7 @@ class MemberRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array<int> $ids
+     * @param array<int|Member> $ids
      *
      * @return Member[] Returns an array of Member objects
      */

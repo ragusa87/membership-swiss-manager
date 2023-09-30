@@ -23,8 +23,9 @@ class PdfServiceTest extends TestCase
         $response->send();
         $responseBody = ob_get_contents();
         ob_end_clean();
+
         // This check that the binary content contains PDF-*, as it's hard to fetch the headers.
-        $this->assertNotFalse(strpos($responseBody, 'PDF-'), $responseBody);
+        $this->assertNotFalse(strpos((string) $responseBody, 'PDF-'), (string) $responseBody);
     }
 
     public function testConvert(): void

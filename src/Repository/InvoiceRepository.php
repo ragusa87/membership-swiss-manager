@@ -57,7 +57,7 @@ class InvoiceRepository extends ServiceEntityRepository
         $qb->where($qb->expr()->notIn('i.status', [InvoiceStatusEnum::PAID->value]));
         $query = $qb->select($qb->expr()->countDistinct('i.id'));
 
-        return $query->getQuery()->getSingleScalarResult();
+        return (int) $query->getQuery()->getSingleScalarResult();
     }
 
     /**

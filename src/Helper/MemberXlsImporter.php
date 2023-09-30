@@ -53,7 +53,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     private array $expectedHeaders = self::HEADERS_DIRTY;
 
     /**
-     * @return ParseResult<Member>
+     * @return ParseResult<int,Member>
      *
      * @throws \InvalidArgumentException
      */
@@ -146,6 +146,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             $this->logger?->debug(sprintf('%d users in one row', count($names)));
         }
 
+        /** @var Member[] $members */
         $members = [];
         foreach ($names as $name) {
             $members[] = $m = new Member();
@@ -173,7 +174,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         }
         array_unshift($members, $parent);
 
-        $this->logger?->debug(print_r(array_map(fn (Member $member) => sprintf('#User(%s)', $member->__toString()), $members), true));
+        $this->logger?->debug(print_r(array_map(fn (?Member $member) => sprintf('#User(%s)', null === $member ? 'null' : $member->__toString()), $members), true));
 
         return $members;
     }

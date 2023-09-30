@@ -22,10 +22,10 @@ class Subscription
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'subscription', targetEntity: MemberSubscription::class, orphanRemoval: true)]
     /**
      * @var Collection<int, MemberSubscription>
      */
+    #[ORM\OneToMany(mappedBy: 'subscription', targetEntity: MemberSubscription::class, orphanRemoval: true)]
     private Collection $subscription;
 
     public function __construct()

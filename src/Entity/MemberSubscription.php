@@ -40,10 +40,10 @@ class MemberSubscription
     #[ORM\Column(type: 'boolean', options: ['default' => true])]
     private bool $active = true;
 
-    #[ORM\OneToMany(mappedBy: 'memberSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
     /**
      * @var Collection<int, Invoice>
      */
+    #[ORM\OneToMany(mappedBy: 'memberSubscription', targetEntity: Invoice::class, orphanRemoval: true)]
     private Collection $invoices;
 
     #[ORM\Column(type: 'text', nullable: true)]

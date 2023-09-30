@@ -53,12 +53,14 @@ class DashboardRepository
 
         // Sum the number of nb_children + count the number of member in a scalar query using a native query
         $sqlSelect = sprintf('SELECT SUM(sub.%s) + count(sub.%s) as nb', $mapping['nb_children'], $mapping['member_count']);
-        $subQuery = $sqlSelect.sprintf(' FROM (%s) AS sub', $qb->getQuery()->getSQL());
+        /** @var string $substring */
+        $substring = $qb->getQuery()->getSQL();
+        $subQuery = $sqlSelect.sprintf(' FROM (%s) AS sub', $substring);
 
         $rsm = new ResultSetMapping();
         $rsm->addScalarResult('nb', 'nb');
 
-        return $manager->createNativeQuery($subQuery, $rsm)->getSingleScalarResult() ?? 0;
+        return (int) ($manager->createNativeQuery($subQuery, $rsm)->getSingleScalarResult() ?? 0);
     }
 
     public function getPaidAmount(string $subscriptionName): int

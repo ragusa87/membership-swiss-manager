@@ -35,6 +35,9 @@ class Member
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
     private ?self $parent = null;
 
+    /**
+     * @var Collection<int, MemberSubscription>
+     */
     #[ORM\OneToMany(mappedBy: 'member', targetEntity: MemberSubscription::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $memberSubscription;
 
@@ -54,7 +57,7 @@ class Member
     private ?int $zip = null;
 
     /**
-     * @var Collection|Member[]
+     * @var Collection<int, Member> $children
      */
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
     protected Collection $children;
@@ -246,7 +249,7 @@ class Member
     }
 
     /**
-     * @return Collection|Member[]
+     * @return Collection<int,Member>|Member[]
      */
     public function getChildren(): Collection
     {

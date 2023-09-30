@@ -76,8 +76,8 @@ class DefaultController extends AbstractController
         }
 
         $transactionId = $request->query->get('transactionId');
-        if ('' !== trim($transactionId)) {
-            $invoice->setTransactionId($transactionId);
+        if ('' !== trim((string) $transactionId)) {
+            $invoice->setTransactionId((string) $transactionId);
         }
 
         $invoice->setStatusFromEnum(InvoiceStatusEnum::PAID);

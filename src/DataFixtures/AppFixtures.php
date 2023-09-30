@@ -35,16 +35,16 @@ class AppFixtures extends Fixture
         $manager->flush();
 
         $memberSubscription = new MemberSubscription();
-        $memberSubscription->setMember($this->getReference(Member::class.'_Gladyss'));
-        $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.date('Y')));
+        $memberSubscription->setMember($this->getReference(Member::class.'_Gladyss')); // @phpstan-ignore-line
+        $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.date('Y')));  // @phpstan-ignore-line
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::MEMBER);
         $memberSubscription->setPrice($memberSubscription->getPrice());
         $this->addInvoices($manager, $memberSubscription);
         $manager->persist($memberSubscription);
 
         $memberSubscription = new MemberSubscription();
-        $memberSubscription->setMember($this->getReference(Member::class.'_Gladyss'));
-        $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1)));
+        $memberSubscription->setMember($this->getReference(Member::class.'_Gladyss')); // @phpstan-ignore-line
+        $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1))); // @phpstan-ignore-line
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::MEMBER);
         $memberSubscription->setPrice($memberSubscription->getPrice());
         $this->addInvoices($manager, $memberSubscription, 0.5)->setStatusFromEnum(InvoiceStatusEnum::PAID);
@@ -53,8 +53,8 @@ class AppFixtures extends Fixture
         $manager->flush();
 
         $memberSubscription = new MemberSubscription();
-        $memberSubscription->setMember($this->getReference(Member::class.'_Laurent'));
-        $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1)));
+        $memberSubscription->setMember($this->getReference(Member::class.'_Laurent')); // @phpstan-ignore-line
+        $memberSubscription->setSubscription($this->getReference(Subscription::class.'_'.(((int) date('Y')) - 1))); // @phpstan-ignore-line
         $memberSubscription->setTypeEnum(SubscriptionTypeEnum::SUPPORTER);
         $memberSubscription->setPrice($memberSubscription->getPrice());
         $this->addInvoices($manager, $memberSubscription);
