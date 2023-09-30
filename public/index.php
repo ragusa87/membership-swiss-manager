@@ -1,5 +1,6 @@
 <?php
 
+
 $_SERVER['HTTP_X_FORWARDED_PROTO'] = $_SERVER['HTTP_CUSTOM_FORWARDED_PROTO'] ?? $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? 'http';
 
 use App\Kernel;
