@@ -191,11 +191,11 @@
 
                         {# Display subscription's price missmatch with invoice #}
                         {% if result.invoice.memberSubscription is not null and result.invoice.memberSubscription.price != result.invoice.price %}
-                            {% if result.invoice.price > result.invoice.memberSubscription.price %}
-                                <span class="amount more">{{ 'bill_amount_overpaid'|trans }} {{ (result.invoice.price - result.invoice.memberSubscription.price )/100 }} CHF</span>
+                            {% if result.invoice.price > result.invoice.memberSubscription.getDueAmount %}
+                                <span class="amount more">{{ 'bill_amount_overpaid'|trans }} {{ (result.invoice.price - result.invoice.memberSubscription.getDueAmount )/100 }} CHF</span>
                             {% endif %}
-                            {% if result.invoice.price < result.invoice.memberSubscription.price %}
-                                <span class="amount less">{{ 'bill_amount_underpaid'|trans }} {{ (result.invoice.price - result.invoice.memberSubscription.price )/100 }} CHF</span>
+                            {% if result.invoice.price < result.invoice.memberSubscription.getDueAmount %}
+                                <span class="amount less">{{ 'bill_amount_underpaid'|trans }} {{ (result.invoice.price - result.invoice.memberSubscription.getDueAmount )/100 }} CHF</span>
                             {% endif %}
 
                         {% endif %}

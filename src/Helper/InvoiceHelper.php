@@ -132,4 +132,30 @@ class InvoiceHelper implements LoggerAwareInterface
 
         return $invoices;
     }
+
+    public function generateSingleInvoice(MemberSubscription $memberSubscription): Invoice
+    {
+        if ($memberSubscription->getDueAmount() <= 0) {
+            throw new \RuntimeException('No due amount');
+        }
+
+        $reminder = 0;
+        $hasInvoices = false;
+        foreach ($memberSubscription->getInvoices() as $invoice) {
+            $reminder = max($reminder, $invoice->getReminder());
+            $hasInvoices = true;
+        }
+
+        if ($hasInvoices) {
+            ++$reminder;
+        }
+
+        $invoice = $memberSubscription->generateNewInvoice();
+        $invoice->setReminder($reminder);
+
+        $this->getManagerInvoices()->persist($invoice);
+        $this->getManagerInvoices()->flush();
+
+        return $invoice;
+    }
 }

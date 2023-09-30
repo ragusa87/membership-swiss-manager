@@ -194,6 +194,27 @@ class DashboardController extends AbstractDashboardController
         return $this->container->get(MemberSubscriptionRepository::class);
     }
 
+    #[Route('/admin/generate/{subscriptionName}/single-invoice/{memberSubscriptionId}', name: 'admin_generate_single_invoice')]
+    public function generateSingleInvoice(string $subscriptionName, string $memberSubscriptionId): Response
+    {
+        $subscription = $this->getSubscriptionRepo()->getCurrentSubscription($subscriptionName);
+        $memberSubscription = $this->getMemberSubscriptionRepository()->find($memberSubscriptionId);
+
+        if (null === $subscription || null === $memberSubscription) {
+            throw $this->createNotFoundException('Subscription or MemberSubscription not found');
+        }
+
+        if ($subscription !== $memberSubscription->getSubscription()) {
+            throw $this->createAccessDeniedException('Subscription mismatch');
+        }
+
+        $this->getInvoiceHelper()->generateSingleInvoice($memberSubscription);
+        $message = new TranslatableMessage('%d created invoices', ['%d' => 1]);
+        $this->addFlash('success', $message);
+
+        return $this->redirectToDashboardSubscription($subscriptionName);
+    }
+
     #[Route('/admin/generate/{subscriptionName}', name: 'admin_generate_invoices')]
     public function generateInvoices(string $subscriptionName = null): Response
     {

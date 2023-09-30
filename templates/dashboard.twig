@@ -103,7 +103,9 @@
                                     </li>
                                 {% endfor %}
                                 </ul>
-                                <!-- todo btn to create invoice -->
+                            {% endif %}
+                            {% if ms.invoices|length == 0 and ms.dueAmount > 0 %}
+                               <br> <a class="btn secondary" href="{{ path('admin_generate_single_invoice', {subscriptionName: ms.subscription.name, memberSubscriptionId: ms.id}) }}">Generate an invoice for {{ (ms.dueAmount/100)|format_currency('CHF') }}</a>
                             {% endif %}
 
                         </td>
