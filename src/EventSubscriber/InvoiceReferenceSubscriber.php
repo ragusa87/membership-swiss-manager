@@ -4,10 +4,13 @@ namespace App\EventSubscriber;
 
 use App\Entity\Invoice;
 use App\Repository\InvoiceRepository;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PreFlushEventArgs as PreFlushEventArgsAlias;
 use Doctrine\ORM\Events;
 
+#[AsDoctrineListener('postFlush')]
+#[AsDoctrineListener('preFlush')]
 class InvoiceReferenceSubscriber implements EventSubscriber
 {
     private bool $mustRun = false;
