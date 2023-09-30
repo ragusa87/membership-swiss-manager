@@ -169,13 +169,13 @@ class PdfService implements LoggerAwareInterface
         $member = $invoice->getMemberSubscription()->getMember();
         $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getFullname()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getFullAddressLine1()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', (string) $member->getFullAddressLine1()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getFullAddressLine2()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', (string) $member->getFullAddressLine2()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getEmail()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', (string) $member->getEmail()));
         $fpdf->Ln(5);
-        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $member->getPhone()));
+        $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', (string) $member->getPhone()));
         $fpdf->Ln(5);
         if ($member->getChildren()->count() > 0) {
             $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('With: ')));
