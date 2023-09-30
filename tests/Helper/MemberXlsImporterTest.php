@@ -9,7 +9,7 @@ use Symfony\Component\ErrorHandler\BufferingLogger;
 
 class MemberXlsImporterTest extends TestCase
 {
-    public function testImport()
+    public function testImport(): void
     {
         $logger = new BufferingLogger();
         $importer = new MemberXlsImporter(new AddressConverterService(), $logger);

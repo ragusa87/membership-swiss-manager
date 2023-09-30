@@ -62,6 +62,7 @@
             "fix src": "@php ./vendor/bin/php-cs-fixer fix --config .php-cs-fixer.dist.php"
         },
         "phpstan": {
+            "config": "[ ! -f phpstan.neon ] && cp phpstan.dist.neon phpstan.neon || true",
             "phpstan": "@php ./vendor/bin/phpstan analyse -c phpstan.neon"
         },
         "phpunit": {
@@ -101,6 +102,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "friendsofphp/php-cs-fixer": "^3.13",
         "phpstan/phpstan": "^1.9",
+        "phpunit/phpunit": "^10.3",
         "symfony/maker-bundle": "^1.48",
         "symfony/phpunit-bridge": "^6.2",
         "symfony/stopwatch": "6.2.*",
