@@ -42,7 +42,7 @@ class CamtResultItem
     {
         $iso = new phpIso11649();
 
-        if (false === $iso->validateRfReference((string)$this->ref)) {
+        if (false === $iso->validateRfReference((string) $this->ref)) {
             return null;
         }
         $refId = (int) substr($this->ref, 4);
