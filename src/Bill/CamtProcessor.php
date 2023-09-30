@@ -107,15 +107,9 @@ class CamtProcessor
                 continue;
             }
             $index = $references[$result->ref] ?? null;
-            if (null !== $index) {
+            if (null !== $index && array_key_exists($index, $invoicesByReferences)) {
                 $result->setInvoice($invoicesByReferences[$index]);
                 unset($invoicesByReferences[$index]);
-            }
-        }
-
-        foreach ($results->getResults() as $result) {
-            if (null === $result->getInvoice()) {
-                $a = 1;
             }
         }
     }
