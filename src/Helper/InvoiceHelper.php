@@ -48,7 +48,25 @@ class InvoiceHelper implements LoggerAwareInterface
             }
 
             foreach ($memberSubscription->getInvoices() as $invoice) {
+                if (in_array($invoice->getStatusAsEnum(), [InvoiceStatusEnum::PAID, InvoiceStatusEnum::CANCELED, InvoiceStatusEnum::CREATED], true)) {
+                    continue;
+                }
                 $createdInvoices[] = $this->generateReminder($invoice);
+            }
+
+            // If there is no open invoices, but still money to be paid, reopen a new bill
+            if (0 === count($this->invoicesBySubscriptionAndStatuses([$memberSubscription], [InvoiceStatusEnum::CREATED, InvoiceStatusEnum::PENDING]))) {
+                $this->logger()->info('Generating new invoice for subscription '.$memberSubscription->getId());
+
+                $maxReminder = 0;
+                foreach ($memberSubscription->getInvoices() as $invoice) {
+                    $maxReminder = max($maxReminder, $invoice->getReminder());
+                }
+
+                $invoice = $memberSubscription->generateNewInvoice();
+                $invoice->setReminder($maxReminder + 1);
+                $this->getManagerInvoices()->persist($invoice);
+                $createdInvoices[] = $invoice;
             }
         }
         $this->getManagerInvoices()->flush();
@@ -121,10 +139,21 @@ class InvoiceHelper implements LoggerAwareInterface
      */
     public function createdInvoices(array $memberSubscriptions): array
     {
+        return $this->invoicesBySubscriptionAndStatuses($memberSubscriptions, [InvoiceStatusEnum::CREATED]);
+    }
+
+    /**
+     * @param MemberSubscription[] $memberSubscriptions
+     * @param InvoiceStatusEnum[]  $statuses
+     *
+     * @return Invoice[]
+     */
+    public function invoicesBySubscriptionAndStatuses(array $memberSubscriptions, array $statuses): array
+    {
         $invoices = [];
         foreach ($memberSubscriptions as $memberSubscription) {
             foreach ($memberSubscription->getInvoices() as $invoice) {
-                if (InvoiceStatusEnum::CREATED === $invoice->getStatusAsEnum()) {
+                if (in_array($invoice->getStatusAsEnum(), $statuses, true)) {
                     $invoices[] = $invoice;
                 }
             }
