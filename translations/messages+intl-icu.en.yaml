@@ -5,6 +5,8 @@ pdf:
 subscription_type_enum:
     member: member
     supporter: supporter
+    label: 'subscription type'
+
 dashboard:
     number_member_count: 'Number of members: {count}'
     due_amount: 'Subscription due amount: {amount}'

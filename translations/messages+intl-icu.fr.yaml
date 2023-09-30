@@ -5,6 +5,7 @@ pdf:
 subscription_type_enum:
     member: membre
     supporter: sympatisant
+    label: 'Type d''inscription'
 dashboard:
     number_member_count: 'Nombre de membres: {count}'
     due_amount: "Montant d'inscriptions à encaisser: {amount}"

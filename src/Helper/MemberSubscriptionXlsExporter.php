@@ -11,10 +11,11 @@ use PhpOffice\PhpSpreadsheet\Style\ConditionalFormatting\Wizard;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MemberSubscriptionXlsExporter
 {
-    public function __construct(protected RouterInterface $router)
+    public function __construct(protected RouterInterface $router, protected TranslatorInterface $translator)
     {
     }
 
@@ -69,10 +70,10 @@ class MemberSubscriptionXlsExporter
     {
         $index = 1;
         $workSheet->setCellValue('A'.$index, 'id');
-        $workSheet->setCellValue('B'.$index, 'name(s)');
-        $workSheet->setCellValue('C'.$index, 'type');
-        $workSheet->setCellValue('D'.$index, 'price');
-        $workSheet->setCellValue('E'.$index, 'due amount');
+        $workSheet->setCellValue('B'.$index, $this->translator->trans('Members'));
+        $workSheet->setCellValue('C'.$index, $this->translator->trans('subscription_type_enum.label'));
+        $workSheet->setCellValue('D'.$index, $this->translator->trans('Price'));
+        $workSheet->setCellValue('E'.$index, $this->translator->trans('Due Amount'));
 
         foreach ($memberSubscriptions as $memberSubscription) {
             ++$index;
