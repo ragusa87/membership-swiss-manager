@@ -44,6 +44,8 @@ services:
       - 'traefik.http.services.caddy.loadbalancer.server.port=80'
       # Setting x-forwarded-proto is overridden by Caddy ? Couldn't fix it.
       - "traefik.http.middlewares.caddy.headers.customrequestheaders.Custom-Forwarded-Proto=https"
+      - "traefik.http.middlewares.caddy.headers.customrequestheaders.Custom-Forwarded-Port=443"
+
     networks:
       - default
       - pontsun
