@@ -155,8 +155,8 @@
                         <div class="btn-group">
                             <a class="btn" href="{{ path('view_invoice_by_id', {'id': result.invoice.id}) }}">{{ "View Invoice"|trans }}</a><br>
 
-                            {% if result.amount >= result.invoice.price and result.invoice.status != "paid" %}
-                                <a class="btn" href="{{ path('pay_invoice_by_id', {'id': result.invoice.id, 'status': 'paid', 'amount': result.amount, 'transactionId': result.transactionId }) }}">{{ "Mark as paid"|trans }}</a>
+                            {% if result.invoice.status != "paid" %}
+                                <a class="btn" href="{{ path('pay_invoice_by_id', {'id': result.invoice.id, 'status': 'paid', 'amount': result.invoice.price, 'transactionId': result.transactionId }) }}">{{ "Mark as paid"|trans }}</a>
                             {% endif %}
 
                             {% if result.invoice.memberSubscription is not null %}
@@ -165,10 +165,10 @@
                         </div>
 
                         {# Display result's price missmatch with align #}
-                        {% if result.amount > result.invoice.price %}
+                        {% if result.amount < result.invoice.price %}
                             <span class="amount more">{{ 'bill_amount_overpaid'|trans }} {{ (result.amount - result.invoice.price )/100 }} CHF</span>
                         {% endif %}
-                        {% if result.amount < result.invoice.price %}
+                        {% if result.amount > result.invoice.price %}
                             <span class="amount less">{{ 'bill_amount_underpaid'|trans }} {{ (result.amount - result.invoice.price )/100 }} CHF</span>
                         {% endif %}
                         <br>
