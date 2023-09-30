@@ -67,6 +67,9 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD ["docker-healthcheck"]
 COPY --link docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
+# Writable sessions
+RUN mkdir -p /php-sessions && chown -R www-data:www-data /php-sessions && chmod -R 777 /php-sessions
+
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
