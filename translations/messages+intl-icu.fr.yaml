@@ -59,3 +59,5 @@ statuses:
 "bill_amount_underpaid": "Montant manquant"
 No invoice found: 'Facture non trouvée'
 bill_reference_missmatch: 'Référence de facture {transactionId} incorrecte'
+Export to {format}: 'Export en {format}'
+Mark open invoices as pending: 'Marquer les factures ouvertes comme en attente'

@@ -34,3 +34,4 @@ statuses:
 "bill_amount_overpaid": "Montant payé en trop"
 "bill_amount_underpaid": "Montant manquant"
 bill_reference_missmatch: 'Invoice transaction missmatch {transactionId}'
+Export to {format}: 'Export to {format}'
