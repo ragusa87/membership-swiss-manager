@@ -14,11 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SubscriptionCrudController extends AbstractCrudController
 {
-    private AdminUrlGenerator $adminUrlGenerator;
-
-    public function __construct(AdminUrlGenerator $adminUrlGenerator)
+    public function __construct(private readonly AdminUrlGenerator $adminUrlGenerator)
     {
-        $this->adminUrlGenerator = $adminUrlGenerator;
     }
 
     public static function getEntityFqcn(): string

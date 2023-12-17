@@ -21,11 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MemberSubscriptionCrudController extends AbstractCrudController
 {
-    private AdminUrlGenerator $adminUrlGenerator;
-
-    public function __construct(AdminUrlGenerator $adminUrlGenerator)
+    public function __construct(private readonly AdminUrlGenerator $adminUrlGenerator)
     {
-        $this->adminUrlGenerator = $adminUrlGenerator;
     }
 
     public static function getEntityFqcn(): string
@@ -93,9 +90,7 @@ class MemberSubscriptionCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         $viewInvoice = Action::new('View Invoice', 'View Invoices')
-            ->displayIf(static function (MemberSubscription $entity) {
-                return $entity->getPrice() > 0;
-            })
+            ->displayIf(static fn (MemberSubscription $entity) => $entity->getPrice() > 0)
             ->linkToCrudAction('viewInvoices');
 
         $actions->add(Crud::PAGE_INDEX, $viewInvoice);

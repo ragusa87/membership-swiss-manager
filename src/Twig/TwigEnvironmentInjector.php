@@ -7,11 +7,8 @@ use Twig\TwigFunction;
 
 class TwigEnvironmentInjector extends AbstractExtension
 {
-    private string $databaseDsn;
-
-    public function __construct(string $databaseDsn)
+    public function __construct(private readonly string $databaseDsn)
     {
-        $this->databaseDsn = $databaseDsn;
     }
 
     public function getEnvironment(): string
@@ -26,7 +23,7 @@ class TwigEnvironmentInjector extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('getEnvironment', [$this, 'getEnvironment']),
+            new TwigFunction('getEnvironment', $this->getEnvironment(...)),
         ];
     }
 }

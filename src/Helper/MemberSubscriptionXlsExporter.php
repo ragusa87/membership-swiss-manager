@@ -114,7 +114,7 @@ class MemberSubscriptionXlsExporter
         $wizardFactory = new Wizard($letter.'2:'.$letter.($index - 1));
 
         foreach ([[0, 'greaterThan', Color::COLOR_RED], [0, 'lessThanOrEqual', Color::COLOR_GREEN]] as $rule) {
-            list($value, $method, $color) = $rule;
+            [$value, $method, $color] = $rule;
 
             $wizard = $wizardFactory->newRule(Wizard::CELL_VALUE);
             $wizard->{$method}($value);

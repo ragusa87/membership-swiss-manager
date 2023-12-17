@@ -6,23 +6,11 @@ use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
 
 class XlsReadFilter implements IReadFilter
 {
-    private int $startRow = 0;
-
-    private ?int $endRow = null;
-
-    /**
-     * @var array<string>
-     */
-    private array $columns = [];
-
     /**
      * @param array<string> $columns
      */
-    public function __construct(int $startRow, ?int $endRow, array $columns)
+    public function __construct(private readonly int $startRow, private readonly ?int $endRow, private readonly array $columns)
     {
-        $this->startRow = $startRow;
-        $this->endRow = $endRow;
-        $this->columns = $columns;
     }
 
     public function readCell($columnAddress, $row, $worksheetName = ''): bool

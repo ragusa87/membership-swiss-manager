@@ -12,7 +12,7 @@ class AddressConverterServiceTest extends TestCase
      */
     public function testSplit(?string $line, ?string $expectedAddress, ?string $expectedNumber): void
     {
-        list($address, $number) = (new AddressConverterService())->split($line);
+        [$address, $number] = (new AddressConverterService())->split($line);
         $this->assertSame($expectedAddress, $address);
         $this->assertSame($expectedNumber, $number);
     }

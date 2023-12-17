@@ -65,7 +65,7 @@ class SubscriptionRepository extends ServiceEntityRepository
     //    }
     public function getCurrentSubscription(?string $name): ?Subscription
     {
-        $name = $name ?? date('Y');
+        $name ??= date('Y');
 
         return $this->createQueryBuilder('s')
             ->andWhere('s.name = :val')

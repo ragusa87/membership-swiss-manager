@@ -5,12 +5,12 @@ namespace App\Helper;
 use App\Entity\Member;
 use Symfony\Component\Console\Helper\TableCellStyle;
 
-class MemberMatch
+class MemberMatch implements \Stringable
 {
-    public const SCORE_HIGH = 1000;
-    public const SCORE_MEDIUM = 100;
-    public const SCORE_LOW = 10;
-    public const SCORE_ZERO = 0;
+    final public const SCORE_HIGH = 1000;
+    final public const SCORE_MEDIUM = 100;
+    final public const SCORE_LOW = 10;
+    final public const SCORE_ZERO = 0;
 
     private ?string $hint = null;
 
