@@ -11,18 +11,12 @@ namespace App\Entity;
 class ParseResult extends \ArrayIterator
 {
     /**
-     * @var array<string,array<string,mixed>>
-     */
-    private array $extra;
-
-    /**
      * @param array<T>                          $data
      * @param array<string,array<string,mixed>> $extra
      */
-    public function __construct(array $data, array $extra = [])
+    public function __construct(array $data, private array $extra = [])
     {
         parent::__construct($data);
-        $this->extra = $extra;
     }
 
     /**

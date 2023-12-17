@@ -16,7 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
     errorPath: 'subscription',
     message: 'This user is already subscribed to this subscription.',
 )]
-class MemberSubscription
+class MemberSubscription implements \Stringable
 {
     use TimestampableEntity;
     use PriceEntityTrait;
@@ -113,7 +113,7 @@ class MemberSubscription
         return $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('%s%s', $this->getSubscription(), substr($this->getTypeEnum()->name, 0, 1));
     }

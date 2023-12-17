@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: MemberRepository::class)]
-class Member
+class Member implements \Stringable
 {
     use TimestampableEntity;
 

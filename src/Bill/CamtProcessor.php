@@ -13,13 +13,11 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class CamtProcessor
 {
-    private string $iban;
-    private InvoiceRepository $invoiceRepository;
+    private readonly string $iban;
 
-    public function __construct(string $iban, InvoiceRepository $invoiceRepository)
+    public function __construct(string $iban, private readonly InvoiceRepository $invoiceRepository)
     {
         $this->iban = str_replace(' ', '', $iban);
-        $this->invoiceRepository = $invoiceRepository;
     }
 
     public function parse(Message $message): CamtResultList

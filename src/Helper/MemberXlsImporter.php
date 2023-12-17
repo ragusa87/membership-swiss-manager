@@ -11,20 +11,20 @@ use Psr\Log\LoggerInterface;
 
 class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
 {
-    public const HEADER_NAME_DIRTY = 'noms';
-    public const HEADER_NAME = 'name';
-    public const HEADER_ADDRESS_DIRTY = 'adresse';
-    public const HEADER_ADDRESS = self::HEADER_ADDRESS_DIRTY;
-    public const HEADER_CITY_DIRTY = 'ville';
-    public const HEADER_CITY = 'city';
-    public const HEADER_EMAIL_DIRTY = 'email';
-    public const HEADER_EMAIL = self::HEADER_EMAIL_DIRTY;
-    public const HEADER_PHONE_DIRTY = 'téléphone';
-    public const HEADER_PHONE = 'phone';
-    public const HEADER_PARENT = 'parent';
-    public const HEADER_SUBSCRIPTION_TYPE = 'sympatisant';
+    final public const HEADER_NAME_DIRTY = 'noms';
+    final public const HEADER_NAME = 'name';
+    final public const HEADER_ADDRESS_DIRTY = 'adresse';
+    final public const HEADER_ADDRESS = self::HEADER_ADDRESS_DIRTY;
+    final public const HEADER_CITY_DIRTY = 'ville';
+    final public const HEADER_CITY = 'city';
+    final public const HEADER_EMAIL_DIRTY = 'email';
+    final public const HEADER_EMAIL = self::HEADER_EMAIL_DIRTY;
+    final public const HEADER_PHONE_DIRTY = 'téléphone';
+    final public const HEADER_PHONE = 'phone';
+    final public const HEADER_PARENT = 'parent';
+    final public const HEADER_SUBSCRIPTION_TYPE = 'sympatisant';
 
-    public const HEADERS_DIRTY = [
+    final public const HEADERS_DIRTY = [
         MemberXlsImporter::HEADER_NAME_DIRTY,
         MemberXlsImporter::HEADER_ADDRESS_DIRTY,
         MemberXlsImporter::HEADER_CITY_DIRTY,
@@ -33,7 +33,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         MemberXlsImporter::HEADER_PARENT,
         MemberXlsImporter::HEADER_SUBSCRIPTION_TYPE,
     ];
-    public const HEADERS_CLEAN = [
+    final public const HEADERS_CLEAN = [
         MemberXlsImporter::HEADER_NAME,
         MemberXlsImporter::HEADER_ADDRESS,
         MemberXlsImporter::HEADER_CITY,
@@ -68,7 +68,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
 
         if (!empty($this->expectedHeaders)) {
             if ($diff = array_diff(array_values($this->expectedHeaders), array_values($data[0]))) {
-                throw new \InvalidArgumentException(sprintf('Incompatible xlsx headers. Got %s, expect %s. Diff %s', json_encode($data[0]), json_encode($this->expectedHeaders), json_encode($diff)));
+                throw new \InvalidArgumentException(sprintf('Incompatible xlsx headers. Got %s, expect %s. Diff %s', json_encode($data[0], JSON_THROW_ON_ERROR), json_encode($this->expectedHeaders, JSON_THROW_ON_ERROR), json_encode($diff, JSON_THROW_ON_ERROR)));
             }
         }
 
@@ -85,7 +85,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         }
 
         // We read the parent column and assign the right member to it.
-        $this->fixParents($users, array_map(function (array $extra) { return $extra[self::HEADER_PARENT]; }, $extras));
+        $this->fixParents($users, array_map(fn (array $extra) => $extra[self::HEADER_PARENT], $extras));
 
         $this->logger?->debug(sprintf('%d users imported', count($users)));
 
@@ -150,11 +150,11 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
         $members = [];
         foreach ($names as $name) {
             $members[] = $m = new Member();
-            list($firstname, $lastname) = self::splitName($name);
+            [$firstname, $lastname] = self::splitName($name);
             $m->setLastname($lastname);
             $m->setFirstname($firstname);
             $m->setEmail($row[self::HEADER_EMAIL]);
-            list($address, $addressNumber) = $this->addressConverterService->split($row[self::HEADER_ADDRESS]);
+            [$address, $addressNumber] = $this->addressConverterService->split($row[self::HEADER_ADDRESS]);
 
             $m->setAddress($address);
             $m->setAddressNumber($addressNumber);

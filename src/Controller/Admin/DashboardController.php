@@ -229,7 +229,7 @@ class DashboardController extends AbstractDashboardController
             //            if($log['level'] <= LogLevel::DEBUG) {
             //                continue;
             //            }
-            $this->addFlash($log['level'], $log['message'].' '.json_encode($log['context']));
+            $this->addFlash($log['level'], $log['message'].' '.json_encode($log['context'], JSON_THROW_ON_ERROR));
         }
 
         return $this->redirectToDashboardSubscription($subscriptionName);

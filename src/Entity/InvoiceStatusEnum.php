@@ -15,12 +15,8 @@ enum InvoiceStatusEnum: string
      */
     public static function choices(): array
     {
-        $choicesValues = array_map(function (self $enum) {
-            return $enum->value;
-        }, self::cases());
-        $choicesLabels = array_map(function (self $enum) {
-            return $enum->name;
-        }, self::cases());
+        $choicesValues = array_map(fn (self $enum) => $enum->value, self::cases());
+        $choicesLabels = array_map(fn (self $enum) => $enum->name, self::cases());
 
         return array_combine($choicesLabels, $choicesValues);
     }
