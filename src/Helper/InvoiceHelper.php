@@ -121,7 +121,7 @@ class InvoiceHelper implements LoggerAwareInterface
         $this->getManagerInvoices()->persist($reminder);
         $this->getManagerInvoices()->persist($invoice);
 
-        if($flush){
+        if ($flush) {
             $this->getManagerInvoices()->flush();
         }
 

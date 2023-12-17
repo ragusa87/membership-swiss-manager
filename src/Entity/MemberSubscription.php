@@ -196,6 +196,18 @@ class MemberSubscription
         return $invoice;
     }
 
+    public function needsANewBill(): bool
+    {
+        $answer = $this->getDueAmount() > 0;
+        foreach ($this->getInvoices() as $invoice) {
+            if (false === in_array($invoice->getStatusAsEnum(), [InvoiceStatusEnum::PAID, InvoiceStatusEnum::CANCELED])) {
+                return false;
+            }
+        }
+
+        return $answer;
+    }
+
     public function setActive(bool $active): self
     {
         $this->active = $active;
