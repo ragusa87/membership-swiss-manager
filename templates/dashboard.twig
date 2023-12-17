@@ -100,6 +100,9 @@
                                             <span class="price">Ref {{ (invoice.price /100) | format_currency('CHF') }}</span>
                                             <span class="reminder">Reminder {{ invoice.reminder}}</span>
                                         </a>
+                                        {% if invoice.status == "pending"  %}
+                                            <a class="btn btn-secondary" href="{{ path('close_invoice_and_remind', {'id': invoice.id}) }}">{{ "Close and create a reminder"|trans }}</a>
+                                        {% endif %}
                                     </li>
                                 {% endfor %}
                                 </ul>

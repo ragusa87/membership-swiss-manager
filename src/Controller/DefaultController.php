@@ -6,6 +6,7 @@ use App\Controller\Admin\DashboardController;
 use App\Controller\Admin\InvoiceCrudController;
 use App\Controller\Admin\MemberSubscriptionCrudController;
 use App\Entity\InvoiceStatusEnum;
+use App\Helper\InvoiceHelper;
 use App\Repository\InvoiceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
 {
-    #[Route('/')]
+    #[Route('/', name: 'index')]
     public function index(AdminUrlGenerator $adminUrlGenerator): Response
     {
         return $this->redirect($adminUrlGenerator
@@ -46,6 +47,31 @@ class DefaultController extends AbstractController
             ->generateUrl();
 
         return $this->redirect($url);
+    }    #[Route(path: '/invoice-id/{id}/close-remind', name: 'close_invoice_and_remind')]
+    public function closeAndRemind(int $id, InvoiceRepository $invoiceRepository, InvoiceHelper $invoiceHelper): Response
+    {
+        $invoice = $invoiceRepository->find($id);
+        if (null === $invoice) {
+            throw $this->createNotFoundException('Invoice not found');
+        }
+
+        if (InvoiceStatusEnum::PENDING !== $invoice->getStatusAsEnum()) {
+            throw $this->createAccessDeniedException('Invoice must be pending');
+        }
+
+        $subscription = $invoice->getMemberSubscription();
+        if($subscription === null){
+            throw $this->createAccessDeniedException('Invoice must have a subscription');
+        }
+
+        $newInvoice = $invoiceHelper->generateReminder($invoice, true);
+        if($newInvoice === null){
+            $this->addFlash('warning', 'Unable to create a reminder');
+            return $this->redirect($this->generateUrl('view_invoice_by_id', ['id' => $id]));
+        }
+
+        $this->addFlash('success', 'Reminder created');
+        return $this->redirect($this->generateUrl('index'));
     }
 
     #[Route(path: '/member-subscription/{id}', name: 'view_membersubscription_by_id')]

@@ -44,3 +44,5 @@ reminders_num: >-
             =3    {third reminder}
             other {# reminder}
     }
+
+Close and create a reminder: 'Close and create a reminder'
