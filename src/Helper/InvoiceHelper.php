@@ -75,7 +75,7 @@ class InvoiceHelper implements LoggerAwareInterface
         return $createdInvoices;
     }
 
-    public function generateReminder(Invoice $invoice): ?Invoice
+    public function generateReminder(Invoice $invoice, bool $flush = false): ?Invoice
     {
         if (null === $invoice->getMemberSubscription()) {
             $this->logger()->warning('Missing member subscription for invoice', ['invoice_id' => $invoice->getId()]);
@@ -120,6 +120,10 @@ class InvoiceHelper implements LoggerAwareInterface
 
         $this->getManagerInvoices()->persist($reminder);
         $this->getManagerInvoices()->persist($invoice);
+
+        if($flush){
+            $this->getManagerInvoices()->flush();
+        }
 
         return $reminder;
     }
