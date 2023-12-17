@@ -47,7 +47,9 @@ class DefaultController extends AbstractController
             ->generateUrl();
 
         return $this->redirect($url);
-    }    #[Route(path: '/invoice-id/{id}/close-remind', name: 'close_invoice_and_remind')]
+    }
+
+    #[Route(path: '/invoice-id/{id}/close-remind', name: 'close_invoice_and_remind')]
     public function closeAndRemind(int $id, InvoiceRepository $invoiceRepository, InvoiceHelper $invoiceHelper): Response
     {
         $invoice = $invoiceRepository->find($id);
@@ -60,17 +62,19 @@ class DefaultController extends AbstractController
         }
 
         $subscription = $invoice->getMemberSubscription();
-        if($subscription === null){
+        if (null === $subscription) {
             throw $this->createAccessDeniedException('Invoice must have a subscription');
         }
 
         $newInvoice = $invoiceHelper->generateReminder($invoice, true);
-        if($newInvoice === null){
+        if (null === $newInvoice) {
             $this->addFlash('warning', 'Unable to create a reminder');
+
             return $this->redirect($this->generateUrl('view_invoice_by_id', ['id' => $id]));
         }
 
         $this->addFlash('success', 'Reminder created');
+
         return $this->redirect($this->generateUrl('index'));
     }
 
