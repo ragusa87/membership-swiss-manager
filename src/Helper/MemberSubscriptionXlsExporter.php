@@ -2,8 +2,12 @@
 
 namespace App\Helper;
 
+use App\Bill\CamtProcessor;
+use App\Bill\CamtResultList;
+use App\Bill\CamtSessionStorage;
 use App\Entity\InvoiceStatusEnum;
 use App\Entity\MemberSubscription;
+use Genkgo\Camt\DTO\Entry;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -15,7 +19,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MemberSubscriptionXlsExporter
 {
-    public function __construct(protected RouterInterface $router, protected TranslatorInterface $translator)
+    public function __construct(protected RouterInterface $router, protected TranslatorInterface $translator, protected CamtSessionStorage $camtSessionStorage, protected CamtProcessor $camtProcessor)
     {
     }
 
@@ -26,7 +30,18 @@ class MemberSubscriptionXlsExporter
     {
         $spreadsheet = new Spreadsheet();
         $spreadsheet->setActiveSheetIndex(0);
+        $spreadsheet->getActiveSheet()->setTitle($this->getSheetTitle($memberSubscriptions));
         $this->fill($spreadsheet->getActiveSheet(), $memberSubscriptions);
+
+        $i = 0;
+        foreach ($this->camtSessionStorage->getIds() as $camtIds) {
+            ++$i;
+            $workSheet = $spreadsheet->createSheet($i);
+            $workSheet->setTitle('camt_'.substr($camtIds, 0, 5));
+            $records = $this->camtSessionStorage->get($camtIds);
+            $results = $this->camtProcessor->parse($records);
+            $this->fillCamt($workSheet, $results);
+        }
 
         return $spreadsheet;
     }
@@ -85,7 +100,7 @@ class MemberSubscriptionXlsExporter
             $workSheet->getColumnDimension('B')->setAutoSize(true);
             $workSheet->getStyle('A'.$index.':E'.$index)->getFont()->setBold($memberSubscription->getDueAmount() > 0);
 
-            $workSheet->setCellValue('C'.$index, $memberSubscription->getTypeEnum()->value);
+            $workSheet->setCellValue('C'.$index, $this->translator->trans('subscription_type_enum.'.$memberSubscription->getTypeEnum()->value));
             $workSheet->setCellValue('D'.$index, number_format($memberSubscription->getPrice() / 100.0, 2));
             $workSheet->setCellValue('E'.$index, number_format($memberSubscription->getDueAmount() / 100.0, 2));
             $this->addInvoices($workSheet, $memberSubscription, $index, 'F');
@@ -139,12 +154,42 @@ class MemberSubscriptionXlsExporter
                 continue;
             }
 
-            $value = sprintf('%s(%s)', $invoice->getStatusAsEnum()->value, $invoice->getFormattedPrice());
+            $value = sprintf('%s(%s)', $this->translator->trans('statuses.'.$invoice->getStatusAsEnum()->value), $invoice->getFormattedPrice());
 
             $cell = $nextLetter.$index;
             $workSheet->setCellValue($cell, $value);
             $workSheet->getCell($cell)->getHyperlink()->setUrl($this->router->generate('view_invoice_by_id', ['id' => $invoice->getId()], RouterInterface::ABSOLUTE_URL));
             $nextLetter = chr(ord($letter) + 1);
+        }
+    }
+
+    /**
+     * @param array<MemberSubscription> $memberSubscriptions
+     */
+    private function getSheetTitle(array $memberSubscriptions): string
+    {
+        return ($memberSubscriptions[0] ?? null)?->getSubscription()->getName() ?? 'Worksheet';
+    }
+
+    private function fillCamt(Worksheet $workSheet, CamtResultList $results): void
+    {
+        $index = 0;
+        foreach ($results->getErrors() as $unknown) {
+            /** @var Entry $cause */
+            $cause = $unknown->getCause();
+            if (!$cause instanceof Entry) {
+                continue;
+            }
+
+            //  violation.cause.getTransactionDetail.getRelatedParties.0.getRelatedPartyType.name
+            $workSheet->setCellValue('A'.$index, $cause->getTransactionDetail()->getAmount()->getAmount() / 100);
+            $workSheet->setCellValue('B'.$index, $cause->getAdditionalInfo());
+            $workSheet->setCellValue('C'.$index, $cause->getTransactionDetail()->getRemittanceInformation()?->getUnstructuredBlock()?->getMessage());
+            $workSheet->setCellValue('D'.$index, ($cause->getTransactionDetail()->getRelatedParties()[0] ?? null)?->getRelatedPartyType()?->getName());
+            $workSheet->setCellValue('E'.$index, ($cause->getTransactionDetail()->getRelatedParties()[1] ?? null)?->getRelatedPartyType()?->getName());
+            $workSheet->setCellValue('F'.$index, (string) ($cause->getTransactionDetail()->getAdditionalTransactionInformation() ?? ''));
+
+            ++$index;
         }
     }
 }
