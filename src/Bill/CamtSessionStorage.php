@@ -53,6 +53,7 @@ class CamtSessionStorage
     {
         $ids = $this->getSession()->get('camt_ids', []);
         $ids[] = $id;
+        $ids = array_unique($ids);
         $this->getSession()->set('camt_ids', $ids);
     }
 
