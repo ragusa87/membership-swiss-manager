@@ -13,6 +13,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,7 +33,7 @@ class ImportXlsxCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('source', InputOption::VALUE_REQUIRED, 'File source')
+            ->addArgument('source', InputArgument::REQUIRED, 'File source')
             ->addOption('force', null, InputOption::VALUE_NONE, 'Force import')
             ->addOption('subscription', null, InputOption::VALUE_REQUIRED, 'Subscribe users');
     }
@@ -41,7 +42,12 @@ class ImportXlsxCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $src = $input->getArgument('source');
+
+        if (null === $src) {
+            return 1;
+        }
         // Parse members from xlsx
+
         $members = $this->memberXlsImporter->parse($src);
         // Try to match each member with an existing member
         $matches = array_map(fn (Member $member) => $this->matcher->find($member), $members->getArrayCopy());
