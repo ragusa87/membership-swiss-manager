@@ -16,6 +16,16 @@
                     margin-bottom: 5px;
                     border-bottom: 1px solid #c0c0c0;
                 }
+                ul.issues li.negative{
+                    border-left: 5px solid orange
+                }
+                ul.issues li::before{
+                    display: block;
+                    content: "" attr(title);
+                }
+                ul.issues li.positive{
+                    border-left: 5px solid red
+                }
                 body{
                     color-scheme: dark;
                     background-color: rgb(34, 34, 34);
@@ -108,7 +118,7 @@
 {% block issues %}
     <ul class="issues">
         {% for violation in results.errors %}
-            <li>
+            <li class="{{ violation.cause.amount.amount >= 0 ? 'positive' : 'negative'}}" title="{{ violation.cause.amount.amount < 0 ? "Rembourssement ou frais": "Facture" }}">
                 {% if violation.cause is not null and violation.cause.additionalInfo is defined %}
                     <span class="violation-details">
                         {{ violation.cause.valueDate|format_datetime('short', 'none') }}

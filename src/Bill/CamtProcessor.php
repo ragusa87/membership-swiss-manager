@@ -35,10 +35,7 @@ class CamtProcessor
             $path = sprintf('[%s]', $entryNum);
 
             $amount = $entry->getAmount()->getAmount();
-            if ($amount < 0) {
-                // $errors->add(new ConstraintViolation('Negative amount', null, ['amount' => $amount], null, $path.'amount', $amount, null, null, null, $entry));
-                continue;
-            }
+
             if ('CHF' !== $entry->getAmount()->getCurrency()->getCode()) {
                 $errors->add(new ConstraintViolation('Currency should be CHF', null, ['currency' => $entry->getAmount()->getCurrency()->getCode()], null, $path.'amount', $amount, null, null, null, $entry));
                 continue;
