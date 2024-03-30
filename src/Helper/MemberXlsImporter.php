@@ -206,7 +206,7 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
     {
         $exploded = explode(' ', $name);
         $temp = array_merge([], $exploded);
-        $firstname = array_pop($temp);
+        $firstname = array_shift($temp);
 
         return 1 == count($exploded) ? [$firstname, null] : [$firstname, implode(' ', $temp)];
     }
@@ -273,6 +273,12 @@ class MemberXlsImporter implements \Psr\Log\LoggerAwareInterface
             if ($user->getFullname() === $parentName) {
                 return $user;
             }
+
+            // Match by firstname lastname
+            if (implode(' ', [$user->getFirstname(), $user->getLastname()]) === $parentName) {
+                return $user;
+            }
+
             // Match by lastname firstname
             if (implode(' ', [$user->getLastname(), $user->getFirstname()]) === $parentName) {
                 return $user;
