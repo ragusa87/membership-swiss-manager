@@ -25,8 +25,9 @@ class MemberXlsImporterTest extends TestCase
         $this->assertEquals($result[2]->getParent(), $result[1]);
 
         // Klara Ballouhey's parent is Rodrigo Scheurer
-        $this->assertEquals('Ballouhey Klara', $result[7]->getFullname());
-        $this->assertEquals('Scheurer Rodrigo', $result[6]->getFullname());
+        $this->assertEquals('Klara Ballouhey', $result[7]->getFullname());
+        $this->assertEquals('Klara', $result[7]->getFirstname());
+        $this->assertEquals('Rodrigo Scheurer', $result[6]->getFullname());
         $this->assertNotNull($result[7]->getParent(), 'Ballouhey Klara should have a parent');
         $this->assertEquals($result[6], $result[7]->getParent());
 
