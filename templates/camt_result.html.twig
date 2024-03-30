@@ -112,6 +112,8 @@
 
     {{ block('results') }}
 
+    <a class="btn btn-secondary" href="{{ path('camt_remove', {'id': id}) }}">Remove this Camt from session</a>
+
 {% endblock %}
 
 

@@ -65,9 +65,27 @@ class DashboardController extends AbstractDashboardController
         $results = $processor->parse($object)->sortByStatuses([InvoiceStatusEnum::PAID->value => 10]);
 
         return $this->render('camt_result.html.twig', [
+            'id' => $id,
             'results' => $results,
             'object' => $object,
         ]);
+    }
+
+    #[Route('/camt/remove/{id}', name: 'camt_remove')]
+    public function camtRemove(string $id, CamtSessionStorage $storage): Response
+    {
+        $object = $storage->get($id);
+        if (null === $object) {
+            $this->addFlash('error', 'No camt file found in session');
+
+            return $this->redirectToRoute('admin_import_camt');
+        }
+
+        $this->addFlash('success', 'Camt file removed from session');
+
+        $storage->remove($id);
+
+        return $this->redirectToRoute('admin_import_camt');
     }
 
     #[Route('/admin', name: 'admin')]
