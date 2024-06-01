@@ -22,6 +22,12 @@ class Subscription implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column(type: Types::INTEGER, columnDefinition: 'INT DEFAULT 1000')]
+    private int $priceMember = 5000;
+
+    #[ORM\Column(type: Types::INTEGER, columnDefinition: 'INT DEFAULT 1000')]
+    private int $priceSupporter = 1000;
+
     /**
      * @var Collection<int, MemberSubscription>
      */
@@ -88,5 +94,15 @@ class Subscription implements \Stringable
     public function __toString(): string
     {
         return (string) $this->name;
+    }
+
+    public function getPriceMember(): int
+    {
+        return $this->priceMember;
+    }
+
+    public function setPriceMember(int $priceMember): void
+    {
+        $this->priceMember = $priceMember;
     }
 }
