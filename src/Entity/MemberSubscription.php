@@ -123,8 +123,12 @@ class MemberSubscription implements \Stringable
         return sprintf('%s %s', $this->getMember()->getFullname(), $this->getSubscription()->getName());
     }
 
-    public static function getPriceByType(SubscriptionTypeEnum $enum): int
+    public static function getPriceByType(SubscriptionTypeEnum $enum, Subscription $subscription = null): int
     {
+        if (null !== $subscription) {
+            return $subscription->getPriceByType($enum);
+        }
+
         return SubscriptionTypeEnum::MEMBER === $enum ? 50 * 100 : 10 * 100;
     }
 
@@ -187,7 +191,7 @@ class MemberSubscription implements \Stringable
         $invoice = new Invoice();
         $invoice->setMemberSubscription($this);
 
-        $fixedPrice = self::getPriceByType($this->getTypeEnum());
+        $fixedPrice = self::getPriceByType($this->getTypeEnum(), $this->getSubscription());
         $invoice->setPrice($this->getDueAmount() > 0 ? $this->getDueAmount() : $fixedPrice);
 
         $invoice->setStatusFromEnum(InvoiceStatusEnum::CREATED);

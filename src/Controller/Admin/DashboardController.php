@@ -253,6 +253,17 @@ class DashboardController extends AbstractDashboardController
         return $this->redirectToDashboardSubscription($subscriptionName);
     }
 
+    #[Route('/admin/print-anonymous/{subscriptionName}', name: 'admin_print_anonymous_invoices')]
+    public function printAnonymousInvoices(string $subscriptionName = null): Response
+    {
+        $subscription = $this->getSubscriptionRepo()->getCurrentSubscription($subscriptionName);
+        if (null === $subscription) {
+            throw $this->createNotFoundException('Subscription not found');
+        }
+
+        return $this->getPdfService()->generateAnonymous($subscription);
+    }
+
     #[Route('/admin/print/{subscriptionName}', name: 'admin_print_invoices')]
     public function printInvoices(string $subscriptionName = null): Response
     {

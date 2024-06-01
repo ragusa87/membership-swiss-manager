@@ -46,9 +46,19 @@ class MemberSubscriptionRepository extends ServiceEntityRepository
      */
     public function subscribe(Subscription $subscription, array $usersIds): void
     {
+        // Keep only parents, not children
+        $usersIds = array_filter($usersIds, fn (Member $member) => null === $member->getParent());
+
         /** @var MemberRepository $memberRepository */
         $memberRepository = $this->getEntityManager()->getRepository(Member::class);
-        foreach ($memberRepository->findByIdWithSubscription($usersIds) as $user) {
+        $membersWithId = array_filter($usersIds, fn (Member $member) => null !== $member->getId());
+        $memberWithoutId = array_filter($usersIds, fn (Member $member) => null == $member->getId());
+        $members = $memberRepository->findByIdWithSubscription($membersWithId);
+        foreach ($memberWithoutId as $member) {
+            $members[] = $member;
+        }
+
+        foreach ($members as $user) {
             if (null !== $user->getMemberSubscriptionBySubscription($subscription)) {
                 continue;
             }

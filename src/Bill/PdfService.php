@@ -5,6 +5,7 @@ namespace App\Bill;
 use App\Entity\Invoice;
 use App\Entity\Member;
 use App\Entity\MemberSubscription;
+use App\Entity\Subscription;
 use App\Entity\SubscriptionTypeEnum;
 use Fpdf\Fpdf;
 use Psr\Log\LoggerAwareInterface;
@@ -93,7 +94,7 @@ class PdfService implements LoggerAwareInterface
 
         // Add payment reference
         // This is what you will need to identify incoming payments.
-        $this->addReference($qrBill, $invoice);
+        $this->addReference($qrBill, (string) $invoice->getReference());
 
         // Optionally, add some human-readable information about what the bill is for.
         $qrBill->setAdditionalInformation(
@@ -195,8 +196,8 @@ class PdfService implements LoggerAwareInterface
         $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('pdf.invoice.ref', ['ref' => $invoice->getReference()])));
         $fpdf->Ln(5);
 
-        $priceMember = MemberSubscription::getPriceByType(SubscriptionTypeEnum::MEMBER);
-        $priceSupporter = MemberSubscription::getPriceByType(SubscriptionTypeEnum::SUPPORTER);
+        $priceMember = MemberSubscription::getPriceByType(SubscriptionTypeEnum::MEMBER, $invoice->getMemberSubscription()->getSubscription());
+        $priceSupporter = MemberSubscription::getPriceByType(SubscriptionTypeEnum::SUPPORTER, $invoice->getMemberSubscription()->getSubscription());
         $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->translator->trans('pdf.message', [
             'priceMember' => $priceMember / 100,
             'priceSupporter' => $priceSupporter / 100,
@@ -219,7 +220,7 @@ class PdfService implements LoggerAwareInterface
         return (int) $qrIid >= 30000 && (int) $qrIid <= 31999;
     }
 
-    private function addReference(QrBill $qrBill, Invoice $invoice): void
+    private function addReference(QrBill $qrBill, string $reference): void
     {
         if ($this->isIbanCompatibleWithQRCodeReference()) {
             if ('' === trim($this->customerIdentificationNumber)) {
@@ -227,7 +228,7 @@ class PdfService implements LoggerAwareInterface
             }
             $referenceNumber = QrPaymentReferenceGenerator::generate(
                 $this->customerIdentificationNumber,
-                (string) $invoice->getReference()
+                $reference
             );
             $qrBill->setPaymentReference(
                 PaymentReference::create(
@@ -238,12 +239,85 @@ class PdfService implements LoggerAwareInterface
             return;
         }
         $referenceNumber = RfCreditorReferenceGenerator::generate(
-            str_pad((string) $invoice->getReference(), 21, '0', STR_PAD_LEFT)
+            str_pad($reference, 21, '0', STR_PAD_LEFT)
         );
         $qrBill->setPaymentReference(
             PaymentReference::create(
                 PaymentReference::TYPE_SCOR,
                 $referenceNumber
             ));
+    }
+
+    public function generateAnonymous(Subscription $subscription): StreamedResponse
+    {
+        $fpdf = new Fpdf('P', 'mm', 'A4');
+        $fpdf->SetCreator('membership-swiss-manager');
+        $fpdf->SetTitle('Invoices');
+        foreach (SubscriptionTypeEnum::cases() as $subscriptionType) {
+            $fpdf->AddPage();
+            $output = new FpdfOutput($this->convertAnonymous($subscriptionType, $subscription), $this->language, $fpdf);
+
+            $fpdf->SetFont('Arial', 'B', 16);
+            $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $this->addressName));
+            $fpdf->Ln(5);
+
+            $fpdf->SetFont('Arial', '', 14);
+
+            $title = $this->translator->trans(sprintf('subscription_type_enum.%s', $subscriptionType->value));
+            $price = $subscription->getPriceByType($subscriptionType) / 100;
+            $title .= sprintf(' - %s CHF', $price);
+
+            $fpdf->Write(0, iconv('utf-8', 'ISO-8859-2', $title));
+            $fpdf->Ln(10);
+
+            $output
+                ->setPrintable($this->printable)
+                ->getPaymentPart();
+        }
+
+        return new StreamedResponse(function () use ($fpdf) {
+            $fpdf->Output('I', sprintf('Invoices-%s.pdf', date('Y-m-d-His')));
+        });
+    }
+
+    private function convertAnonymous(SubscriptionTypeEnum $subscriptionType, Subscription $subscription): QrBill
+    {
+        $qrBill = QrBill::create();
+        $qrBill->setCreditor(
+            CombinedAddress::create(
+                $this->addressName,
+                $this->addressStreet,
+                sprintf('%s %s', $this->addressZip, $this->addressCity),
+                $this->addressCountry
+            ));
+
+        $qrBill->setCreditorInformation(
+            CreditorInformation::create(
+                $this->iban // This is a special QR-IBAN. Classic IBANs will not be valid here.
+            ));
+
+        // Add payment amount information
+        // What amount is to be paid?
+        $qrBill->setPaymentAmountInformation(
+            PaymentAmountInformation::create(
+                'CHF',
+                // Supporters can choose the amount.
+                $subscription->getPriceByType($subscriptionType) / 100
+            ));
+        $this->addReference($qrBill, '00');
+
+        // Optionally, add some human-readable information about what the bill is for.
+        $qrBill->setAdditionalInformation(
+            AdditionalInformation::create(
+                $subscriptionType->value
+            )
+        );
+
+        if (false === $qrBill->isValid()) {
+            $error = $qrBill->getViolations()->get(0);
+            throw new \RuntimeException(sprintf('Invalid bill, %s %s', $error->getMessage(), $error->getPropertyPath()));
+        }
+
+        return $qrBill;
     }
 }
