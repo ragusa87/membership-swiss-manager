@@ -93,7 +93,7 @@ class InvoiceHelper implements LoggerAwareInterface
             return null;
         }
 
-        if ($invoice->getUpdatedAt() >= new \DateTime('30 days ago')) {
+        if ($invoice->getCreatedAt() >= new \DateTime('30 days ago')) {
             $this->logger()->debug('Skipping reminder generation for invoice, as last reminder was done recently', [
                 'invoice_id' => $invoice->getId(),
                 'invoice_updated' => $invoice->getUpdatedAt(),
