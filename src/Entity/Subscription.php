@@ -22,10 +22,10 @@ class Subscription implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::INTEGER, columnDefinition: 'INT DEFAULT 6000')]
-    private int $priceMember = 5000;
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 6000])]
+    private int $priceMember = 6000;
 
-    #[ORM\Column(type: Types::INTEGER, columnDefinition: 'INT DEFAULT 1000')]
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 1000])]
     private int $priceSupporter = 1000;
 
     /**
