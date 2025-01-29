@@ -1,0 +1,33 @@
+[project]
+name = "myproject"
+version = "1.0"
+dependencies = [
+  "django==5.1.*",
+  "gunicorn",
+  "python-dotenv"
+]
+[tool.setuptools.packages.find]
+exclude = ["tests*", "migrations*", "public*"]
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "pip-tools",
+  "rust-just",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+(
+    \..*/
+    |/node_modules
+    |/virtualization
+    |migrations/
+)
+'''
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
