@@ -1,7 +1,0 @@
-body[data-environment="dev"] .sidebar{
-        border-left: 10px solid rgba(0, 0, 255, 0.21);
-}
-
-body[data-environment="prod"] .sidebar {
-    border-left: 10px solid rgba(255, 0, 106, 0.68);
-}
