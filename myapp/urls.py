@@ -19,10 +19,12 @@ from django.contrib import admin
 from django.urls import path, re_path
 from . import views
 from django.views.generic.base import RedirectView
+from .views import single_invoice
 
 favicon_view = RedirectView.as_view(url="/assets/favicon.ico", permanent=True)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.index, name="index"),
+    path("invoice/<int:invoice_id>/pdf/", single_invoice, name="single_invoice_pdf"),
     re_path(r"^favicon\.ico$", favicon_view),
 ]

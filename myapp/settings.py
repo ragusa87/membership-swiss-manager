@@ -16,8 +16,20 @@ from pathlib import Path
 from dotenv import load_dotenv
 import json
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+USE_I18N = True
+
+LANGUAGES = [
+    ("en", "English"),
+    ("fr", "French"),  # Add more languages as needed
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale",  # Ensure this directory exists
+]
 
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 # # Application definition
@@ -48,6 +60,21 @@ try:
 except (json.JSONDecodeError, TypeError):
     pass
 
+INVOICE_IBAN = os.environ.get("IBAN", "")
+INVOICE_CUSTOMER_IDENTIFICATION_NUMBER = os.environ.get(
+    "CUSTOMER_IDENTIFICATION_NUMBER", ""
+)
+INVOICE_LANGUAGE = os.environ.get("LANGUAGE", "fr")
+
+CREDITOR_NAME = os.environ.get(
+    "CREDITOR_NAME", "Association du Jardin du Vanil 10-12-14"
+)
+CREDITOR_ADDRESS = os.environ.get("CREDITOR_ADDRESS", "Ch. du Vanil")
+CREDITOR_ADDRESS_HOUSE_NUMBER = os.environ.get("CREDITOR_ADDRESS_HOUSE_NUMBER", "10")
+CREDITOR_ZIP = os.environ.get("CREDITOR_ZIP", "1004")
+CREDITOR_CITY = os.environ.get("CREDITOR_CITY", "Lausanne")
+CREDITOR_COUNTRY = os.environ.get("CREDITOR_COUNTRY", "CH")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -55,7 +82,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "myapp"
+    "myapp",
 ]
 
 MIDDLEWARE = [

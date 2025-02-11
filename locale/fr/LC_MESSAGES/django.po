@@ -1,0 +1,66 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-11 10:22+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: myapp/models/invoice.py:47
+msgid "1st reminder"
+msgstr "premier rappel"
+
+#: myapp/models/invoice.py:48
+msgid "2nd reminder"
+msgstr "deuxième rappel"
+
+#: myapp/models/invoice.py:49
+msgid "3rd reminder"
+msgstr "troisième rappel"
+
+#: myapp/models/invoice.py:56
+#, python-format
+msgid "%dth reminder"
+msgid_plural "%dth reminder"
+msgstr[0] "%d rappel"
+msgstr[1] "%d rappel"
+
+#: myapp/models/member_subscription.py:9
+msgid "subscription.member"
+msgstr "membre"
+
+#: myapp/models/member_subscription.py:10
+msgid "subscription.other"
+msgstr "sympathisant"
+
+#: myapp/models/member_subscription.py:15
+msgid "subscription.unknown"
+msgstr "sympathisant?"
+
+#: myapp/models/member_subscription.py:57
+msgid "active subscription"
+msgstr "active"
+
+#: myapp/models/member_subscription.py:57
+msgid "inactive subscription"
+msgstr "inactif"
+
+#: myapp/models/subscription.py:6
+msgid "Member"
+msgstr "membre"
+
+#: myapp/models/subscription.py:7
+msgid "Supporter"
+msgstr "sympathisant"

@@ -8,3 +8,4 @@ medias
 !medias/.gitkeep
 **/__pycache__/
 myproject.egg-info/
+*.mo

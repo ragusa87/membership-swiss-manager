@@ -25,6 +25,14 @@ RUN python -m ensurepip --upgrade
 RUN python -m venv "$VIRTUAL_ENV"
 RUN python -m pip install --upgrade pip
 RUN python -m venv $VIRTUAL_ENV && chown -R ${USER_ID}:${GROUP_ID} $VIRTUAL_ENV
+
+
+# Install locales package
+RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/*
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    echo "fr_CH.UTF-8 UTF-8" >> /etc/locale.gen && \
+    locale-gen
+
 USER app
 
 WORKDIR /app

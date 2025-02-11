@@ -23,5 +23,6 @@ class Subscription(models.Model):
         elif subscription_type == SubscriptionTypeEnum.SUPPORTER:
             return self.price_supporter
         return None
+
     class Meta:
         db_table = "subscription"

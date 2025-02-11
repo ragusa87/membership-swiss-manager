@@ -6,13 +6,47 @@
 #
 asgiref==3.8.1
     # via django
+cairocffi==1.7.1
+    # via cairosvg
+cairosvg==2.7.1
+    # via myproject (pyproject.toml)
+cffi==1.17.1
+    # via cairocffi
+cssselect2==0.7.0
+    # via cairosvg
+defusedxml==0.7.1
+    # via cairosvg
 django==5.1.5
     # via myproject (pyproject.toml)
 gunicorn==22.0.0
     # via myproject (pyproject.toml)
+iso3166==2.1.1
+    # via qrbill
 packaging==24.2
     # via gunicorn
+pillow==11.1.0
+    # via cairosvg
+pycparser==2.22
+    # via cffi
+pypdf2==3.0.1
+    # via myproject (pyproject.toml)
 python-dotenv==1.0.1
     # via myproject (pyproject.toml)
+python-stdnum==1.20
+    # via qrbill
+qrbill==1.1.0
+    # via myproject (pyproject.toml)
+qrcode==8.0
+    # via qrbill
 sqlparse==0.5.3
     # via django
+svgwrite==1.4.3
+    # via qrbill
+tinycss2==1.4.0
+    # via
+    #   cairosvg
+    #   cssselect2
+webencodings==0.5.1
+    # via
+    #   cssselect2
+    #   tinycss2

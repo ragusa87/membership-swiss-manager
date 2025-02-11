@@ -10,14 +10,26 @@ black==25.1.0
     # via myproject (pyproject.toml)
 build==1.2.2.post1
     # via pip-tools
+cairocffi==1.7.1
+    # via cairosvg
+cairosvg==2.7.1
+    # via myproject (pyproject.toml)
+cffi==1.17.1
+    # via cairocffi
 click==8.1.8
     # via
     #   black
     #   pip-tools
+cssselect2==0.7.0
+    # via cairosvg
+defusedxml==0.7.1
+    # via cairosvg
 django==5.1.5
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
+iso3166==2.1.1
+    # via qrbill
 mypy-extensions==1.0.0
     # via black
 packaging==24.2
@@ -27,20 +39,42 @@ packaging==24.2
     #   gunicorn
 pathspec==0.12.1
     # via black
+pillow==11.1.0
+    # via cairosvg
 pip-tools==7.4.1
     # via myproject (pyproject.toml)
 platformdirs==4.3.6
     # via black
+pycparser==2.22
+    # via cffi
+pypdf2==3.0.1
+    # via myproject (pyproject.toml)
 pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
 python-dotenv==1.0.1
     # via myproject (pyproject.toml)
+python-stdnum==1.20
+    # via qrbill
+qrbill==1.1.0
+    # via myproject (pyproject.toml)
+qrcode==8.0
+    # via qrbill
 rust-just==1.39.0
     # via myproject (pyproject.toml)
 sqlparse==0.5.3
     # via django
+svgwrite==1.4.3
+    # via qrbill
+tinycss2==1.4.0
+    # via
+    #   cairosvg
+    #   cssselect2
+webencodings==0.5.1
+    # via
+    #   cssselect2
+    #   tinycss2
 wheel==0.45.1
     # via pip-tools
 

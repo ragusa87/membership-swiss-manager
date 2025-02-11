@@ -18,11 +18,16 @@ class Member(models.Model):
 
     class Meta:
         db_table = "member"
+
     def __str__(self):
-        return f"{self.firstname} {self.lastname.upper() if self.lastname else ''}".strip()
+        return (
+            f"{self.firstname} {self.lastname.upper() if self.lastname else ''}".strip()
+        )
 
     def get_fullname(self):
-        return f"{self.firstname} {self.lastname}".strip()
+        first = self.firstname or ""
+        last = self.lastname or ""
+        return f"{first} {last}".strip()
 
     def get_country(self):
         return "CH"
@@ -44,5 +49,5 @@ class Member(models.Model):
         for i, part in enumerate(parts):
             if part.isdigit():
                 self.zip = int(part)
-                self.city = ' '.join(parts[:i] + parts[i + 1:]).strip()
+                self.city = " ".join(parts[:i] + parts[i + 1 :]).strip()
                 return
