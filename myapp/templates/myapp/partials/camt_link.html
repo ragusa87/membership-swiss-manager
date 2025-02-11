@@ -1,0 +1,9 @@
+{% load static custom_filters %}
+<span>{{ invoice.created_at|date:"Y-m-d" }}</span>
+<span class="font-medium">{{ invoice.price|format_price }}</span>
+<span>{{ invoice.get_reminder_text }}</span>
+<span>{{ invoice.get_status_text }}</span>
+<span>{{ invoice.member_subscription.member }}</span>
+{% if invoice.reference %}
+    <span>{{ invoice.reference }}</span>
+{% endif %}

@@ -6,43 +6,92 @@
 #
 asgiref==3.8.1
     # via django
-black==25.1.0
-    # via myproject (pyproject.toml)
 build==1.2.2.post1
     # via pip-tools
+cairocffi==1.7.1
+    # via cairosvg
+cairosvg==2.7.1
+    # via myproject (pyproject.toml)
+cffi==1.17.1
+    # via cairocffi
 click==8.1.8
+    # via pip-tools
+cssselect2==0.7.0
+    # via cairosvg
+defusedxml==0.7.1
     # via
-    #   black
-    #   pip-tools
+    #   cairosvg
+    #   pycamt
 django==5.1.5
+    # via
+    #   django-debug-toolbar
+    #   myproject (pyproject.toml)
+django-debug-toolbar==5.0.1
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
-mypy-extensions==1.0.0
-    # via black
+iso3166==2.1.1
+    # via qrbill
+numpy==2.2.2
+    # via pandas
 packaging==24.2
     # via
-    #   black
     #   build
     #   gunicorn
-pathspec==0.12.1
-    # via black
+pandas==2.2.3
+    # via myproject (pyproject.toml)
+pillow==11.1.0
+    # via cairosvg
 pip-tools==7.4.1
     # via myproject (pyproject.toml)
-platformdirs==4.3.6
-    # via black
+pycamt==1.0.1
+    # via myproject (pyproject.toml)
+pycparser==2.22
+    # via cffi
+pypdf2==3.0.1
+    # via myproject (pyproject.toml)
 pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
+python-dateutil==2.9.0.post0
+    # via pandas
 python-dotenv==1.0.1
+    # via myproject (pyproject.toml)
+python-stdnum==1.20
+    # via qrbill
+pytz==2025.1
+    # via pandas
+qrbill==1.1.0
+    # via myproject (pyproject.toml)
+qrcode==8.0
+    # via qrbill
+ruff==0.9.6
     # via myproject (pyproject.toml)
 rust-just==1.39.0
     # via myproject (pyproject.toml)
+six==1.17.0
+    # via python-dateutil
 sqlparse==0.5.3
-    # via django
+    # via
+    #   django
+    #   django-debug-toolbar
+svgwrite==1.4.3
+    # via qrbill
+tinycss2==1.4.0
+    # via
+    #   cairosvg
+    #   cssselect2
+tzdata==2025.1
+    # via pandas
+webencodings==0.5.1
+    # via
+    #   cssselect2
+    #   tinycss2
 wheel==0.45.1
     # via pip-tools
+xlsxwriter==3.2.2
+    # via myproject (pyproject.toml)
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

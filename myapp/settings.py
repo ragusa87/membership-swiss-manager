@@ -16,8 +16,20 @@ from pathlib import Path
 from dotenv import load_dotenv
 import json
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+USE_I18N = True
+
+LANGUAGES = [
+    ("en", "English"),
+    ("fr", "French"),  # Add more languages as needed
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / "locale",  # Ensure this directory exists
+]
 
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 # # Application definition
@@ -26,7 +38,7 @@ for filename in [".env", ".env.local"]:
     if os.path.isfile(absoluteFile):
         load_dotenv(dotenv_path=absoluteFile, override=True)
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
-DEBUG = str(os.environ.get("APP_DEBUG", False)).strip().lower() in ("true", "1")
+DEBUG = str(os.environ.get("APP_DEBUG", "0")).strip().lower() in ["true", "1"]
 ALLOWED_HOSTS = json.loads(os.environ.get("ALLOWED_HOSTS", "[]"))
 STATIC_ROOT = os.path.join(BASE_DIR, "assets")
 STATICFILES_DIRS = [
@@ -48,6 +60,21 @@ try:
 except (json.JSONDecodeError, TypeError):
     pass
 
+INVOICE_IBAN = os.environ.get("IBAN", "")
+INVOICE_CUSTOMER_IDENTIFICATION_NUMBER = os.environ.get(
+    "CUSTOMER_IDENTIFICATION_NUMBER", ""
+)
+INVOICE_LANGUAGE = os.environ.get("LANGUAGE", "fr")
+
+CREDITOR_NAME = os.environ.get(
+    "CREDITOR_NAME", "Association du Jardin du Vanil 10-12-14"
+)
+CREDITOR_ADDRESS = os.environ.get("CREDITOR_ADDRESS", "Ch. du Vanil")
+CREDITOR_ADDRESS_HOUSE_NUMBER = os.environ.get("CREDITOR_ADDRESS_HOUSE_NUMBER", "10")
+CREDITOR_ZIP = os.environ.get("CREDITOR_ZIP", "1004")
+CREDITOR_CITY = os.environ.get("CREDITOR_CITY", "Lausanne")
+CREDITOR_COUNTRY = os.environ.get("CREDITOR_COUNTRY", "CH")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -55,26 +82,35 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "myapp"
+    "myapp",
 ]
+
+if DEBUG:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+if DEBUG:
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
 
 ROOT_URLCONF = "myapp.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -92,11 +128,11 @@ WSGI_APPLICATION = "myapp.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+DB_ENV = os.environ.get("DB_ENV", "dev")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": BASE_DIR / "db" / f"{DB_ENV}.sqlite",
     }
 }
 
@@ -152,12 +188,10 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# if True:
-#     try:
-#         import debugpy
-#         import socket
-#         debugpy.listen( ("0.0.0.0", 8421))
-#     except ModuleNotFoundError as e:
-#         print('debugpy not found' + e.name)
-#     except RuntimeError as e:
-#         print('debugpy error' + str(e))
+INTERNAL_IPS = os.environ.get("INTERNAL_IPS", "").split(",")
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20mb
+FILE_UPLOAD_HANDLERS = [
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]

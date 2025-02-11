@@ -2,8 +2,12 @@
 compose.override.yaml
 db/*
 db.sqlite3
+!db/.gitkeep
 assets
 !assets/.gitkeep
 medias
 !medias/.gitkeep
 **/__pycache__/
+myproject.egg-info/
+*.mo
+uploads/**

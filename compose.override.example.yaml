@@ -9,7 +9,6 @@ services:
       target: dev
     volumes:
       - .:/app/
-      # - .venv:/venv/
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=pontsun'

@@ -6,7 +6,7 @@ services:
   web:
     build:
       context: .
-      target: build
+      target: prod
     extra_hosts:
       - host.docker.internal:host-gateway
 
@@ -15,7 +15,7 @@ services:
       - "8000:8000"
     volumes:
       - venv:/venv
-      - .:/code
+      - .:/app
     environment:
       <<: *x-environment
       ALLOWED_HOSTS: >-
