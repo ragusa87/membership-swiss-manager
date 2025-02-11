@@ -6,8 +6,9 @@ if [ ! -e "$VIRTUAL_ENV/bin" ] || [ ! -e "$VIRTUAL_ENV/bin/python" ]; then
 fi
 
 if [ "$INITIAL" = "1" ]; then
-    if [ ! -e "requirements.txt" ]; then
-        >&2  echo "Please create requirements.txt"
+    REQUIREMENT_FILE=${$REQUIREMENT_FILE:-"requirements.txt"}
+    if [ ! -e $REQUIREMENT_FILE ]; then
+        >&2  echo "Please create $REQUIREMENT_FILE"
         exit
     fi
 
@@ -17,7 +18,9 @@ if [ "$INITIAL" = "1" ]; then
     while ! (echo > /dev/tcp/db/5432) >/dev/null 2>&1; do echo -n '.'; sleep 1; done;
     echo "Running migrations..."
     ./manage.py migrate
-
+    echo "Compiling messages..."
+    ./manage.py compilemessages
+    echo "Install static assets..."
     ./manage.py collectstatic --no-input
 fi
 

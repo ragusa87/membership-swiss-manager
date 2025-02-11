@@ -12,6 +12,7 @@ venv:
     pip install pip-tools
 
 requirements-install:
+    pip install -r requirements.txt
     pip install -r requirements.dev.txt
 
 requirements-generate:
@@ -39,4 +40,19 @@ bash:
    bash
 
 lint:
-    black myapp
+    ruff format
+    ruff check --fix
+
+sprites:
+    myapp/sprites/all-gen.sh
+    # ./manage collectstatic
+
+translate:
+    ./manage.py makemessages --all
+    ./manage.py compilemessages
+
+fixtures:
+    ./manage.py migrate
+    ./manage.py loaddata 1_member.json
+    ./manage.py loaddata 2_subscription.json
+    ./manage.py loaddata 3_member_subscription.json

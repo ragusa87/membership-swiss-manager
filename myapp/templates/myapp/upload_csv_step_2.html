@@ -1,0 +1,29 @@
+{% extends "myapp/upload_csv_step_0.html" %}
+{% load static custom_filters i18n %}
+
+{% block step_content %}
+    <ul>
+    {% for row in data.rows %}
+        <li>
+            {{ row.expected_members|join:", " }}
+            <ul>
+                {% if row.expected_members|length != row.members|length %}
+                    {% for name in row.missing_members %}
+                        <li>
+                        <span class="pl-5 text-red-900">{{ member.get_fullname }}</span>
+                        <span class="inline-block mb-2 p-2 bg-blue-700 text-white">TODO Create {{ member.get_fullname }}</span>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+                {% for member in row.members %}
+                    <li>
+                       <span class="pl-5 text-green-900">{{ member.get_fullname }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
+
+    {% include 'myapp/partials/upload_csv_cta.html' %}
+{% endblock %}
