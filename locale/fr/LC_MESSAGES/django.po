@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-11 10:22+0000\n"
+"POT-Creation-Date: 2025-02-12 18:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,39 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: myapp/models/invoice.py:44
+msgid "InvoiceStatusEnum.CREATED"
+msgstr "créé"
+
+#: myapp/models/invoice.py:45
+msgid "InvoiceStatusEnum.CANCELED"
+msgstr "annulé"
+
+#: myapp/models/invoice.py:46
+msgid "InvoiceStatusEnum.PAID"
+msgstr "payé"
+
 #: myapp/models/invoice.py:47
+msgid "InvoiceStatusEnum.PENDING"
+msgstr "en attente"
+
+#: myapp/models/invoice.py:50
+msgid "InvoiceStatusEnum.UNKNOWN"
+msgstr "inconnu"
+
+#: myapp/models/invoice.py:58
 msgid "1st reminder"
 msgstr "premier rappel"
 
-#: myapp/models/invoice.py:48
+#: myapp/models/invoice.py:59
 msgid "2nd reminder"
 msgstr "deuxième rappel"
 
-#: myapp/models/invoice.py:49
+#: myapp/models/invoice.py:60
 msgid "3rd reminder"
 msgstr "troisième rappel"
 
-#: myapp/models/invoice.py:56
+#: myapp/models/invoice.py:67
 #, python-format
 msgid "%dth reminder"
 msgid_plural "%dth reminder"
@@ -49,11 +69,11 @@ msgstr "sympathisant"
 msgid "subscription.unknown"
 msgstr "sympathisant?"
 
-#: myapp/models/member_subscription.py:57
+#: myapp/models/member_subscription.py:63
 msgid "active subscription"
 msgstr "active"
 
-#: myapp/models/member_subscription.py:57
+#: myapp/models/member_subscription.py:63
 msgid "inactive subscription"
 msgstr "inactif"
 
@@ -64,3 +84,55 @@ msgstr "membre"
 #: myapp/models/subscription.py:7
 msgid "Supporter"
 msgstr "sympathisant"
+
+#: myapp/templates/myapp/dashboard.html:17
+msgid "Total Subscriptions"
+msgstr "Inscriptions totales"
+
+#: myapp/templates/myapp/dashboard.html:23
+#: myapp/templates/myapp/dashboard.html:36
+#, python-format
+msgid "(last year %(last)s)"
+msgstr "(l'année dernière %(last)s)"
+
+#: myapp/templates/myapp/dashboard.html:30
+msgid "Due Amount"
+msgstr "Montant dû"
+
+#: myapp/templates/myapp/dashboard.html:43
+msgid "Paid Amount"
+msgstr "Montant payé"
+
+#: myapp/templates/myapp/dashboard.html:48
+#, python-format
+msgid "%(rate)s%% collection rate"
+msgstr "%(rate)s%% collecté"
+
+#: myapp/templates/myapp/dashboard.html:55
+msgid "Active Users"
+msgstr "Utilisateurs actifs"
+
+#: myapp/templates/myapp/dashboard.html:61
+#, python-format
+msgid "%(rate)s%% retention (%(total_users)s)"
+msgstr "%(rate)s%% rétention (%(total_users)s)"
+
+#: myapp/templates/myapp/dashboard.html:72
+msgid "Subscriptions"
+msgstr "Inscriptions"
+
+#: myapp/templates/myapp/dashboard.html:82
+msgid "column.Member(s)"
+msgstr "membre(s)"
+
+#: myapp/templates/myapp/dashboard.html:83
+msgid "column.Amount"
+msgstr "Montant"
+
+#: myapp/templates/myapp/dashboard.html:84
+msgid "column.Invoices"
+msgstr "Factures"
+
+#: myapp/templates/myapp/dashboard.html:85
+msgid "column.Actions"
+msgstr "Actions"

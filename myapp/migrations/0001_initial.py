@@ -174,4 +174,30 @@ class Migration(migrations.Migration):
                 "db_table": "invoice",
             },
         ),
+        migrations.AddField(
+            model_name="invoice",
+            name="price",
+            field=models.IntegerField(blank=True, null=True),
+        ),
+        migrations.AlterField(
+            model_name="membersubscription",
+            name="type",
+            field=models.CharField(
+                choices=[
+                    ("member", "subscription.member"),
+                    ("other", "subscription.other"),
+                ],
+                default="member",
+                max_length=255,
+            ),
+        ),
+        migrations.AddField(
+            model_name="membersubscription",
+            name="price",
+            field=models.IntegerField(
+                blank=True,
+                help_text="The price is calculated automatically.",
+                null=True,
+            ),
+        ),
     ]

@@ -7,7 +7,8 @@ dependencies = [
   "python-dotenv",
   "qrbill",
   "cairosvg",
-  "PyPDF2"
+  "PyPDF2",
+  "django-debug-toolbar"
 ]
 [tool.setuptools.packages.find]
 exclude = ["tests*", "migrations*", "public*"]

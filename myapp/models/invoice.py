@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.timezone import now
 from decimal import Decimal
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -39,6 +38,18 @@ class Invoice(models.Model):
 
     def price_decimal(self):
         return Decimal(self.price) / Decimal(100)
+
+    def get_status_text(self):
+        map = {
+            InvoiceStatusEnum.CREATED: _("InvoiceStatusEnum.CREATED"),
+            InvoiceStatusEnum.CANCELED: _("InvoiceStatusEnum.CANCELED"),
+            InvoiceStatusEnum.PAID: _("InvoiceStatusEnum.PAID"),
+            InvoiceStatusEnum.PENDING: _("InvoiceStatusEnum.PENDING"),
+        }
+        if self.status not in map:
+            return _("InvoiceStatusEnum.UNKNOWN")
+
+        return map[self.status]
 
     def get_reminder_text(self):
 

@@ -18,13 +18,14 @@ def copy_parent_to_subscription(apps, schema_editor):
         # Check if the member has a parent
         if member.parent:
             # Find the parent's subscription (assuming one-to-many, take the first if multiple)
-            parent_subscription = MemberSubscription.objects.filter(member=member.parent).first()
-            if parent_subscription:
+            parent_subscriptions = MemberSubscription.objects.filter(member=member.parent).all()
+            member_subscriptions = MemberSubscription.objects.filter(member=member).all()
+            for parent_subscription in parent_subscriptions:
                 # Update the member's subscription to be the same as the parent's subscription
-                member_subscriptions = MemberSubscription.objects.filter(member=member).all()
                 for member_subscription in member_subscriptions:
-                    member_subscription.parent = parent_subscription
-                    member_subscription.save()
+                    if member_subscription.subscription == parent_subscription.subscription:
+                        member_subscription.parent = parent_subscription
+                        member_subscription.save()
 
 class Migration(migrations.Migration):
 

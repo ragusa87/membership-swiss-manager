@@ -38,6 +38,9 @@ class MemberSubscription(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    price = models.IntegerField(
+        null=True, blank=True, help_text="The price is calculated automatically."
+    )
 
     class Meta:
         unique_together = ("subscription", "member")
@@ -49,6 +52,8 @@ class MemberSubscription(models.Model):
         return f"{self.member.get_fullname()} - {self.subscription.name}"
 
     def get_price(self):
+        if self.active is False or len(self.children.all()) > 0:
+            return 0
         return self.subscription.get_price_by_type(self.type)
 
     def get_type_text(self) -> str:
@@ -58,6 +63,16 @@ class MemberSubscription(models.Model):
         return _("active subscription") if self.active else _("inactive subscription")
 
     def get_due_amount(self):
+        if self.invoices:
+            sum = 0
+            for invoice in self.invoices.all():
+                if (
+                    invoice.status != InvoiceStatusEnum.PAID
+                    and invoice.status != InvoiceStatusEnum.CANCELED
+                ):
+                    sum += invoice.price
+            return sum
+
         expected = self.get_price() or 0
         paid = sum(
             invoice.price
@@ -85,3 +100,18 @@ class MemberSubscription(models.Model):
                 InvoiceStatusEnum.CANCELED,
             ]
         ).exists()
+
+    def get_paid_amount(self) -> int:
+        sum = 0
+        for invoice in self.invoices.all():
+            if invoice.status == InvoiceStatusEnum.PAID:
+                sum += invoice.price
+        return sum
+
+    def has_due_balance(self) -> bool:
+        return self.get_due_amount() > 0
+
+    # Update the subscription's price on save
+    def save(self, *args, **kwargs):
+        self.price = self.get_price()
+        super().save(*args, **kwargs)

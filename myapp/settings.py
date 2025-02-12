@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+from django.template.context_processors import request
 from dotenv import load_dotenv
 import json
 
@@ -38,7 +39,7 @@ for filename in [".env", ".env.local"]:
     if os.path.isfile(absoluteFile):
         load_dotenv(dotenv_path=absoluteFile, override=True)
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
-DEBUG = str(os.environ.get("APP_DEBUG", False)).strip().lower() in ("true", "1")
+DEBUG = str(os.environ.get("APP_DEBUG", "0")).strip().lower() in ["true", "1"]
 ALLOWED_HOSTS = json.loads(os.environ.get("ALLOWED_HOSTS", "[]"))
 STATIC_ROOT = os.path.join(BASE_DIR, "assets")
 STATICFILES_DIRS = [
@@ -85,22 +86,32 @@ INSTALLED_APPS = [
     "myapp",
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+if DEBUG:
+    MIDDLEWARE += [
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
 
 ROOT_URLCONF = "myapp.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -177,6 +188,10 @@ STORAGES = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+INTERNAL_IPS = os.environ.get("INTERNAL_IPS", "").split(",")
+print(INTERNAL_IPS)
 
 # if True:
 #     try:

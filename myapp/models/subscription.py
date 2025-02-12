@@ -17,10 +17,10 @@ class Subscription(models.Model):
     def __str__(self):
         return self.name
 
-    def get_price_by_type(self, subscription_type):
-        if subscription_type == SubscriptionTypeEnum.MEMBER:
+    def get_price_by_type(self, subscription_type: str) -> int | None:
+        if subscription_type.lower() == SubscriptionTypeEnum.MEMBER.lower():
             return self.price_member
-        elif subscription_type == SubscriptionTypeEnum.SUPPORTER:
+        elif subscription_type.lower() == SubscriptionTypeEnum.SUPPORTER.lower():
             return self.price_supporter
         return None
 

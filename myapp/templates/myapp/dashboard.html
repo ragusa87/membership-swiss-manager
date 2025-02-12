@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static custom_filters i18n %}
+{% block content  %}
+<div class="min-h-screen bg-slate-50">
+    <!-- Header -->
+    <header class="bg-slate-800 text-white p-4">
+        <div class="container mx-auto">
+            <a href="{% url "admin:myapp_subscription_changelist" %}"><h1 class="text-2xl font-bold">Dashboard - {{ subscription.name }}</h1></a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-slate-500 text-sm font-medium">{% translate "Total Subscriptions" %}</h3>
+                <p class="text-2xl font-bold text-slate-800 mt-2">{{ stats.total_subscriptions }}</p>
+                <p class="text-sm {% if stats.subscription_growth >= 0 %}text-green-500{% else %}text-red-500{% endif %}">
+                    {% if stats.subscription_growth >= 0 %}↑{% else %}↓{% endif %}
+                    {{ stats.subscription_growth|floatformat:0 }}{{ "%" }}
+                    {% with last=stats.total_subscriptions_last_year  %}
+                        {% blocktrans %}(last year {{ last }}){% endblocktrans %}
+                    {% endwith %}
+                </p>
+            </div>
+
+            <!-- Due Amount -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-slate-500 text-sm font-medium">{% translate "Due Amount" %}</h3>
+                <p class="text-2xl font-bold text-slate-800 mt-2">{{ stats.due_amount|format_price }}</p>
+                <p class="text-sm {% if stats.due_amount_growth <= 0 %}text-green-500{% else %}text-red-500{% endif %}">
+                    {% if stats.due_amount_growth <= 0 %}↓{% else %}↑{% endif %}
+                    {{ stats.due_amount_growth|floatformat:0 }}{{ "%" }}
+                        {% with last=stats.last_year_due_amount|format_price  %}
+                            {% blocktrans %}(last year {{ last }}){% endblocktrans %}
+                        {% endwith %}
+                </p>
+            </div>
+
+            <!-- Paid Amount -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-slate-500 text-sm font-medium">{% translate "Paid Amount" %}</h3>
+                <p class="text-2xl font-bold text-slate-800 mt-2">{{ stats.paid_amount|format_price }}</p>
+                <p class="text-sm {% if stats.collection_rate == 100 %}text-green-500{% else %}text-red-500{% endif %}">
+                    {% if stats.collection_rate == 100 %}↑{% elif status.collection_rate > 0 %}↓{% endif %}
+                    {% with rate=stats.collection_rate|floatformat:0  %}
+                        {% blocktrans %}{{ rate }}% collection rate{% endblocktrans %}
+                    {% endwith %}
+                </p>
+            </div>
+
+            <!-- Active Users -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-slate-500 text-sm font-medium">{% translate "Active Users" %}</h3>
+                <p class="text-2xl font-bold text-slate-800 mt-2">{{ stats.active_users }}</p>
+                <p class="text-sm {% if stats.retention_rate >= 0 %}text-green-500{% else %}text-red-500{% endif %}">
+                    {% if stats.retention_rate >= 0 and stats.retention_rate != 100 %}↑{% elif stats.retention_rate < 100 %}↓{% endif %}
+                    {% with total_users=stats.total_users  %}
+                        {% with rate=stats.retention_rate|floatformat:0 %}
+                            {% blocktrans %}{{ rate }}% retention ({{ total_users}}){% endblocktrans %}
+                        {% endwith %}
+                    {% endwith %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Subscription Table -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-slate-800">{% translate "Subscriptions" %}</h2>
+{#                    <a href="{% url 'admin:subscriptions_subscription_add' %}"#}
+{#                       class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">#}
+{#                        Add Subscription#}
+{#                    </a>#}
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-slate-50">
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{% translate "column.Member(s)" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{% translate "column.Amount" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{% translate "column.Invoices" %}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{% translate "column.Actions" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200">
+                            {% for member_subscription in member_subscriptions %}
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-800">
+                                        {{ member_subscription.member.firstname|default:"" }} {{ member_subscription.member.lastname|default:""  }}
+                                        {% for child in member_subscription.children.all %}
+                                            {{ "&" }}
+                                            {{ child.member.get_fullname  }}
+                                        {% endfor %}
+                                        {% with count=member_subscription.parent_count|add:1 %}
+                                            ({{ count }})
+                                        {% endwith %}
+                                    </td>
+                                    {% with open_balance=member_subscription.has_due_balance %}
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-800 {% if open_balance %}bg-red-100 text-red-800{% endif %}">
+                                            {{ member_subscription.get_paid_amount|format_price }}{{ " / " }}{{ member_subscription.get_price|format_price }}
+                                        </td>
+                                    {% endwith %}
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {%  if member_subscription.invoice_count > 0 %}
+                                            <ul>
+                                        {% for invoice in member_subscription.invoices.all %}
+                                            <li>
+                                            {{ invoice.price|format_price }}
+                                            {% if invoice.status.lower == InvoiceStatusEnum.PAID %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    {{ invoice.get_status_text }}
+                                                </span>
+                                            {% elif invoice.status.lower == InvoiceStatusEnum.CANCELED.lower %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                    {{ invoice.get_status_text }}
+                                                </span>
+                                            {% elif invoice.status.lower == InvoiceStatusEnum.PENDING.lower %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    {{ invoice.get_status_text }}
+                                                </span>
+                                            {% elif invoice.status.lower == InvoiceStatusEnum.CREATED.lower %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    {{ invoice.get_status_text }}
+                                                </span>
+                                            {% else %}
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    {{ invoice.get_status_text }}
+                                                </span>
+                                            {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            {{ "-" }}{# invoice_count = 0 #}
+                                        {% endif %}
+
+                                    </td>
+                                    <td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">
+                                        <a href="{% url "admin:myapp_membersubscription_changelist" %}?id={{ member_subscription.pk }}" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition inline-block">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487a2.5 2.5 0 1 1 3.535 3.535L7.5 19.928l-4.243.707.707-4.243L16.862 3.487z" />
+                                            </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-sm text-slate-500">
+                                        No subscriptions found
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

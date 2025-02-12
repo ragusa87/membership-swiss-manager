@@ -25,6 +25,10 @@ cssselect2==0.7.0
 defusedxml==0.7.1
     # via cairosvg
 django==5.1.5
+    # via
+    #   django-debug-toolbar
+    #   myproject (pyproject.toml)
+django-debug-toolbar==5.0.1
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
@@ -64,7 +68,9 @@ qrcode==8.0
 rust-just==1.39.0
     # via myproject (pyproject.toml)
 sqlparse==0.5.3
-    # via django
+    # via
+    #   django
+    #   django-debug-toolbar
 svgwrite==1.4.3
     # via qrbill
 tinycss2==1.4.0
