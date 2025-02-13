@@ -19,7 +19,14 @@ from django.contrib import admin
 from django.urls import path, re_path
 from . import views
 from django.views.generic.base import RedirectView
-from .views import single_invoice, DashboardView, switch_language, my_ip, CSVUploadView
+from .views import (
+    single_invoice,
+    DashboardView,
+    switch_language,
+    my_ip,
+    CSVUploadView,
+    export_subscription,
+)
 from .settings import DEBUG
 from debug_toolbar.toolbar import debug_toolbar_urls
 
@@ -34,7 +41,18 @@ urlpatterns = [
     path("invoice/<int:invoice_id>/pdf/", single_invoice, name="single_invoice_pdf"),
     re_path(r"^favicon\.ico$", favicon_view),
     path("switch_language", switch_language, name="switch_language"),
-    path("upload-csv/", CSVUploadView.as_view(), name="csv_upload"),
+    path("import-csv/", CSVUploadView.as_view(), name="csv_import"),
+    path(
+        "export-subscriptions/<str:subscription_name>.<str:extension>",
+        export_subscription,
+        name="subscription_export_with_extension",
+    ),
+    path(
+        "export-subscriptions/<str:subscription_name>.xlsx",
+        export_subscription,
+        {"extension": "xlsx"},
+        name="subscription_export",
+    ),
 ]
 
 if DEBUG:

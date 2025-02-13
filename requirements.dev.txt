@@ -36,11 +36,15 @@ iso3166==2.1.1
     # via qrbill
 mypy-extensions==1.0.0
     # via black
+numpy==2.2.2
+    # via pandas
 packaging==24.2
     # via
     #   black
     #   build
     #   gunicorn
+pandas==2.2.3
+    # via myproject (pyproject.toml)
 pathspec==0.12.1
     # via black
 pillow==11.1.0
@@ -57,16 +61,22 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
+python-dateutil==2.9.0.post0
+    # via pandas
 python-dotenv==1.0.1
     # via myproject (pyproject.toml)
 python-stdnum==1.20
     # via qrbill
+pytz==2025.1
+    # via pandas
 qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.0
     # via qrbill
 rust-just==1.39.0
     # via myproject (pyproject.toml)
+six==1.17.0
+    # via python-dateutil
 sqlparse==0.5.3
     # via
     #   django
@@ -77,12 +87,16 @@ tinycss2==1.4.0
     # via
     #   cairosvg
     #   cssselect2
+tzdata==2025.1
+    # via pandas
 webencodings==0.5.1
     # via
     #   cssselect2
     #   tinycss2
 wheel==0.45.1
     # via pip-tools
+xlsxwriter==3.2.2
+    # via myproject (pyproject.toml)
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

@@ -5,6 +5,8 @@ from myapp.pdf_generator import PDFGenerator
 from django.views.generic import TemplateView
 from datetime import datetime
 from django.db.models import Sum, Count, Q, Prefetch, Aggregate
+
+from .cvs_manager.csv_exporter import CsvExporter
 from .settings import LANGUAGES
 from django.utils import translation
 from django.http import HttpResponseRedirect
@@ -15,7 +17,7 @@ from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django import forms
 import csv
-
+from .cvs_manager import csv_exporter
 
 def switch_language(request):
     """
@@ -208,7 +210,7 @@ class CSVUploadForm(forms.Form):
 class CSVUploadView(FormView):
     template_name = "myapp/upload_csv.html"
     form_class = CSVUploadForm
-    success_url = reverse_lazy("csv_upload")  # Redirect to same page after upload
+    success_url = reverse_lazy("csv_import")  # Redirect to same page after upload
 
     def form_valid(self, form):
         csv_file = form.cleaned_data["csv_file"]
@@ -228,3 +230,20 @@ class CSVUploadView(FormView):
             return super().form_invalid(form)
 
         return super().form_valid(form)
+
+
+def get_mime_type(file_extension: str) -> str:
+    match file_extension.lower():
+        case 'xlsx':
+            return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        case 'csv':
+            return 'text/csv'
+        case _:
+            return 'application/octet-stream'
+
+
+def export_subscription(self,subscription_name: str, extension: str):
+    subscription = get_object_or_404(Subscription, name=subscription_name)
+    exporter = CsvExporter(subscription)
+
+    return HttpResponse(exporter.export(extension).read(), content_type=get_mime_type(extension))

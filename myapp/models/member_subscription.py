@@ -52,7 +52,7 @@ class MemberSubscription(models.Model):
         return f"{self.member.get_fullname()} - {self.subscription.name}"
 
     def get_price(self):
-        if self.active is False or len(self.children.all()) > 0:
+        if self.active is False or self.parent is not None:
             return 0
         return self.subscription.get_price_by_type(self.type)
 

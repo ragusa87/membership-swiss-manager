@@ -8,6 +8,8 @@ dependencies = [
   "qrbill",
   "cairosvg",
   "PyPDF2",
+  "pandas",
+  "xlsxwriter",
   "django-debug-toolbar"
 ]
 [tool.setuptools.packages.find]
