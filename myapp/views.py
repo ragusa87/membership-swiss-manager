@@ -6,11 +6,15 @@ from django.views.generic import TemplateView
 from datetime import datetime
 from django.db.models import Sum, Count, Q, Prefetch, Aggregate
 from .settings import LANGUAGES
-
-# views.py
 from django.utils import translation
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.shortcuts import render
+from django.contrib import messages
+from django.views.generic.edit import FormView
+from django.urls import reverse_lazy
+from django import forms
+import csv
 
 
 def switch_language(request):
@@ -193,3 +197,34 @@ class DashboardView(TemplateView):
             }
         )
         return context
+
+
+class CSVUploadForm(forms.Form):
+    csv_file = forms.FileField(
+        label="Select a CSV file", help_text="File must be in CSV format"
+    )
+
+
+class CSVUploadView(FormView):
+    template_name = "myapp/upload_csv.html"
+    form_class = CSVUploadForm
+    success_url = reverse_lazy("csv_upload")  # Redirect to same page after upload
+
+    def form_valid(self, form):
+        csv_file = form.cleaned_data["csv_file"]
+
+        if not csv_file.name.endswith(".csv"):
+            messages.error(self.request, "Please upload a CSV file")
+            return super().form_invalid(form)
+
+        try:
+            # Read the CSV file
+            file_data = csv_file.read().decode("utf-8")
+            # TODO Save file in DB
+
+            messages.success(self.request, "CSV file uploaded successfully!")
+        except Exception as e:
+            messages.error(self.request, f"Error processing file: {str(e)}")
+            return super().form_invalid(form)
+
+        return super().form_valid(form)

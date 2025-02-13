@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% load static custom_filters i18n %}
-{% block content  %}
-<div class="min-h-screen bg-slate-50">
-    <!-- Header -->
-    <header class="bg-slate-800 text-white p-4">
-        <div class="container mx-auto">
-            <a href="{% url "admin:myapp_subscription_changelist" %}"><h1 class="text-2xl font-bold">Dashboard - {{ subscription.name }}</h1></a>
-        </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+{% block html_title  %}Dashboard - {{ subscription.name }}{% endblock %}
+{% block title  %}
+    <a href="{% url "admin:myapp_subscription_changelist" %}">
+        <h1 class="text-2xl font-bold">
+        {{ "Dashboard " }}{{ subscription.name }}
+        </h1>
+    </a>
+{% endblock %}
+{% block content  %}
+
         <!-- KPI Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-6">
@@ -66,7 +66,7 @@
         </div>
 
         <!-- Subscription Table -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-lg shadow mb-8">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-semibold text-slate-800">{% translate "Subscriptions" %}</h2>
@@ -158,6 +158,15 @@
                 </div>
             </div>
         </div>
-    </main>
-</div>
+
+    <!-- actions buttons -->
+    <nav class="bg-white shadow-lg shadow rounded-lg gap-6 mb-8">
+        <div class="flex justify-evenly items-center p-6">
+            <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="#">Todo: Mark created invoices as pending</a>
+            <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="#">Todo: Create reminder for pending invoice older than 30 days</a>
+            <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'csv_upload' %}">Camt upload</a>
+            <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition" href="#">Todo: Export created invoices</a>
+        </div>
+    </nav>
+
 {% endblock %}
