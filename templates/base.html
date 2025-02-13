@@ -15,21 +15,62 @@
 
   <body>
     {% block content %}{% endblock %}
+    {% block footer %}
+         <!-- Footer with Language Switcher -->
+    <footer class="bg-slate-800 text-white py-6 mt-auto">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+               <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <div class="text-sm text-slate-400">
+                        © {% now "Y" %} {% trans "membership-swiss-manager" %}.
+                    </div>
+                    <a href="https://github.com/ragusa87/membership-swiss-manager/"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="text-slate-400 hover:text-white transition-colors"
+                       title="{% trans 'View on GitHub' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="20"
+                             height="20"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             class="inline-block">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-slate-400">{% trans "Select Language" %}:</span>
+                    <div class="relative group">
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% get_available_languages as LANGUAGES %}
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        <button class="bg-slate-700 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2 hover:bg-slate-600 transition-colors">
+                            <span>{{ LANGUAGE_CODE|upper }}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div class="absolute bottom-full mb-2 w-48 bg-white rounded-lg shadow-lg invisible group-hover:visible transition-all opacity-0 group-hover:opacity-100">
+                            <div class="py-2">
+                                {% for lang in languages %}
+                                <a href="{% url 'switch_language' %}?language={{ lang.code }}"
+                                   class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 {% if lang.active %}bg-slate-50 font-semibold{% endif %}">
+                                    {{ lang.name_local }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
     {% block scripts %}{% endblock %}
-
-<form action="{% url 'switch_language' %}" method="post">{% csrf_token %}
-    <input name="next" type="hidden" value="{{ redirect_to }}">
-    <select name="language">
-        {% get_current_language as LANGUAGE_CODE %}
-        {% get_available_languages as LANGUAGES %}
-        {% get_language_info_list for LANGUAGES as languages %}
-        {% for language in languages %}
-            <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                {{ language.name_local }} ({{ language.code }})
-            </option>
-        {% endfor %}
-    </select>
-    <input type="submit" value="Go">
-</form>
   </body>
 </html>

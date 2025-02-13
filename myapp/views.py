@@ -20,7 +20,7 @@ def switch_language(request):
     """
     next_url = request.META.get("HTTP_REFERER", "/")  # Go back to the referring page
     response = HttpResponseRedirect(next_url)
-    lang_code = request.POST.get("language")
+    lang_code = request.POST.get("language", request.GET.get("language"))
     if lang_code in dict(LANGUAGES):  # Check if the lang_code is valid
         translation.activate(lang_code)
         request.session["django_language"] = lang_code
