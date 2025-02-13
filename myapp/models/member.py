@@ -29,6 +29,13 @@ class Member(models.Model):
         last = self.lastname or ""
         return f"{first} {last}".strip()
 
+    def get_shortname(self):
+        first = self.firstname or ""
+        last = (self.lastname or "")[0:1].upper()
+        if last != "":
+            last = "." + last
+        return f"{first} {last}".strip()
+
     def get_country(self):
         return "CH"
 

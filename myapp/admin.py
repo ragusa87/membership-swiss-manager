@@ -1,4 +1,7 @@
+from django.db.models.aggregates import Count
 from django.contrib import admin
+from django.http import HttpResponse
+from django.utils.translation import gettext_lazy as _
 from myapp.models import Member
 from myapp.models import MemberSubscription
 from myapp.models import Invoice, InvoiceStatusEnum
@@ -8,23 +11,10 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Prefetch
 from myapp.templatetags.custom_filters import format_price
+from .pdf_generator import PDFGenerator
 
 
-class MemberAdmin(admin.ModelAdmin):
-    pass
-
-
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ("name", "view_dashboard")
-
-    def view_dashboard(self, obj):
-        url = reverse("dashboard", kwargs={"subscription_name": obj.name})
-        return format_html('<a href="{}">View dashboard</a>', url)
-
-    view_dashboard.short_description = "Dashboard"
-
-
-class MemberSubscriptionBySubscription(SimpleListFilter):
+class FilterMemberSubscriptionBySubscription(SimpleListFilter):
     title = "subscription"
     parameter_name = "subscription"
 
@@ -40,23 +30,7 @@ class MemberSubscriptionBySubscription(SimpleListFilter):
         return queryset
 
 
-class FilterById(SimpleListFilter):
-    title = "Filter by Id"
-    parameter_name = "id"
-
-    def lookups(self, request, model_admin):
-        return []
-
-    def has_output(self):
-        return True
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(pk=self.value())
-        return queryset
-
-
-class MemberSubscriptionByMember(SimpleListFilter):
+class FilterMemberSubscriptionByMember(SimpleListFilter):
     title = "member"
     parameter_name = "member"
 
@@ -72,7 +46,7 @@ class MemberSubscriptionByMember(SimpleListFilter):
         return queryset
 
 
-class InvoiceByStatus(SimpleListFilter):
+class FilterInvoiceByStatus(SimpleListFilter):
     title = "status"
     parameter_name = "status"
 
@@ -85,7 +59,7 @@ class InvoiceByStatus(SimpleListFilter):
         return queryset
 
 
-class InvoiceBySubscription(SimpleListFilter):
+class FilterInvoiceBySubscription(SimpleListFilter):
     title = "subscription"
     parameter_name = "subscription"
 
@@ -101,30 +75,164 @@ class InvoiceBySubscription(SimpleListFilter):
         return queryset
 
 
+class FilterInvoiceByMemberSubscription(SimpleListFilter):
+    title = "member subscription"
+    parameter_name = "member_subscription"
+
+    def lookups(self, request, model_admin):
+        return [
+            (subscription.pk, str(subscription))
+            for subscription in MemberSubscription.objects.all()
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(member_subscription=self.value())
+        return queryset
+
+
+class FilterById(SimpleListFilter):
+    title = _("Filter by Id")
+    parameter_name = "id"
+
+    def lookups(self, request, model_admin):
+        return []
+
+    def has_output(self):
+        return True
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(pk=self.value())
+        return queryset
+
+
+class MemberAdmin(admin.ModelAdmin):
+    title = "Member"
+    list_filter = [FilterById]
+    search_fields = ["firstname", "lastname", "email", "address", "phone"]
+
+    def get_list_display(self, request):
+        default_list_display = super().get_list_display(request)
+        return default_list_display + ("view_subscriptions",)
+
+    def view_subscriptions(self, obj):
+        name = "View subscriptions"
+        url = (
+            reverse("admin:myapp_membersubscription_changelist")
+            + "?member="
+            + str(obj.pk)
+        )
+        return format_html('<a href="{}">{}</a>', url, name)
+
+
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = ("name", "view_dashboard")
+
+    def view_dashboard(self, obj):
+        url = reverse("dashboard", kwargs={"subscription_name": obj.name})
+        return format_html('<a href="{}">View dashboard</a>', url)
+
+    view_dashboard.short_description = "Dashboard"
+
+
+@admin.action(description="Export the selected invoices as PDF")
+def export_invoices_pdf(modeladmin, request, queryset):
+    generator = PDFGenerator()
+    pdf_output = generator.generate_pdf(queryset.all())
+
+    return HttpResponse(pdf_output.read(), content_type="application/pdf")
+
+
+@admin.action(description="Mark as canceled")
+def mark_as_canceled(modeladmin, request, queryset):
+    invoices = queryset.all()
+    for invoice in invoices:
+        invoice.status = InvoiceStatusEnum.CANCELED
+        invoice.save()
+
+
+@admin.action(description="Create reminder")
+def create_reminder(modeladmin, request, queryset):
+    invoices = queryset.all()
+    for invoice in invoices:
+        invoice.create_reminder()
+
+
+@admin.action(description="Mark as pending")
+def mark_as_pending(modeladmin, request, queryset):
+    invoices = queryset.all()
+    for invoice in invoices:
+        invoice.status = InvoiceStatusEnum.PENDING
+        invoice.save()
+
+
+@admin.action(description="Mark as paid")
+def mark_as_paid(modeladmin, request, queryset):
+    invoices = queryset.all()
+    for invoice in invoices:
+        invoice.status = InvoiceStatusEnum.PAID
+        invoice.save()
+
+
 class InvoiceAdmin(admin.ModelAdmin):
-    list_filter = [InvoiceByStatus, InvoiceBySubscription]
+    list_filter = [
+        FilterInvoiceByStatus,
+        FilterInvoiceBySubscription,
+        FilterInvoiceByMemberSubscription,
+        FilterById,
+    ]
+    actions = [
+        export_invoices_pdf,
+        mark_as_canceled,
+        create_reminder,
+        mark_as_pending,
+        mark_as_paid,
+    ]
+    ordering = ["-created_at"]
 
     def get_list_display(self, request):
         default_list_display = super().get_list_display(request)
         return default_list_display + (
-            "view_member",
+            "view_status",
             "view_price",
+            "view_member",
             "view_subscription",
+            "view_created_at",
+            "view_reminder",
             "view_pdf",
         )
 
     def view_member(self, obj):
-        return format_html(obj.member_subscription.member.get_fullname())
+        name = obj.member_subscription.member.get_shortname()
+        url = (
+            reverse("admin:myapp_member_changelist")
+            + "?id="
+            + str(obj.member_subscription.member.pk)
+        )
+        return format_html('<a href="{}">{}</a>', url, name)
 
     def view_subscription(self, obj):
         return format_html(obj.member_subscription.subscription.name)
 
+    def view_status(self, obj):
+        return format_html(obj.get_status_text())
+
     def view_price(self, obj):
         return format_html(format_price(obj.price))
 
+    def view_reminder(self, obj):
+        return format_html(obj.get_reminder_text())
+
+    def view_created_at(self, obj):
+        name = obj.created_at.strftime("%Y-%m-%d")
+        return format_html("{}", name)
+
     def view_pdf(self, obj):
         url = reverse("single_invoice_pdf", kwargs={"invoice_id": obj.pk})
-        return format_html('<a href="{}">View PDF</a>', url)
+        return format_html(
+            '<a href="{}" target="_blank" class="button default">View PDF</a>', url
+        )
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -138,17 +246,48 @@ class InvoiceAdmin(admin.ModelAdmin):
         )
 
     view_pdf.short_description = "PDF"
-    view_member.short_description = "member"
-    view_subscription.short_description = "subscription"
+    view_member.short_description = "Member"
+    view_subscription.short_description = "Subscription"
+    view_created_at.short_description = "Created at"
+    view_price.short_description = "Price"
+    view_reminder.short_description = "Reminder"
 
 
 class MemberSubscriptionAdmin(admin.ModelAdmin):
     list_filter = (
-        MemberSubscriptionBySubscription,
-        MemberSubscriptionByMember,
+        FilterMemberSubscriptionBySubscription,
+        FilterMemberSubscriptionByMember,
         FilterById,
     )
     readonly_fields = ["price"]
+
+    def get_list_display(self, request):
+        default_list_display = super().get_list_display(request)
+        return default_list_display + (
+            "view_member",
+            "view_invoices",
+        )
+
+    def view_member(self, obj):
+        name = obj.member.get_fullname()
+        url = reverse("admin:myapp_member_changelist") + "?id=" + str(obj.member.pk)
+        return format_html('<a href="{}">{}</a>', url, name)
+
+    def view_invoices(self, obj):
+        name = f"invoices (%s)" % (str(obj.invoices_count) if obj.invoices_count else 0)
+        url = (
+            reverse("admin:myapp_invoice_changelist")
+            + "?member_subscription="
+            + str(obj.pk)
+        )
+        return format_html('<a href="{}">{}</a>', url, name)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(invoices_count=Count("invoices"))
+
+    view_member.short_description = "Member"
+    view_invoices.short_description = "Invoices"
 
 
 admin.site.register(Member, MemberAdmin)

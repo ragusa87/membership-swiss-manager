@@ -30,7 +30,7 @@ class Invoice(models.Model):
     price = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"Invoice {self.id} - Status: {self.status}"
+        return f"Invoice {self.get_reference()}"
 
     def get_reference(self):
         return self.reference if self.reference is not None else self.id
@@ -57,6 +57,7 @@ class Invoice(models.Model):
 
         # Special cases for 1st, 2nd, 3rd
         reminder_text = {
+            0: _("No reminder"),
             1: _("1st reminder"),
             2: _("2nd reminder"),
             3: _("3rd reminder"),
@@ -67,6 +68,19 @@ class Invoice(models.Model):
 
         # General case for 4th, 5th, etc.
         return ngettext("%dth reminder", "%dth reminder", self.reminder) % self.reminder
+
+    def create_reminder(self):
+        self.status = InvoiceStatusEnum.CANCELED
+        self.save()
+        invoice = self
+        invoice.pk = None
+        invoice.reference = None
+        invoice.created_at = None
+        invoice.status = InvoiceStatusEnum.CREATED
+        invoice.reminder = invoice.reminder + 1 if invoice.reminder is not None else 1
+        invoice.save()
+
+        return invoice
 
     class Meta:
         db_table = "invoice"
