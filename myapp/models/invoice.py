@@ -1,5 +1,7 @@
 from django.db import models
 from decimal import Decimal
+
+from django.db.models import Q
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -68,3 +70,9 @@ class Invoice(models.Model):
 
     class Meta:
         db_table = "invoice"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["reference"],
+                name="unique_reference",
+            )
+        ]

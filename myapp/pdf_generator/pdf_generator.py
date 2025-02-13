@@ -148,7 +148,7 @@ class PDFGenerator:
         """
         Convert a reference number to a score reference (Ex: 539007547034 -> RF18539007547034)
         """
-        if reference <= 0:
+        if reference is not None and reference <= 0:
             raise RuntimeError("Reference number must be positive")
 
         if self.__isIbanCompatibleWithQRCodeReference__(
@@ -199,7 +199,9 @@ class PDFGenerator:
                 debtor=self.__get_debtor__(member),
                 amount=str(invoice.price_decimal()),
                 language=INVOICE_LANGUAGE,
-                reference_number=self.__generate_scor_reference__(invoice.reference),
+                reference_number=self.__generate_scor_reference__(
+                    invoice.get_reference()
+                ),
                 additional_information=self.__get_additional_information__(invoice),
             )
 
@@ -317,7 +319,7 @@ class PDFGenerator:
         pos.move(0, 24)
         dwg.add(
             dwg.text(
-                "# " + str(invoice.reference),
+                "# " + str(invoice.get_reference()),
                 insert=pos.as_tuple(),
                 fill="black",
                 font_size="14px",
