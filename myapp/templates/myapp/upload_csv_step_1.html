@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load static custom_filters i18n %}
-{% block html_title  %}CSV Upload{% endblock %}
+{% block html_title %}{% translate "Import member's subscription" %}{% endblock %}
 
 {% block content  %}
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Upload CSV File</h1>
+            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">{% translate "Import member's subscription" %}</h1>
 
             {% if messages %}
             <div class="mb-4">
@@ -43,6 +43,14 @@
                         <p class="text-sm text-red-600">{{ form.csv_file.errors }}</p>
                     {% endif %}
                 </div>
+
+                <div class="space-y-2">
+                    {% if form.subscription.help_text %}
+                        <p class="text-sm text-black">{{ form.subscription.help_text }}</p>
+                    {% endif %}
+                    {{ form.subscription }}
+                </div>
+
                 <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
                     Upload File
                 </button>

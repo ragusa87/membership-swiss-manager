@@ -28,7 +28,7 @@ from .views import (
 )
 from .settings import DEBUG
 from debug_toolbar.toolbar import debug_toolbar_urls
-from .views_more.csv_upload import CSVUploadView
+from .views_more.csv_upload import CSVUploadView, CsvImport
 
 favicon_view = RedirectView.as_view(url="/assets/favicon.ico", permanent=True)
 urlpatterns = [
@@ -42,9 +42,7 @@ urlpatterns = [
     re_path(r"^favicon\.ico$", favicon_view),
     path("switch_language", switch_language, name="switch_language"),
     path("import-csv/1", CSVUploadView.as_view(), name="csv_import"),
-    path(
-        "import-csv/<int:step>", CSVUploadView.as_view(), {"step": 1}, name="csv_import"
-    ),
+    path("import-csv/<int:step>", CsvImport.as_view(), name="csv_import_step"),
     path(
         "export-subscriptions/<str:subscription_name>.<str:extension>",
         export_subscription,

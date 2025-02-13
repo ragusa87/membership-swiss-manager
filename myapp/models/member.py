@@ -29,6 +29,11 @@ class Member(models.Model):
         last = self.lastname or ""
         return f"{first} {last}".strip()
 
+    def get_fullname_inverted(self):
+        first = self.firstname or ""
+        last = self.lastname or ""
+        return f"{last} {first}".strip()
+
     def get_shortname(self):
         first = self.firstname or ""
         last = (self.lastname or "")[0:1].upper()

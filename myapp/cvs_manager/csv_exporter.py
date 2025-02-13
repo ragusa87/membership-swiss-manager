@@ -22,8 +22,7 @@ class CsvExporter:
 
     def export(self, extension: str) -> io.BytesIO:
         data_list = []
-        headers = EXPECTED_HEADERS
-        headers["factures"] = []
+        headers = EXPECTED_HEADERS + ["factures"]
         for subscription in self.__member_subscriptions__:
             data = {
                 "id": subscription.pk,
