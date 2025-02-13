@@ -54,7 +54,6 @@ class Invoice(models.Model):
         return map[self.status]
 
     def get_reminder_text(self):
-
         # Special cases for 1st, 2nd, 3rd
         reminder_text = {
             0: _("No reminder"),

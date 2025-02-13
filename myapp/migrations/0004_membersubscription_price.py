@@ -9,13 +9,15 @@ def calculate_price(apps, schema_editor):
     for sub in MemberSubscription.objects.all():
         sub.price = sub.get_price()
         sub.save()
+
+
 def remove_price(apps, schema_editor):
     for sub in MemberSubscription.objects.all():
         sub.price = None
         sub.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ("myapp", "0003_remove_member_parent"),
     ]

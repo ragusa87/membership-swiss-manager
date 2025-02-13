@@ -189,16 +189,10 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 INTERNAL_IPS = os.environ.get("INTERNAL_IPS", "").split(",")
-print(INTERNAL_IPS)
 
-# if True:
-#     try:
-#         import debugpy
-#         import socket
-#         debugpy.listen( ("0.0.0.0", 8421))
-#     except ModuleNotFoundError as e:
-#         print('debugpy not found' + e.name)
-#     except RuntimeError as e:
-#         print('debugpy error' + str(e))
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20mb
+FILE_UPLOAD_HANDLERS = [
+    "django.core.files.uploadhandler.MemoryFileUploadHandler",
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]

@@ -1,6 +1,7 @@
 [project]
 name = "myproject"
 version = "1.0"
+requires-python = ">=3.13"
 dependencies = [
   "django==5.1.*",
   "gunicorn",
@@ -17,7 +18,7 @@ exclude = ["tests*", "migrations*", "public*"]
 
 [project.optional-dependencies]
 dev = [
-  "black",
+  "ruff",
   "pip-tools",
   "rust-just",
 ]

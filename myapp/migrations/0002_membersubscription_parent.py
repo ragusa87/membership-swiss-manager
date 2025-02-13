@@ -2,33 +2,43 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+
+
 def reverse_copy_parent_to_subscription(apps, schema_editor):
-    Subscription = apps.get_model('myapp', 'Subscription')
+    Subscription = apps.get_model("myapp", "Subscription")
     for subscription in Subscription.objects.all():
         subscription.parent = None
         subscription.save()
 
+
 def copy_parent_to_subscription(apps, schema_editor):
     # Get the models
-    Member = apps.get_model('myapp', 'Member')
-    MemberSubscription = apps.get_model('myapp', 'MemberSubscription')
+    Member = apps.get_model("myapp", "Member")
+    MemberSubscription = apps.get_model("myapp", "MemberSubscription")
 
     # Iterate over all members
     for member in Member.objects.all():
         # Check if the member has a parent
         if member.parent:
             # Find the parent's subscription (assuming one-to-many, take the first if multiple)
-            parent_subscriptions = MemberSubscription.objects.filter(member=member.parent).all()
-            member_subscriptions = MemberSubscription.objects.filter(member=member).all()
+            parent_subscriptions = MemberSubscription.objects.filter(
+                member=member.parent
+            ).all()
+            member_subscriptions = MemberSubscription.objects.filter(
+                member=member
+            ).all()
             for parent_subscription in parent_subscriptions:
                 # Update the member's subscription to be the same as the parent's subscription
                 for member_subscription in member_subscriptions:
-                    if member_subscription.subscription == parent_subscription.subscription:
+                    if (
+                        member_subscription.subscription
+                        == parent_subscription.subscription
+                    ):
                         member_subscription.parent = parent_subscription
                         member_subscription.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
         ("myapp", "0001_initial"),
     ]
@@ -45,5 +55,8 @@ class Migration(migrations.Migration):
                 to="myapp.membersubscription",
             ),
         ),
-        migrations.RunPython(copy_parent_to_subscription, reverse_code=reverse_copy_parent_to_subscription),
+        migrations.RunPython(
+            copy_parent_to_subscription,
+            reverse_code=reverse_copy_parent_to_subscription,
+        ),
     ]

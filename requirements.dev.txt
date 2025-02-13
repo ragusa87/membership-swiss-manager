@@ -6,8 +6,6 @@
 #
 asgiref==3.8.1
     # via django
-black==25.1.0
-    # via myproject (pyproject.toml)
 build==1.2.2.post1
     # via pip-tools
 cairocffi==1.7.1
@@ -17,9 +15,7 @@ cairosvg==2.7.1
 cffi==1.17.1
     # via cairocffi
 click==8.1.8
-    # via
-    #   black
-    #   pip-tools
+    # via pip-tools
 cssselect2==0.7.0
     # via cairosvg
 defusedxml==0.7.1
@@ -34,25 +30,18 @@ gunicorn==23.0.0
     # via myproject (pyproject.toml)
 iso3166==2.1.1
     # via qrbill
-mypy-extensions==1.0.0
-    # via black
 numpy==2.2.2
     # via pandas
 packaging==24.2
     # via
-    #   black
     #   build
     #   gunicorn
 pandas==2.2.3
     # via myproject (pyproject.toml)
-pathspec==0.12.1
-    # via black
 pillow==11.1.0
     # via cairosvg
 pip-tools==7.4.1
     # via myproject (pyproject.toml)
-platformdirs==4.3.6
-    # via black
 pycparser==2.22
     # via cffi
 pypdf2==3.0.1
@@ -73,6 +62,8 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.0
     # via qrbill
+ruff==0.9.6
+    # via myproject (pyproject.toml)
 rust-just==1.39.0
     # via myproject (pyproject.toml)
 six==1.17.0

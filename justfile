@@ -40,4 +40,4 @@ bash:
    bash
 
 lint:
-    black myapp
+    ruff format

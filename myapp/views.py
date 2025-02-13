@@ -4,20 +4,13 @@ from myapp.models import Invoice, MemberSubscription, Subscription, InvoiceStatu
 from myapp.pdf_generator import PDFGenerator
 from django.views.generic import TemplateView
 from datetime import datetime
-from django.db.models import Sum, Count, Q, Prefetch, Aggregate
-
+from django.db.models import Sum, Count
 from .cvs_manager.csv_exporter import CsvExporter
 from .settings import LANGUAGES
 from django.utils import translation
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.shortcuts import render
-from django.contrib import messages
-from django.views.generic.edit import FormView
-from django.urls import reverse_lazy
-from django import forms
-import csv
-from .cvs_manager import csv_exporter
+
 
 def switch_language(request):
     """
@@ -65,7 +58,6 @@ class DashboardView(TemplateView):
     template_name = "myapp/dashboard.html"
 
     def get_context_data(self, **kwargs):
-
         subscription_name = str(datetime.now().year)
         if "subscription_name" in kwargs and kwargs["subscription_name"] != "":
             subscription_name = kwargs["subscription_name"]
@@ -201,49 +193,20 @@ class DashboardView(TemplateView):
         return context
 
 
-class CSVUploadForm(forms.Form):
-    csv_file = forms.FileField(
-        label="Select a CSV file", help_text="File must be in CSV format"
-    )
-
-
-class CSVUploadView(FormView):
-    template_name = "myapp/upload_csv.html"
-    form_class = CSVUploadForm
-    success_url = reverse_lazy("csv_import")  # Redirect to same page after upload
-
-    def form_valid(self, form):
-        csv_file = form.cleaned_data["csv_file"]
-
-        if not csv_file.name.endswith(".csv"):
-            messages.error(self.request, "Please upload a CSV file")
-            return super().form_invalid(form)
-
-        try:
-            # Read the CSV file
-            file_data = csv_file.read().decode("utf-8")
-            # TODO Save file in DB
-
-            messages.success(self.request, "CSV file uploaded successfully!")
-        except Exception as e:
-            messages.error(self.request, f"Error processing file: {str(e)}")
-            return super().form_invalid(form)
-
-        return super().form_valid(form)
-
-
 def get_mime_type(file_extension: str) -> str:
     match file_extension.lower():
-        case 'xlsx':
-            return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        case 'csv':
-            return 'text/csv'
+        case "xlsx":
+            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        case "csv":
+            return "text/csv"
         case _:
-            return 'application/octet-stream'
+            return "application/octet-stream"
 
 
-def export_subscription(self,subscription_name: str, extension: str):
+def export_subscription(self, subscription_name: str, extension: str):
     subscription = get_object_or_404(Subscription, name=subscription_name)
     exporter = CsvExporter(subscription)
 
-    return HttpResponse(exporter.export(extension).read(), content_type=get_mime_type(extension))
+    return HttpResponse(
+        exporter.export(extension).read(), content_type=get_mime_type(extension)
+    )
