@@ -32,7 +32,15 @@
     </a>
 {% endblock %}
 {% block content  %}
-
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 mb-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         <!-- KPI Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow p-6">
@@ -134,22 +142,27 @@
                                             {% if invoice.status.lower == InvoiceStatusEnum.PAID %}
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                     {{ invoice.get_status_text }}
+                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
                                                 </span>
                                             {% elif invoice.status.lower == InvoiceStatusEnum.CANCELED.lower %}
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
                                                     {{ invoice.get_status_text }}
+                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
                                                 </span>
                                             {% elif invoice.status.lower == InvoiceStatusEnum.PENDING.lower %}
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                                     {{ invoice.get_status_text }}
+                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
                                                 </span>
                                             {% elif invoice.status.lower == InvoiceStatusEnum.CREATED.lower %}
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                                     {{ invoice.get_status_text }}
+                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
                                                 </span>
                                             {% else %}
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                                     {{ invoice.get_status_text }}
+                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
                                                 </span>
                                             {% endif %}
                                             </li>
@@ -182,8 +195,9 @@
     <!-- actions buttons -->
 <nav class="bg-white shadow-lg shadow rounded-lg gap-6 mb-8">
     <div class="flex justify-evenly items-center p-6">
-        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="#">Todo: Mark created invoices as pending</a>
-        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="#">Todo: Create reminder for pending invoice older than 30 days</a>
+        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'mark_created_as_pending_by_subscription' subscription_id=subscription.pk %}">Mark created invoices as pending</a>
+        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'create_reminder_for_pending_by_subscription' subscription_id=subscription.pk %}">Create reminder for pending invoice (TODO: older than 30 days)</a>
+        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'create_first_invoices_by_subscription' subscription_id=subscription.pk %}">Generate first invoices</a>
         <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" title="{%  translate 'action.csv_import' %}" href="{% url 'csv_import' %}">
             {% sprite 'lucide-cloud-upload' %}
         </a>
