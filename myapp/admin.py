@@ -229,7 +229,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         return format_html("{}", name)
 
     def view_pdf(self, obj):
-        url = reverse("single_invoice_pdf", kwargs={"invoice_id": obj.pk})
+        url = reverse("pdf_by_invoice", kwargs={"invoice_id": obj.pk})
         return format_html(
             '<a href="{}" target="_blank" class="button default">View PDF</a>', url
         )

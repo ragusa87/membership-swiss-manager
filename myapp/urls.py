@@ -19,13 +19,11 @@ from django.contrib import admin
 from django.urls import path, re_path
 from . import views
 from django.views.generic.base import RedirectView
-from .views import (
-    single_invoice,
-    DashboardView,
-    switch_language,
-    my_ip,
-    export_subscription,
-)
+from .views_more.invoices import pdf_by_invoice, pdfs_by_subscription
+from .views_more.dashboard import DashboardView
+from .views_more.switch_language import switch_language
+from .views_more.my_ip import my_ip
+from .views_more.export_subscription import export_subscription
 from .settings import DEBUG
 from debug_toolbar.toolbar import debug_toolbar_urls
 from .views_more.csv_upload import CSVUploadView, CsvImport
@@ -38,7 +36,12 @@ urlpatterns = [
     path(
         "dashboard/<str:subscription_name>", DashboardView.as_view(), name="dashboard"
     ),
-    path("invoice/<int:invoice_id>/pdf/", single_invoice, name="single_invoice_pdf"),
+    path("invoice/<int:invoice_id>/pdf/", pdf_by_invoice, name="pdf_by_invoice"),
+    path(
+        "invoices/<int:subscription_id>/pdf/",
+        pdfs_by_subscription,
+        name="pdf_by_subscription",
+    ),
     re_path(r"^favicon\.ico$", favicon_view),
     path("switch_language", switch_language, name="switch_language"),
     path("import-csv/1", CSVUploadView.as_view(), name="csv_import"),
