@@ -41,3 +41,6 @@ bash:
 
 lint:
     ruff format
+
+sprites:
+    myapp/sprites/all-gen.sh

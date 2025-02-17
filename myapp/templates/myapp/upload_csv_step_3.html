@@ -1,0 +1,28 @@
+{% extends "myapp/upload_csv_step_0.html" %}
+
+{% load static custom_filters i18n %}
+
+{% block step_content  %}
+    <ul class="list-decimal ml-1">
+    {% for row in data.rows %}
+        <li>
+            <pre>{{ row }}</pre>
+            <span class="pl-5 text-green-900">{{ row.as_member_subscription.member.get_fullname }}</span>
+            <span class="pl-5 text-green-900">{{ row.as_member_subscription.type }}</span>
+            <span class="pl-5 text-green-900">{{ row.as_member_subscription.price|format_price }}</span>
+            <ul>
+                {% for child_subscription in row.as_child_subscriptions %}
+                    <li class="ml-0">
+                        <span class="pl-5 text-blue-800">{{ child_subscription.member.get_fullname }}</span>
+                        <span class="pl-5 text-blue-800">{{ child_subscription.type }}</span>
+                        <span class="pl-5 text-blue-800">{{ child_subscription.price|format_price }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
+
+    {% include 'myapp/partials/cta.html' %}
+
+{% endblock %}

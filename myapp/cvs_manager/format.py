@@ -3,9 +3,9 @@
 #
 EXPECTED_HEADERS_LABELS = dict(
     id="id",
-    members="Membres",
-    subscription_type="Type d'inscription",
-    price="Prix",
+    members="membres",
+    subscription_type="type d'inscription",
+    price="prix",
     due_amount="Montant Dû",
 )
 EXPECTED_HEADERS = list(EXPECTED_HEADERS_LABELS.values())

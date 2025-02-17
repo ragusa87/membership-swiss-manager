@@ -1,8 +1,9 @@
 from django.core.files.base import ContentFile
+from django.forms.utils import RenderableMixin
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
 
-from ..cvs_manager.csv_importer import CsvImporter
+from ..cvs_manager.csv_importer import CsvImporter, Export
 from ..models import Subscription
 from ..settings import FILE_UPLOAD_MAX_MEMORY_SIZE
 from django.utils.translation import gettext_lazy as _
@@ -17,7 +18,14 @@ SESSION_FILENAME = "csv_upload_file"
 SESSION_SUBSCRIPTION_ID = "csv_subscription_id"
 
 
-class CSVUploadForm(forms.Form):
+class StepAwareMixin(RenderableMixin):
+    step = 1
+    max_step = 4
+    steps = [_("step.upload_csv"), _("step.create_members"), _("step.import")]
+    template_name_model = "myapp/upload_csv_step_%d.html"
+
+
+class CSVUploadForm(StepAwareMixin, forms.Form):
     csv_file = forms.FileField(
         label="Select a CSV file", help_text=_("File must be in CSV format")
     )
@@ -33,11 +41,9 @@ class CSVUploadForm(forms.Form):
     )
 
 
-class CSVUploadView(FormView):
+class CSVUploadView(StepAwareMixin, FormView):
     template_name_model = "myapp/upload_csv_step_%d.html"
     form_class = CSVUploadForm
-    step = 1
-
     success_url = reverse_lazy("csv_import_step", kwargs={"step": 2})
 
     def post(self, request, *args, **kwargs):
@@ -52,6 +58,13 @@ class CSVUploadView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["step"] = self.step
+        context["steps"] = self.steps
+        context["step_name"] = (
+            self.steps[self.step - 1]
+            if self.step - 1 < len(self.steps) and self.step > 0
+            else None
+        )
+        context["is_last_step"] = False
 
         if self.step == 2:
             file_name = (
@@ -66,9 +79,10 @@ class CSVUploadView(FormView):
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        step = int(context["step"]) if "step" in context else 1
-        self.template_name = self.template_name_model % step
-        self.success_url = reverse_lazy("csv_import_step", kwargs={"step": step + 1})
+        self.success_url = reverse_lazy(
+            "csv_import_step", kwargs={"step": self.step + 1}
+        )
+        self.template_name = self.template_name_model % self.step
         return super().render_to_response(context, **response_kwargs)
 
     def form_valid(self, form):
@@ -105,9 +119,8 @@ class CSVUploadView(FormView):
         return super().form_valid(form)
 
 
-class CsvImport(TemplateView):
+class CsvImport(TemplateView, StepAwareMixin):
     step = 2
-    template_name = "myapp/upload_csv_step_%d.html" % step
 
     def __session_valid__(self) -> bool:
         if (
@@ -119,25 +132,56 @@ class CsvImport(TemplateView):
             return False
         return True
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_subscription(self) -> Subscription | None:
+        if SESSION_SUBSCRIPTION_ID not in self.request.session:
+            return None
 
-        subscription = Subscription.objects.get(
+        return Subscription.objects.get(
             pk=int(self.request.session[SESSION_SUBSCRIPTION_ID])
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        subscription = self.get_subscription()
         context["subscription"] = subscription
-
+        context["previous_step"] = self.step - 1 if self.step > 1 else None
         importer = CsvImporter(subscription)
+        context["step"] = self.step
+        context["steps"] = self.steps
+        context["step_name"] = (
+            self.steps[self.step - 1]
+            if self.step - 1 < len(self.steps) and self.step > 0
+            else None
+        )
+        context["is_last_step"] = self.step >= self.max_step
 
-        context["data"] = []
+        context["data"] = None
         path = default_storage.path(str(self.request.session[SESSION_FILENAME]))
         with open(path, "r", encoding="utf-8") as file:
-            context["data"] = importer.do_import(file)
+            context["data"] = importer.do_import(subscription, file)
 
         return context
 
+    def do_import(self):
+        context = self.get_context_data()
+        export: Export = context["data"]
+
+        if export.has_missing_users():
+            raise RuntimeError("Missing users")
+
+        if export.has_existing_member_subscriptions():
+            raise RuntimeError("This subscription is not empty")
+
+        for row in export.rows:
+            subscription = row.as_member_subscription()
+            subscription.save()
+            children = row.as_child_subscriptions(subscription)
+            for child in children:
+                child.save()
+
     def get(self, request, *args, **kwargs):
-        self.step = self.kwargs["step"] if "step" in self.kwargs else 2
+        self.step = self.kwargs["step"] if "step" in self.kwargs else 1
+        self.template_name = self.template_name_model % self.step
 
         if not self.__session_valid__():
             messages.error(self.request, _("Session expired, try again"))
@@ -145,6 +189,21 @@ class CsvImport(TemplateView):
                 redirect_to=reverse_lazy("csv_import_step", kwargs={"step": 1})
             )
         try:
+            if self.step == self.max_step:
+                self.template_name = self.template_name_model % (self.max_step - 1)
+
+                subscription = Subscription.objects.get(
+                    pk=int(self.request.session[SESSION_SUBSCRIPTION_ID])
+                )
+
+                self.do_import()
+
+                return HttpResponseRedirect(
+                    redirect_to=reverse_lazy(
+                        "dashboard", kwargs={"subscription_name": subscription.name}
+                    )
+                )
+
             return super().get(request, *args, **kwargs)
         except RuntimeError as e:
             messages.error(self.request, _("Error processing file: %s") % str(e))

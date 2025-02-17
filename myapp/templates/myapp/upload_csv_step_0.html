@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static custom_filters i18n %}
+{% block html_title %}{% translate "Import member's subscription" %}{% if step_name %}{{ " - " }}{{ step_name }}{% endif %}{% endblock %}
+{% block title %}
+    <div class="flex flex-row">
+        {% if subscription %}
+            <a title="{% translate 'Back to dashboard' %}" href="{% url 'dashboard' subscription_name=subscription.name %}" class="p-1 mr-4 ml-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 rounded-lg transition duration-200">
+                {% sprite 'lucide-layout-dashboard' %}
+            </a>
+        {% endif %}
+        <span class="self-center">{% translate "Import member's subscription" %}{% if step_name %}{{ " - " }}{{ step_name }}{% endif %}</span>
+    </div>
+{% endblock %}
+
+{% block content  %}
+    <div class="flex px-4 py-8">
+        {% block steps_progression  %}
+            {% include 'myapp/partials/steps.html' %}
+        {% endblock %}
+
+        <div class="flex-grow self-center bg-white rounded-lg shadow-md p-6">
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block step_content %}
+            {% endblock %}
+
+        </div>
+    </div>
+{% endblock %}
