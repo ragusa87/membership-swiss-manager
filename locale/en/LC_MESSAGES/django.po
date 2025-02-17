@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-12 18:24+0000\n"
+"POT-Creation-Date: 2025-02-17 17:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,39 +18,49 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: myapp/models/invoice.py:44
+#: myapp/admin.py:95
+msgid "Filter by Id"
+msgstr "Filter by Id"
+
+#: myapp/models/invoice.py:46
 msgid "InvoiceStatusEnum.CREATED"
 msgstr "created"
 
-#: myapp/models/invoice.py:45
+#: myapp/models/invoice.py:47
 msgid "InvoiceStatusEnum.CANCELED"
 msgstr "canceled"
 
-#: myapp/models/invoice.py:46
+#: myapp/models/invoice.py:48
 msgid "InvoiceStatusEnum.PAID"
 msgstr "paid"
 
-#: myapp/models/invoice.py:47
+#: myapp/models/invoice.py:49
 msgid "InvoiceStatusEnum.PENDING"
 msgstr "pending"
 
-#: myapp/models/invoice.py:50
+#: myapp/models/invoice.py:52
 msgid "InvoiceStatusEnum.UNKNOWN"
 msgstr "unknown"
 
-#: myapp/models/invoice.py:58
+#: myapp/models/invoice.py:59
+#, fuzzy
+#| msgid "1st reminder"
+msgid "No reminder"
+msgstr "1st reminder"
+
+#: myapp/models/invoice.py:60
 msgid "1st reminder"
 msgstr "1st reminder"
 
-#: myapp/models/invoice.py:59
+#: myapp/models/invoice.py:61
 msgid "2nd reminder"
 msgstr "2nd reminder"
 
-#: myapp/models/invoice.py:60
+#: myapp/models/invoice.py:62
 msgid "3rd reminder"
 msgstr "3rd reminder"
 
-#: myapp/models/invoice.py:67
+#: myapp/models/invoice.py:69
 #, python-format
 msgid "%dth reminder"
 msgid_plural "%dth reminder"
@@ -85,54 +95,173 @@ msgstr "Member"
 msgid "Supporter"
 msgstr "Supporter"
 
-#: myapp/templates/myapp/dashboard.html:17
+#: myapp/templates/myapp/dashboard.html:39
 msgid "Total Subscriptions"
 msgstr "Total Subscriptions"
 
-#: myapp/templates/myapp/dashboard.html:23
-#: myapp/templates/myapp/dashboard.html:36
+#: myapp/templates/myapp/dashboard.html:45
+#: myapp/templates/myapp/dashboard.html:58
 #, python-format
 msgid "(last year %(last)s)"
 msgstr "(last year %(last)s)"
 
-#: myapp/templates/myapp/dashboard.html:30
+#: myapp/templates/myapp/dashboard.html:52
 msgid "Due Amount"
 msgstr "Due Amount"
 
-#: myapp/templates/myapp/dashboard.html:43
+#: myapp/templates/myapp/dashboard.html:65
 msgid "Paid Amount"
 msgstr "Paid Amount"
 
-#: myapp/templates/myapp/dashboard.html:48
+#: myapp/templates/myapp/dashboard.html:70
 #, python-format
 msgid "%(rate)s%% collection rate"
 msgstr "%(rate)s%% collected"
 
-#: myapp/templates/myapp/dashboard.html:55
+#: myapp/templates/myapp/dashboard.html:77
 msgid "Active Users"
 msgstr "Active Users"
 
-#: myapp/templates/myapp/dashboard.html:61
+#: myapp/templates/myapp/dashboard.html:83
 #, python-format
 msgid "%(rate)s%% retention (%(total_users)s)"
 msgstr "%(rate)s%% retention (%(total_users)s)"
 
-#: myapp/templates/myapp/dashboard.html:72
+#: myapp/templates/myapp/dashboard.html:94
 msgid "Subscriptions"
 msgstr "supporter"
 
-#: myapp/templates/myapp/dashboard.html:82
+#: myapp/templates/myapp/dashboard.html:104
 msgid "column.Member(s)"
 msgstr "Member(s)"
 
-#: myapp/templates/myapp/dashboard.html:83
+#: myapp/templates/myapp/dashboard.html:105
 msgid "column.Amount"
 msgstr "Amount"
 
-#: myapp/templates/myapp/dashboard.html:84
+#: myapp/templates/myapp/dashboard.html:106
 msgid "column.Invoices"
 msgstr "Invoices"
 
-#: myapp/templates/myapp/dashboard.html:85
+#: myapp/templates/myapp/dashboard.html:107
 msgid "column.Actions"
 msgstr "Actions"
+
+#: myapp/templates/myapp/dashboard.html:187
+msgid "action.csv_import"
+msgstr "Import CSV"
+
+#: myapp/templates/myapp/dashboard.html:190
+msgid "Export created invoices"
+msgstr "Export created invoices"
+
+#: myapp/templates/myapp/dashboard.html:197
+msgid "Export list"
+msgstr "Export list"
+
+#: myapp/templates/myapp/dashboard.html:204
+msgid "Export list as CSV"
+msgstr "Export list as CSV"
+
+#: myapp/templates/myapp/dashboard.html:205
+msgid "Export list as XLSX"
+msgstr "Export list as XLSX"
+
+#: myapp/templates/myapp/partials/upload_csv_cta.html:5
+msgid "cta.import"
+msgstr "Import"
+
+#: myapp/templates/myapp/partials/upload_csv_cta.html:7
+msgid "Next"
+msgstr "Next"
+
+#: myapp/templates/myapp/partials/upload_csv_cta.html:13
+msgid "You can not import this as some user are missing"
+msgstr "You can not import this as some user are missing"
+
+#: myapp/templates/myapp/partials/upload_csv_cta.html:15
+#, python-format
+msgid ""
+"You can not import this as the subscription %(name)s already has %(count)s "
+"members."
+msgstr ""
+"You can not import this as the subscription %(name)s already has %(count)s "
+"members."
+
+#: myapp/templates/myapp/upload_csv_step_0.html:3
+#: myapp/templates/myapp/upload_csv_step_0.html:15
+msgid "Import member's subscription"
+msgstr "Import member's subscription"
+
+#: myapp/templates/myapp/upload_csv_step_0.html:7
+msgid "Back to dashboard"
+msgstr "Back to dashboard"
+
+#: myapp/templates/myapp/upload_csv_step_0.html:11
+msgid "Back"
+msgstr "Back"
+
+#: myapp/templates/myapp/upload_csv_step_1.html:18
+msgid "Drop your file here or click to browse"
+msgstr "Drop your file here or click to browse"
+
+#: myapp/templates/myapp/upload_csv_step_1.html:40
+msgid "Upload File"
+msgstr "Upload File"
+
+#: myapp/views_more/csv_upload.py:24
+msgid "step.upload_csv"
+msgstr "Upload CSV"
+
+#: myapp/views_more/csv_upload.py:24
+msgid "step.create_members"
+msgstr "Create members"
+
+#: myapp/views_more/csv_upload.py:24
+msgid "step.import"
+msgstr "Import"
+
+#: myapp/views_more/csv_upload.py:30
+msgid "File must be in CSV format"
+msgstr "File must be in CSV format"
+
+#: myapp/views_more/csv_upload.py:40
+msgid "Select a subscription"
+msgstr "Select a subscription"
+
+#: myapp/views_more/csv_upload.py:92
+msgid "Please upload a CSV file"
+msgstr "Please upload a CSV file"
+
+#: myapp/views_more/csv_upload.py:96
+msgid "File too large"
+msgstr "File too large"
+
+#: myapp/views_more/csv_upload.py:106
+msgid "Please upload a valid CSV file"
+msgstr "Please upload a valid CSV file"
+
+#: myapp/views_more/csv_upload.py:114
+msgid "CSV file uploaded successfully!"
+msgstr "CSV file uploaded successfully!"
+
+#: myapp/views_more/csv_upload.py:116 myapp/views_more/csv_upload.py:209
+#, python-format
+msgid "Error processing file: %s"
+msgstr "Error processing file: %s"
+
+#: myapp/views_more/csv_upload.py:187
+msgid "Session expired, try again"
+msgstr "Session expired, try again"
+
+#: templates/base.html:38
+msgid "membership-swiss-manager"
+msgstr "membership-swiss-manager"
+
+#: templates/base.html:44
+msgid "View on GitHub"
+msgstr "View on GitHub"
+
+#: templates/base.html:60
+msgid "Select Language"
+msgstr "Select Language"

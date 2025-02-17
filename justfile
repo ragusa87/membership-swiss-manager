@@ -44,3 +44,8 @@ lint:
 
 sprites:
     myapp/sprites/all-gen.sh
+    # ./manage collectstatic
+
+translate:
+    ./manage.py makemessages --all
+    ./manage.py compilemessages

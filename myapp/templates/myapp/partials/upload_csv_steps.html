@@ -1,19 +1,19 @@
 {% load custom_filters %}
 {% if steps %}
-<div class="mx-auto p-6 bg-gray-50 rounded-lg shadow-sm">
+    <div class="hidden md:block mx-auto p-6 bg-gray-50 rounded-lg shadow-sm">
     <div class="relative">
         {# Progress Line - Vertical on desktop, Horizontal on mobile #}
         <div class="absolute md:top-0 md:left-5 md:h-full md:w-1 top-5 left-0 w-full h-1 bg-gray-200"></div>
-        <div class="absolute md:top-0 md:left-5 md:h-full md:w-1 top-5 left-0 h-1 w-0 bg-blue-500 transition-all duration-500"
-             data-percent="{% widthratio step|add:'-1' steps|length|add:'-1' 100 %}%"
-             style="{% if request.user_agent.is_mobile %}width: attr(data-percent){% else %}height: attr(data-percent){% endif %};"
+        <div id="progress" class="absolute md:h-full md:top-0 md:left-5 md:h-full md:w-1 top-5 left-0 bg-blue-500 transition-all duration-500"
+             style="height: {% widthratio step|add:'-1' steps|length|add:'-1' 100 %}%"
+        >
         </div>
 
         {# Steps - Flex column on desktop, row on mobile #}
         <ul class="relative flex md:flex-col flex-row md:space-y-8 space-y-0 md:space-x-0 space-x-4 justify-between">
             {% for value in steps %}
             <li class="flex md:flex-row flex-col items-center md:space-x-4 space-x-0">
-                {# Circle #}
+                {# Step Circle #}
                 <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 z-10 transition-colors duration-300
                     {% if forloop.counter < step %}
                         bg-blue-500 border-blue-500 text-white
@@ -23,16 +23,14 @@
                         bg-white border-gray-300 text-gray-500
                     {% endif %}
                 ">
-
                     {% if forloop.counter < step %}
-                        {# Checkmark for completed steps #}
                         {% sprite 'lucide-badge-check' %}
                     {% else %}
                         <span class="text-sm font-semibold">{{ forloop.counter }}</span>
                     {% endif %}
                 </div>
 
-               {# Label - Right of circle on desktop, below circle on mobile #}
+                {# Label - Positioned correctly based on screen size #}
                 <span class="md:mt-0 mt-2 text-sm font-medium
                     {% if forloop.counter == step %}
                         text-blue-600
@@ -42,7 +40,7 @@
                         text-gray-400
                     {% endif %}">
                     {% if forloop.counter < step %}
-                        <a href="{% url 'csv_import_step' step=forloop.counter %}">{{ value }}</a>
+                        <a href="{% url 'csv_import_step' step=forloop.counter %}" class="hover:underline">{{ value }}</a>
                     {% else %}
                         {{ value }}
                     {% endif %}

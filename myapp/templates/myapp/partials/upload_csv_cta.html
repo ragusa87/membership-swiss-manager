@@ -12,9 +12,7 @@
         {% if data.has_missing_users %}
             {% translate 'You can not import this as some user are missing' %}
         {% elif data.has_existing_member_subscriptions %}
-            {% blocktranslate with name=subscription.name count=data.existing_member_subscriptions_count %}
-                You can not import this as the subscription {{ name }} already has {{ count }} members.
-            {% endblocktranslate %}
+            {% blocktranslate with name=subscription.name count=data.existing_member_subscriptions_count %}You can not import this as the subscription {{ name }} already has {{ count }} members.{% endblocktranslate %}
         {% endif %}
     </span>
 {% endif %}
