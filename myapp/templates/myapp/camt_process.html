@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static custom_filters i18n %}
+{% block html_title %}{% translate "Upload a CAMT file" %}{% endblock %}
+{% block title %}
+    <div class="flex flex-row">
+        <a title="{% translate 'Back' %}" href="{% url 'camt_upload' %}" class="p-1 mr-4 ml-4 hover:bg-blue-600 text-white font-semibold py-4 rounded-lg transition duration-200">
+            {% sprite 'lucide-chevron-left' %}
+        </a>
+        {% with name=subscription.name  %}
+            <span class="self-center">{% blocktrans %}Import for subscription {{ name }}{% endblocktrans %}</span>
+        {% endwith %}
+    </div>
+{% endblock %}
+
+{% block content  %}
+
+
+    <div class="flex px-4 py-8">
+        {% block steps_progression  %}
+        {% endblock %}
+
+        <div class="flex-grow self-center bg-white rounded-lg shadow-md p-6">
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block step_content %}
+                <h1 class="text-xl font-bold"></h1>
+
+                <ul class="list-disc">
+                {% for i in data %}
+                    <li>
+                        <span class="font-medium">{{ i.ValueDate }}</span>
+                        <span {% if i.price < 0 %}class="text-red-800"{% elif i.valid %}class="text-green-800"{% endif %}>
+                            {{ i.price|format_price:i.Currency}} - <span class="uppercase">{{ i.AdditionalEntryInformation }}</span>
+                            {% if i.Reference is not None %}
+                                <spanjust class="font-light">{{ i.Reference }}</spanjust>
+                            {% endif %}
+                        </span>
+                        {% if i.RemittanceInformation is not None %}
+                            <p>{{ i.RemittanceInformation }}</p>
+                        {% endif %}
+
+                        {% if i.CreditorName is not None %}
+                            <p class="font-light">{{ i.CreditorName }} {{ "=>" }} {{ i.DebtorName }}<p>
+                        {% endif %}
+
+
+
+                        {% if i.invoice is None %}
+                            {% if i.TxId is not None %}
+                                <p class="font-thin">{{ i.TxId|default:"" }} {% if i.EndToEndId != 'NOTPROVIDED' %}- {{ i.EndToEndId }}{% endif %}</p>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if i.invoice is not None and not i.valid %}
+                            <div>
+                                <a href="#" class="inline-block p-3 {% if i.is_same_user %}bg-green-600 text-green-800{% else %}bg-yellow-600 text-yellow-800{% endif %}">Link to invoice  {{ i.invoice.get_reference }} {{ i.TxId|default:"" }}</a>
+                                <span>{{ i.invoice.created_at|date:"Y-m-d" }}</span>
+                                <span class="font-medium">{{ i.invoice.price|format_price }}</span>
+                                <span>{{ i.invoice.get_reminder_text }}</span>
+                                <span>{{ i.invoice.get_status_text }}</span>
+                                <span>{{ i.invoice.member_subscription.member }}</span>
+                                {% if i.invoice.reference %}
+                                    <span>{{ i.invoice.reference }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% if i.invoice is null and i.isBonification %}
+                            <a href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</a>
+                        {% endif %}
+                    </li> {#   #}
+                {% endfor %}
+                </ul>
+            {% endblock %}
+
+        </div>
+    </div>
+{% endblock %}

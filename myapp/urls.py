@@ -33,12 +33,15 @@ from .views_more.export_subscription import export_subscription
 from .settings import DEBUG
 from debug_toolbar.toolbar import debug_toolbar_urls
 from .views_more.csv_upload import CSVUploadView, CsvImport
+from .views_more.camt_import import CamtUploadView, CamtProcessView
 
 favicon_view = RedirectView.as_view(url="/assets/favicon.ico", permanent=True)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ip/", my_ip),
     path("", views.index, name="index"),
+    path("import-camt", CamtUploadView.as_view(), name="camt_upload"),
+    path("process-camt", CamtProcessView.as_view(), name="camt_process"),
     path(
         "dashboard/<str:subscription_name>", DashboardView.as_view(), name="dashboard"
     ),

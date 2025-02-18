@@ -4,16 +4,13 @@ register = template.Library()
 
 
 @register.filter
-def format_price(value):
+def format_price(value, currency="CHF"):
     if value == 0 or value is None:
-        return "0.00 CHF"
+        return f"0.00 %s" % currency
     try:
-        return f"{int(value) / 100:.2f} CHF"
+        return f"{int(value) / 100:.2f} {currency}"
     except (ValueError, TypeError):
         return "Invalid price %s" % str(value)
-
-
-register.filter("format_price", format_price)
 
 
 @register.inclusion_tag("myapp/partials/sprite.html")
