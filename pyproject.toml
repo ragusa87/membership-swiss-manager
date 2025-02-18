@@ -11,7 +11,8 @@ dependencies = [
   "PyPDF2",
   "pandas",
   "xlsxwriter",
-  "django-debug-toolbar"
+  "django-debug-toolbar",
+  "pycamt",
 ]
 [tool.setuptools.packages.find]
 exclude = ["tests*", "migrations*", "public*"]

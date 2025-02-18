@@ -19,7 +19,9 @@ click==8.1.8
 cssselect2==0.7.0
     # via cairosvg
 defusedxml==0.7.1
-    # via cairosvg
+    # via
+    #   cairosvg
+    #   pycamt
 django==5.1.5
     # via
     #   django-debug-toolbar
@@ -41,6 +43,8 @@ pandas==2.2.3
 pillow==11.1.0
     # via cairosvg
 pip-tools==7.4.1
+    # via myproject (pyproject.toml)
+pycamt==1.0.1
     # via myproject (pyproject.toml)
 pycparser==2.22
     # via cffi
