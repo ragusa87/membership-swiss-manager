@@ -1,9 +1,9 @@
 from django.core.files.base import ContentFile
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
-from django.forms.utils import RenderableMixin
-
-from ..models import Subscription
+from django.middleware.csrf import get_token
+from ..models import Subscription, Invoice, InvoiceStatusEnum
 from ..settings import FILE_UPLOAD_MAX_MEMORY_SIZE
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
@@ -56,13 +56,6 @@ class CamtUploadView(FormView, TemplateView):
         camt_file = form.cleaned_data["camt_file"]
         subscription = form.cleaned_data["subscription"]
 
-        if (
-            SESSION_FILENAME in self.request.session
-            and default_storage.exists(self.request.session[SESSION_FILENAME])
-            and SESSION_SUBSCRIPTION_ID in self.request.session
-        ):
-            return HttpResponseRedirect(redirect_to=reverse_lazy("camt_process"))
-
         if not camt_file.name.lower().endswith(".xml"):
             messages.error(self.request, _("Please upload a XML file"))
             return super().form_invalid(form)
@@ -95,6 +88,121 @@ class CamtUploadView(FormView, TemplateView):
             return super().form_invalid(form)
 
         return super().form_valid(form)
+
+
+class CamtLinkInvoice(TemplateView):
+    template_name = "myapp/partials/camt_link.html"
+    invoice_id = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+
+        invoice = get_object_or_404(
+            Invoice, pk=self.invoice_id if self.invoice_id else 0
+        )
+        context["invoice"] = invoice
+
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self.invoice_id = kwargs.get("invoice_id")
+        transaction_id = kwargs.get("transaction_id")
+        amount = kwargs.get("amount")
+
+        context = self.get_context_data(**kwargs)
+        invoice = context["invoice"]
+
+        price = int(float(amount) * 100)
+
+        if invoice.should_split(price, transaction_id):
+            invoice.split_and_pay(price, transaction_id)
+        else:
+            invoice.transaction_id = transaction_id
+            invoice.status = InvoiceStatusEnum.PAID
+            invoice.price = price
+            invoice.save()
+
+        return self.render_to_response(context)
+
+
+class CamtReconciliationView(TemplateView):
+    route = "camt_reconciliation"
+    template_name = "myapp/partials/camt_reconciliation.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["csrf_token"] = get_token(self.request)
+
+        if self.request.method == "GET":
+            context.update(
+                {
+                    "invoices": self._invoices(),
+                    "invoice_id": self.request.GET.get("invoice_id"),
+                    "amount": self.request.GET.get("amount"),
+                    "transaction_id": self.request.GET.get("transaction_id"),
+                    "label": self.request.GET.get("label"),
+                }
+            )
+
+        if self.request.method == "POST":
+            context.update(
+                {
+                    "invoice_id": self.request.POST.get("invoice_id"),
+                    "transaction_id": self.request.POST.get("transaction_id"),
+                    "amount": self.request.POST.get("amount"),
+                }
+            )
+
+        return context
+
+    def _invoices(self):
+        return (
+            Invoice.objects.filter(
+                member_subscription__subscription_id=self.request.session[
+                    SESSION_SUBSCRIPTION_ID
+                ],
+                member_subscription__active=True,
+                member_subscription__parent=None,
+                transaction_id=None,
+            )
+            .order_by(
+                "created_at", "reminder", "status", "member_subscription__member_id"
+            )
+            .all()
+        )
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+
+        invoice = (
+            Invoice.objects.get(pk=context["invoice_id"])
+            if context["invoice_id"]
+            else None
+        )
+
+        if (
+            invoice is not None
+            and context["transaction_id"] is not None
+            and context["transaction_id"] != ""
+        ):
+            price = int(float(context["amount"]) * 100)
+
+            if invoice.should_split(price, context["transaction_id"]):
+                invoice.split_and_pay(price, context["transaction_id"])
+                response = "Price changed successfully"
+            else:
+                invoice.transaction_id = context["transaction_id"]
+                invoice.price = price
+                invoice.status = InvoiceStatusEnum.PAID
+                invoice.save()
+                response = "ok"
+
+            return HttpResponse(response)
+
+        return HttpResponse("Error")
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class CamtProcessView(TemplateView):

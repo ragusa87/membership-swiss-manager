@@ -6,11 +6,19 @@
         <a title="{% translate 'Back' %}" href="{% url 'camt_upload' %}" class="p-1 mr-4 ml-4 hover:bg-blue-600 text-white font-semibold py-4 rounded-lg transition duration-200">
             {% sprite 'lucide-chevron-left' %}
         </a>
+
+        {% if subscription %}
+            <a title="{% translate 'Back to dashboard' %}" href="{% url 'dashboard' subscription_name=subscription.name %}" class="p-1 mr-4 ml-4 hover:bg-blue-600 text-white font-semibold py-4 rounded-lg transition duration-200">
+                {% sprite 'lucide-layout-dashboard' %}
+            </a>
+        {% endif %}
+
         {% with name=subscription.name  %}
             <span class="self-center">{% blocktrans %}Import for subscription {{ name }}{% endblocktrans %}</span>
         {% endwith %}
     </div>
 {% endblock %}
+
 
 {% block content  %}
 
@@ -61,19 +69,22 @@
 
                         {% if i.invoice is not None and not i.valid %}
                             <div>
-                                <a href="#" class="inline-block p-3 {% if i.is_same_user %}bg-green-600 text-green-800{% else %}bg-yellow-600 text-yellow-800{% endif %}">Link to invoice  {{ i.invoice.get_reference }} {{ i.TxId|default:"" }}</a>
-                                <span>{{ i.invoice.created_at|date:"Y-m-d" }}</span>
-                                <span class="font-medium">{{ i.invoice.price|format_price }}</span>
-                                <span>{{ i.invoice.get_reminder_text }}</span>
-                                <span>{{ i.invoice.get_status_text }}</span>
-                                <span>{{ i.invoice.member_subscription.member }}</span>
-                                {% if i.invoice.reference %}
-                                    <span>{{ i.invoice.reference }}</span>
-                                {% endif %}
+                                <a data-hx-swap="outerHTML"
+                                   data-hx-get="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.TxId %}"
+                                   href="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.TxId %}"
+                                   class="inline-block p-3 {% if i.invoice.transaction_id%}bg-orange-600 text-orange-800{% elif i.is_same_user %}bg-green-600 text-green-800{% else %}bg-yellow-600 text-yellow-800{% endif %}">
+                                    Link to invoice  {{ i.invoice.get_reference }} {{ i.TxId|default:"" }}</a>
+
+                                {% with invoice=i.invoice %}
+                                    {% include 'myapp/partials/camt_link.html' %}
+                                {% endwith %}
                             </div>
                         {% endif %}
-                        {% if i.invoice is null and i.isBonification %}
-                            <a href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</a>
+                        {% if i.invoice is None and i.isBonification %}
+                            <button data-hx-swap="outerHTML" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' %}?transaction_id={{ i.TxId }}&invoice_id={{ i.invoice.pk }}&amount={{ i.Amount }}&label={{ i.AdditionalEntryInformation }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
+                        {% endif %}
+                        {% if i.invoice is not None and i.price_mismatch %}
+                            <span class="text-red-800">Price mismatch ! {{ i.invoice.price|format_price}}</span>
                         {% endif %}
                     </li> {#   #}
                 {% endfor %}

@@ -68,6 +68,34 @@ class Invoice(models.Model):
         # General case for 4th, 5th, etc.
         return ngettext("%dth reminder", "%dth reminder", self.reminder) % self.reminder
 
+    def get_amount(self) -> float:
+        return float(self.price / 100 if self.price else 0.0)
+
+    def should_split(self, price: int, transaction_id: str) -> bool:
+        return (
+            self.price != price
+            or self.transaction_id is not None
+            and self.transaction_id != transaction_id
+            or self.status == InvoiceStatusEnum.PAID
+        )
+
+    def split_and_pay(self, price: int, transaction_id: str):
+        self.status = InvoiceStatusEnum.PAID
+        self.save()
+
+        invoice = self
+        invoice.pk = None
+        invoice.reference = None
+        invoice.created_at = None
+        invoice.status = InvoiceStatusEnum.PAID
+        invoice.reminder = self.reminder
+        invoice.transaction_id = transaction_id
+        invoice.price = price
+
+        invoice.save()
+
+        return invoice
+
     def create_reminder(self):
         self.status = InvoiceStatusEnum.CANCELED
         self.save()

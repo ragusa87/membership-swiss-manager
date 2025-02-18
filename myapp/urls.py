@@ -33,13 +33,19 @@ from .views_more.export_subscription import export_subscription
 from .settings import DEBUG
 from debug_toolbar.toolbar import debug_toolbar_urls
 from .views_more.csv_upload import CSVUploadView, CsvImport
-from .views_more.camt_import import CamtUploadView, CamtProcessView
+from .views_more.camt_import import (
+    CamtUploadView,
+    CamtProcessView,
+    CamtReconciliationView,
+    CamtLinkInvoice,
+)
 
 favicon_view = RedirectView.as_view(url="/assets/favicon.ico", permanent=True)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ip/", my_ip),
     path("", views.index, name="index"),
+    path("dashboard/", views.index, name="index_dashboards"),
     path("import-camt", CamtUploadView.as_view(), name="camt_upload"),
     path("process-camt", CamtProcessView.as_view(), name="camt_process"),
     path(
@@ -50,6 +56,16 @@ urlpatterns = [
         "invoices/<int:subscription_id>/pdf/",
         pdfs_by_subscription,
         name="pdf_by_subscription",
+    ),
+    path(
+        "process-camt_reconciliation",
+        CamtReconciliationView.as_view(),
+        name="camt_reconciliation",
+    ),
+    re_path(
+        r"^camt_link/(?P<invoice_id>\d+)/(?P<amount>[^/]+)/(?P<transaction_id>.+)/$",
+        CamtLinkInvoice.as_view(),
+        name="camt_link",
     ),
     path(
         "invoices/<int:subscription_id>/create_reminder_for_pending/",

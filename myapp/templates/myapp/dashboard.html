@@ -129,7 +129,7 @@
                                         {% endwith %}
                                     </td>
                                     {% with open_balance=member_subscription.has_due_balance %}
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-800 {% if open_balance %}bg-red-100 text-red-800{% endif %}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-800 {% if member_subscription.get_paid_amount > member_subscription.get_price %}bg-green-100 text-green-800{% elif open_balance %}bg-red-100 text-red-800{% endif %}">
                                             {{ member_subscription.get_paid_amount|format_price }}{{ " / " }}{{ member_subscription.get_price|format_price }}
                                         </td>
                                     {% endwith %}
@@ -165,6 +165,9 @@
                                                     {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
                                                 </span>
                                             {% endif %}
+                                            <a class="inline" href="{% url 'admin:myapp_invoice_change' object_id=invoice.pk %}">
+                                                {%  sprite 'lucide-eye' %}
+                                            </a>
                                             </li>
                                         {% endfor %}
                                             </ul>
@@ -198,12 +201,19 @@
         <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'mark_created_as_pending_by_subscription' subscription_id=subscription.pk %}">Mark created invoices as pending</a>
         <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'create_reminder_for_pending_by_subscription' subscription_id=subscription.pk %}">Create reminder for pending invoice (TODO: older than 30 days)</a>
         <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'create_first_invoices_by_subscription' subscription_id=subscription.pk %}">Generate first invoices</a>
-        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" title="{%  translate 'action.csv_import' %}" href="{% url 'csv_import' %}">
+        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition items-center" title="{%  translate 'action.csv_import' %}" href="{% url 'csv_import' %}">
             {% sprite 'lucide-cloud-upload' %}
+            <span>CSV</span>
         </a>
         <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'pdf_by_subscription' subscription_id=subscription.pk %}" title="{% translate "Export created invoices" %}">
             {% sprite 'lucide-receipt' %}
             <span>PDF</span>
+        </a>
+
+        <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'camt_upload'  %}" title="{% translate "Import CAMT file" %}">
+            {% sprite 'lucide-cloud-upload' %}
+            <span>Camt</span>
+
         </a>
 
         <!-- Dropdown for Export -->

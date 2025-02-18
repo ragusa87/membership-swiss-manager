@@ -22,6 +22,8 @@ class Subscription(models.Model):
             return self.price_member
         elif subscription_type.lower() == SubscriptionTypeEnum.SUPPORTER.lower():
             return self.price_supporter
+        elif subscription_type.lower() == "other":
+            return self.price_supporter
         return None
 
     class Meta:

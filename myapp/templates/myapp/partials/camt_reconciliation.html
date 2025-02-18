@@ -1,0 +1,19 @@
+{% load static custom_filters i18n %}
+Reconciliate {{ transaction_id }}
+<form hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' method="POST" action="{% url 'camt_reconciliation' %}" hx-encoding='multipart/form-data' hx-post='{% url 'camt_reconciliation' %}' hx-trigger="submit">
+    <select name="invoice_id">
+        {% for invoice in invoices %}
+            <option value="{{ invoice.pk }}">
+                {{ invoice.price|format_price }}
+                {{ invoice.member_subscription.member }}
+                {{ invoice.get_status_text }}
+                {{ invoice.get_reminder_text }}
+                {{ invoice.member_subscription.subscription.name }}
+            </option>
+        {% endfor %}
+    </select>
+    <input type="hidden" name="transaction_id" value="{{ transaction_id }}" />
+    <input type="hidden" name="label" value="{{ label }}" />
+    <input type="hidden" name="amount" value="{{ amount }}" />
+    <input type="submit" value="{% translate 'submit' %}" />
+</form>

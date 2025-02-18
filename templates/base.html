@@ -9,6 +9,7 @@
     <title>{% block html_title %}{{ page_title|default:"dashboard" }}{% endblock %}</title>
 {#    <link rel="icon" href="{% static 'images/favicon.ico'%}" type="image/svg" sizes="16x16">#}
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
     {% block stylesheets %}{% endblock stylesheets %}
 
   </head>

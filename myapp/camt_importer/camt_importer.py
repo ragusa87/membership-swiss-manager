@@ -91,6 +91,12 @@ class Transaction:
 
         return self.data[attr]
 
+    def price_mismatch(self):
+        if self.invoice is None:
+            return False
+
+        return self.__getattr__("price") != self.invoice.price
+
     def is_same_user(self) -> bool:
         if self.invoice is None:
             return False
