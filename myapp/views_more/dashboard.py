@@ -20,7 +20,9 @@ class DashboardView(TemplateView):
         ).count()
 
         member_subscriptions = (
-            MemberSubscription.objects.filter(subscription=subscription, active=True)
+            MemberSubscription.objects.filter(
+                subscription=subscription, active=True, parent=None
+            )
             .select_related("subscription", "member", "parent")
             .annotate(invoice_count=Count("invoices"))
             .annotate(parent_count=Count("children"))
