@@ -128,18 +128,18 @@ class PDFGenerator:
         # QR_IID = {"start": 30000, "end": 31999}
         return QR_IID["start"] <= qr_iid <= QR_IID["end"]
 
+    @staticmethod
+    def __replace_chars__(s):
+        return "".join(str(ord(c) - ord("A") + 10) if c.isalpha() else c for c in s)
+
     def __mod97_10__(self, reference: str) -> str:
         # Remove prefix "RF"
         # Inspired from https://github.com/kmukku/php-iso11649/blob/master/src/phpIso11649.php
         if reference[:2].upper() == "RF":
             reference = reference[2:]
 
-        replace_chars = lambda s: "".join(
-            str(ord(c) - ord("A") + 10) if c.isalpha() else c for c in s
-        )
-
         pre_result = reference + "RF00"
-        pre_result = replace_chars(pre_result)
+        pre_result = self.__replace_chars__(pre_result)
         checksum = 98 - (int(pre_result) % 97)
         checksum = str(checksum).zfill(2)
         return checksum

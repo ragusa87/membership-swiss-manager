@@ -1,7 +1,6 @@
 import io
 
 import pandas as pd
-from django.db.models import Count
 from io import BytesIO
 from .format import EXPECTED_HEADERS
 from ..models import MemberSubscription, Subscription

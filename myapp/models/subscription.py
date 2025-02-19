@@ -1,10 +1,4 @@
 from django.db import models
-from django.utils.translation import gettext_lazy as _
-
-
-class SubscriptionTypeEnum(models.TextChoices):
-    MEMBER = "MEMBER", _("Member")
-    SUPPORTER = "SUPPORTER", _("Supporter")
 
 
 class Subscription(models.Model):
@@ -16,15 +10,6 @@ class Subscription(models.Model):
 
     def __str__(self):
         return self.name
-
-    def get_price_by_type(self, subscription_type: str) -> int | None:
-        if subscription_type.lower() == SubscriptionTypeEnum.MEMBER.lower():
-            return self.price_member
-        elif subscription_type.lower() == SubscriptionTypeEnum.SUPPORTER.lower():
-            return self.price_supporter
-        elif subscription_type.lower() == "other":
-            return self.price_supporter
-        return None
 
     class Meta:
         db_table = "subscription"

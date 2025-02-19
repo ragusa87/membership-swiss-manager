@@ -2,16 +2,16 @@ from django.db.models.aggregates import Count
 from django.contrib import admin
 from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
-from myapp.models import Member
-from myapp.models import MemberSubscription
-from myapp.models import Invoice, InvoiceStatusEnum
-from myapp.models import Subscription
+from myapp.models.member import Member
+from myapp.models.member_subscription import MemberSubscription
+from myapp.models.invoice import Invoice, InvoiceStatusEnum
+from myapp.models.subscription import Subscription
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Prefetch
 from myapp.templatetags.custom_filters import format_price
-from .pdf_generator import PDFGenerator
+from .pdf_generator.pdf_generator import PDFGenerator
 
 
 class FilterMemberSubscriptionBySubscription(SimpleListFilter):
@@ -274,7 +274,7 @@ class MemberSubscriptionAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{}</a>', url, name)
 
     def view_invoices(self, obj):
-        name = f"invoices (%s)" % (str(obj.invoices_count) if obj.invoices_count else 0)
+        name = "invoices (%s)" % (str(obj.invoices_count) if obj.invoices_count else 0)
         url = (
             reverse("admin:myapp_invoice_changelist")
             + "?member_subscription="

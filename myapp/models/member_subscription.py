@@ -52,10 +52,19 @@ class MemberSubscription(models.Model):
     def __str__(self):
         return f"{self.member.get_fullname()} - {self.subscription.name}"
 
+    def get_price_by_type(self, subscription_type: str) -> int | None:
+        if subscription_type.lower() == SubscriptionTypeEnum.MEMBER.lower():
+            return self.subscription.price_member
+        elif subscription_type.lower() == "supporter":
+            return self.subscription.price_supporter
+        elif subscription_type.lower() == SubscriptionTypeEnum.OTHER.lower():
+            return self.subscription.price_supporter
+        return None
+
     def get_price(self):
         if self.active is False or self.parent is not None:
             return 0
-        return self.subscription.get_price_by_type(self.type)
+        return self.get_price_by_type(self.type)
 
     def get_type_text(self) -> str:
         return SubscriptionTypeEnum.get_type(self.type)

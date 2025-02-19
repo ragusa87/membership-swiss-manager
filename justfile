@@ -41,6 +41,7 @@ bash:
 
 lint:
     ruff format
+    ruff check --fix
 
 sprites:
     myapp/sprites/all-gen.sh

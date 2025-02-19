@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from myapp.models import Invoice, MemberSubscription, Subscription, InvoiceStatusEnum
 from django.views.generic import TemplateView
 from datetime import datetime
-from django.db.models import Sum, Count
+from django.db.models import Sum
 
 
 class DashboardView(TemplateView):

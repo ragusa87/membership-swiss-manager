@@ -1,4 +1,4 @@
-from myapp.models import Subscription
+from myapp.models.subscription import Subscription
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 

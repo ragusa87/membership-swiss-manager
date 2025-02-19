@@ -19,78 +19,48 @@ permissions:
   contents: read
 
 jobs:
-  tests:
-    name: Tests
+  build:
+    name: build
     runs-on: ubuntu-latest
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      -
-        name: Set up override
-        run: |
-          cp -f docker-compose.override.linux.yml docker-compose.override.yml
-          export USER_ID=$(id -u)
-          export GROUP_ID=$(id -g)
-          sed -i "s/USER_ID: 1000/USER_ID: ${USER_ID}/" docker-compose.override.yml
-          sed -i "s/GROUP_ID: 1000/GROUP_ID: ${GROUP_ID}/" docker-compose.override.yml
-          cat docker-compose.override.yml
-      -
-        name: Build Docker images
-        uses: docker/bake-action@v3
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build DEV Docker images
+        uses: docker/bake-action@v6
         with:
-          pull: true
           load: true
           files: |
-            docker-compose.yml
-            docker-compose.override.yml
+            compose.yaml
+            compose.dev.yaml
           set: |
             *.cache-from=type=gha,scope=${{github.ref}}
             *.cache-from=type=gha,scope=refs/heads/main
             *.cache-to=type=gha,scope=${{github.ref}},mode=max
-      -
-        name: Configure environment
-        run: |
-          git config --global user.email ""
-          git config --global user.name "CI"
-          git config --global init.defaultBranch main
-          git config --global advice.detachedHead false
-      -
-        name: Start services
-        run: docker compose up --wait --no-build
-      -
-        name: Check HTTP reachability
-        run: curl -v -o /dev/null http://localhost:8045
-      -
-        name: Check HTTPS reachability
-        run: curl -vk -o /dev/null https://localhost:44333
-      -
-        name: Create test database
-        run: docker compose exec -T php composer db-create-test
-      -
-        name: Run phpcs
-        run: docker compose exec -T php composer phpcs
-      -
-        name: Run PHPUnit
-        run: docker compose exec -T php composer phpunit
-      - 
-        name: Doctrine Schema Validator
-        run: docker compose exec -T php bin/console -e test doctrine:schema:validate
-      -
-        name: Run phpstan
-        run: docker compose exec -T php composer phpstan -- --no-progress
-  lint:
-    name: Docker Lint
+  tests:
+    name: test
     runs-on: ubuntu-latest
     steps:
       -
         name: Checkout
         uses: actions/checkout@v3
-      -
-        name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
+
+      - uses: actions/setup-python@v5
         with:
-          recursive: true
+          python-version: '3.13'
+          cache: 'pip'
+      - name: Install pip dev dependencies
+        run: pip install -r requirements.dev.txt
+
+      - name: Ruff format
+        run: ruff format --check
+
+      - name: Ruff check
+        run: ruff check
+
+      - name: Migrations
+        run: ./manage.py migrate
