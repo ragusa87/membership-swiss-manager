@@ -20,8 +20,8 @@ SESSION_SUBSCRIPTION_ID = "csv_subscription_id"
 
 class StepAwareMixin(RenderableMixin):
     step = 1
-    max_step = 4
     steps = [_("step.upload_csv"), _("step.create_members"), _("step.import")]
+    max_step = len(steps)
     template_name_model = "myapp/upload_csv_step_%d.html"
 
 

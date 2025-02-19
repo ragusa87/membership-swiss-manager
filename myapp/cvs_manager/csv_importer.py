@@ -132,15 +132,6 @@ class Export:
 class CsvImporter:
     def __init__(self, subscription: Subscription):
         self.subscription = subscription
-        self.__member_subscriptions__ = (
-            MemberSubscription.objects.filter(subscription=subscription, active=True)
-            .select_related("subscription", "member", "parent")
-            .annotate(invoice_count=Count("invoices"))
-            .annotate(parent_count=Count("children"))
-            .prefetch_related("invoices")
-            .prefetch_related("children")
-            .prefetch_related("children__member")
-        )
 
     def do_import(
         self, subscription: Subscription, csv_file: File | io.TextIOBase
@@ -163,7 +154,6 @@ class CsvImporter:
     def __compare_headers__(self, csv_headers: list[str]):
         # Check if the expected headers are present in the CSV
         missing_headers = set(EXPECTED_HEADERS) - set(csv_headers)
-        extra_headers = set(csv_headers) - set(EXPECTED_HEADERS)
 
         if missing_headers:
             raise RuntimeError("Missing headers: {}".format(missing_headers))

@@ -19,17 +19,7 @@ class DashboardView(TemplateView):
             subscription=subscription
         ).count()
 
-        member_subscriptions = (
-            MemberSubscription.objects.filter(
-                subscription=subscription, active=True, parent=None
-            )
-            .select_related("subscription", "member", "parent")
-            .annotate(invoice_count=Count("invoices"))
-            .annotate(parent_count=Count("children"))
-            .prefetch_related("invoices")
-            .prefetch_related("children")
-            .prefetch_related("children__member")
-        )
+        member_subscriptions = MemberSubscription.list_for_dashboard(subscription)
 
         # Calculate statistics
         previous_subscription = (

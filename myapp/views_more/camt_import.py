@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from django.middleware.csrf import get_token
-from ..models import Subscription, Invoice, InvoiceStatusEnum
+from ..models import Subscription, Invoice, InvoiceStatusEnum, MemberSubscription
 from ..settings import FILE_UPLOAD_MAX_MEMORY_SIZE
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
@@ -137,6 +137,10 @@ class CamtReconciliationView(TemplateView):
             context.update(
                 {
                     "invoices": self._invoices(),
+                    "member_subscriptions": MemberSubscription.objects.filter(
+                        subscription_id=self.request.session[SESSION_SUBSCRIPTION_ID],
+                        active=True,
+                    ).all(),
                     "invoice_id": self.request.GET.get("invoice_id"),
                     "amount": self.request.GET.get("amount"),
                     "transaction_id": self.request.GET.get("transaction_id"),
@@ -147,7 +151,14 @@ class CamtReconciliationView(TemplateView):
         if self.request.method == "POST":
             context.update(
                 {
-                    "invoice_id": self.request.POST.get("invoice_id"),
+                    "new_invoice_for_subscription": self.request.POST.get(
+                        "new_invoice_for_subscription"
+                    )
+                    if self.request.POST.get("new_invoice_for_subscription")
+                    else None,
+                    "invoice_id": self.request.POST.get("invoice_id")
+                    if self.request.POST.get("invoice_id")
+                    else None,
                     "transaction_id": self.request.POST.get("transaction_id"),
                     "amount": self.request.POST.get("amount"),
                 }
@@ -162,8 +173,6 @@ class CamtReconciliationView(TemplateView):
                     SESSION_SUBSCRIPTION_ID
                 ],
                 member_subscription__active=True,
-                member_subscription__parent=None,
-                transaction_id=None,
             )
             .order_by(
                 "created_at", "reminder", "status", "member_subscription__member_id"
@@ -171,9 +180,21 @@ class CamtReconciliationView(TemplateView):
             .all()
         )
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> HttpResponse:
         context = self.get_context_data(**kwargs)
+        if context["invoice_id"] is not None:
+            return self.add_invoice(context)
 
+        if context["new_invoice_for_subscription"] is not None:
+            return self.new_invoice_for_subscription(context)
+
+        return HttpResponse("Error")
+
+    def get(self, request, *args, **kwargs) -> HttpResponse:
+        return super().get(request, *args, **kwargs)
+
+    @staticmethod
+    def add_invoice(context: dict) -> HttpResponse:
         invoice = (
             Invoice.objects.get(pk=context["invoice_id"])
             if context["invoice_id"]
@@ -189,20 +210,28 @@ class CamtReconciliationView(TemplateView):
 
             if invoice.should_split(price, context["transaction_id"]):
                 invoice.split_and_pay(price, context["transaction_id"])
-                response = "Price changed successfully"
+                response = _("Invoice split and paid successfully")
             else:
                 invoice.transaction_id = context["transaction_id"]
                 invoice.price = price
                 invoice.status = InvoiceStatusEnum.PAID
                 invoice.save()
-                response = "ok"
+                response = _("Invoice paid")
 
             return HttpResponse(response)
+        return HttpResponse(_("Error while processing reconcilation"))
 
-        return HttpResponse("Error")
-
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    @staticmethod
+    def new_invoice_for_subscription(context: dict) -> HttpResponse:
+        member_subscription = get_object_or_404(
+            MemberSubscription, pk=context["new_invoice_for_subscription"]
+        )
+        invoice = member_subscription.generate_new_invoice()
+        price = int(float(context["amount"]) * 100)
+        invoice.price = price
+        invoice.status = InvoiceStatusEnum.PAID
+        invoice.save()
+        return HttpResponse(_("New invoice created"))
 
 
 class CamtProcessView(TemplateView):

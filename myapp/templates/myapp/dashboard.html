@@ -135,42 +135,40 @@
                                     {% endwith %}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         {%  if member_subscription.invoice_count > 0 %}
-                                            <ul>
                                         {% for invoice in member_subscription.invoices.all %}
-                                            <li>
-                                            {{ invoice.price|format_price }}
-                                            {% if invoice.status.lower == InvoiceStatusEnum.PAID %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    {{ invoice.get_status_text }}
-                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
-                                                </span>
-                                            {% elif invoice.status.lower == InvoiceStatusEnum.CANCELED.lower %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                    {{ invoice.get_status_text }}
-                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
-                                                </span>
-                                            {% elif invoice.status.lower == InvoiceStatusEnum.PENDING.lower %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    {{ invoice.get_status_text }}
-                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
-                                                </span>
-                                            {% elif invoice.status.lower == InvoiceStatusEnum.CREATED.lower %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    {{ invoice.get_status_text }}
-                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
-                                                </span>
-                                            {% else %}
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                    {{ invoice.get_status_text }}
-                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
-                                                </span>
-                                            {% endif %}
-                                            <a class="inline" href="{% url 'admin:myapp_invoice_change' object_id=invoice.pk %}">
-                                                {%  sprite 'lucide-eye' %}
-                                            </a>
-                                            </li>
+                                            <div class="block flex">
+                                                <span class="block">{{ invoice.price|format_price }}</span>
+                                                {% if invoice.status.lower == InvoiceStatusEnum.PAID %}
+                                                    <span class="block px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        {{ invoice.get_status_text }}
+                                                        {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
+                                                    </span>
+                                                {% elif invoice.status.lower == InvoiceStatusEnum.CANCELED.lower %}
+                                                    <span class="block px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                        {{ invoice.get_status_text }}
+                                                        {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
+                                                    </span>
+                                                {% elif invoice.status.lower == InvoiceStatusEnum.PENDING.lower %}
+                                                    <span class=" block px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        {{ invoice.get_status_text }}
+                                                        {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
+                                                    </span>
+                                                {% elif invoice.status.lower == InvoiceStatusEnum.CREATED.lower %}
+                                                    <span class="block px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        {{ invoice.get_status_text }}
+                                                        {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="block px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                        {{ invoice.get_status_text }}
+                                                        {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
+                                                    </span>
+                                                {% endif %}
+                                                <a class="block grow justify-self-end text-right" href="{% url 'admin:myapp_invoice_change' object_id=invoice.pk %}">
+                                                    {% sprite 'lucide-eye' %}
+                                                </a>
+                                            </div>
                                         {% endfor %}
-                                            </ul>
                                         {% else %}
                                             {{ "-" }}{# invoice_count = 0 #}
                                         {% endif %}

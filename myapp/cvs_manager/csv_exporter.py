@@ -10,14 +10,8 @@ from ..templatetags.custom_filters import format_price
 
 class CsvExporter:
     def __init__(self, subscription: Subscription):
-        self.__member_subscriptions__ = (
-            MemberSubscription.objects.filter(subscription=subscription, active=True)
-            .select_related("subscription", "member", "parent")
-            .annotate(invoice_count=Count("invoices"))
-            .annotate(parent_count=Count("children"))
-            .prefetch_related("invoices")
-            .prefetch_related("children")
-            .prefetch_related("children__member")
+        self.__member_subscriptions__ = MemberSubscription.list_for_dashboard(
+            subscription
         )
 
     def export(self, extension: str) -> io.BytesIO:

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
 from .member import Member
 from .invoice import Invoice, InvoiceStatusEnum
@@ -115,3 +116,15 @@ class MemberSubscription(models.Model):
     def save(self, *args, **kwargs):
         self.price = self.get_price()
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def list_for_dashboard(subscription: Subscription):
+        return (
+            MemberSubscription.objects.filter(subscription=subscription, active=True)
+            .select_related("subscription", "member", "parent")
+            .annotate(invoice_count=Count("invoices"))
+            .annotate(parent_count=Count("children"))
+            .prefetch_related("invoices")
+            .prefetch_related("children")
+            .prefetch_related("children__member")
+        )

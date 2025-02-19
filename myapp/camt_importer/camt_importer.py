@@ -89,6 +89,9 @@ class Transaction:
         if attr == "invoice":
             return self.invoice
 
+        if attr not in self.data:
+            raise AttributeError(name=attr, obj=self)
+
         return self.data[attr]
 
     def price_mismatch(self):

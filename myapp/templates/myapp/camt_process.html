@@ -68,8 +68,8 @@
                         {% endif %}
 
                         {% if i.invoice is not None and not i.valid %}
-                            <div>
-                                <a data-hx-swap="outerHTML"
+                            <div id="tx{{ i.TxId|slugify }}">
+                                <a data-hx-target="#tx{{ i.TxId|slugify }}"
                                    data-hx-get="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.TxId %}"
                                    href="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.TxId %}"
                                    class="inline-block p-3 {% if i.invoice.transaction_id%}bg-orange-600 text-orange-800{% elif i.is_same_user %}bg-green-600 text-green-800{% else %}bg-yellow-600 text-yellow-800{% endif %}">
@@ -79,12 +79,16 @@
                                     {% include 'myapp/partials/camt_link.html' %}
                                 {% endwith %}
                             </div>
-                        {% endif %}
-                        {% if i.invoice is None and i.isBonification %}
-                            <button data-hx-swap="outerHTML" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' %}?transaction_id={{ i.TxId }}&invoice_id={{ i.invoice.pk }}&amount={{ i.Amount }}&label={{ i.AdditionalEntryInformation }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
+                        {% elif i.invoice is None and i.isBonification %}
+                             <div id="tx{{ i.TxId|slugify }}">
+                                <button data-hx-target="#tx{{ i.TxId|slugify }}" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' %}?transaction_id={{ i.TxId }}&invoice_id={{ i.invoice.pk }}&amount={{ i.Amount }}&label={{ i.AdditionalEntryInformation }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
+                             </div>
                         {% endif %}
                         {% if i.invoice is not None and i.price_mismatch %}
                             <span class="text-red-800">Price mismatch ! {{ i.invoice.price|format_price}}</span>
+                        {% endif %}
+                        {% if i.invoice is not None and i.invoice.member_subscription and i.invoice.member_subscription.subscription != subscription %}
+                            <span class="text-orange-800">Subscription missmatch ({{ i.invoice.member_subscription.subscription.name }})</span>
                         {% endif %}
                     </li> {#   #}
                 {% endfor %}
