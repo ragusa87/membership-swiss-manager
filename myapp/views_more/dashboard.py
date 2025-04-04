@@ -87,7 +87,7 @@ class DashboardView(TemplateView):
         )
 
         # Calculate rates
-        collection_rate = (paid_amount / due_amounts * 100) if due_amounts > 0 else 0
+        collection_rate = (paid_amount / due_amounts * 100) if due_amounts != 0 else 0
 
         active_users = (
             MemberSubscription.objects.filter(
@@ -109,7 +109,7 @@ class DashboardView(TemplateView):
             .distinct()
             .count()
         )
-        retention_rate = (active_users / total_users * 100) if total_users > 0 else 0
+        retention_rate = (active_users / total_users * 100) if total_users != 0 else 0
 
         # Get recent subscriptions
         context = super().get_context_data(**kwargs)
@@ -122,6 +122,7 @@ class DashboardView(TemplateView):
                     "total_subscriptions_last_year": total_subscriptions_last_year,
                     "subscription_growth": round(subscription_growth, 1),
                     "due_amount": current_due_amount,
+                    "due_amount_expected": due_amounts,
                     "due_amount_growth": round(due_amount_growth, 1),
                     "paid_amount": paid_amount,
                     "collection_rate": round(collection_rate, 1),

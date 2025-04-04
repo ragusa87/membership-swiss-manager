@@ -77,6 +77,9 @@
                     {% with rate=stats.collection_rate|floatformat:0  %}
                         {% blocktrans %}{{ rate }}% collection rate{% endblocktrans %}
                     {% endwith %}
+                    {% with due_amount=stats.due_amount_expected|format_price  %}
+                        ({% blocktrans %}Expected {{ due_amount }}{% endblocktrans %})
+                    {% endwith %}
                 </p>
             </div>
 
