@@ -21,6 +21,12 @@ class MyCamt053Parser(Camt053Parser):
             else None
         )
 
+        detail["UltmtDbtr"] = (
+            tx_detail.find(".//UltmtDbtr//Nm", self.namespaces).text
+            if tx_detail.find(".//UltmtDbtr", self.namespaces) is not None
+            else None
+        )
+
         debtor_address = tx_detail.find(".//RltdPties/Dbtr/PstlAdr", self.namespaces)
         if debtor_address is not None:
             debtor_address = {

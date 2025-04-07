@@ -52,19 +52,18 @@
                             {% endif %}
                         </span>
                         {% if i.RemittanceInformation is not None %}
-                            <p>{{ i.RemittanceInformation }}</p>
+                            <p class="font-semibold">{{ i.RemittanceInformation }}</p>
                         {% endif %}
 
                         {% if i.CreditorName is not None %}
-                            <p class="font-light">{{ i.CreditorName }} {{ "=>" }} {{ i.DebtorName }}<p>
+                            <p class="font-light">
+                                {{ i.CreditorName }} {{ "=>" }} {{ i.DebtorName }}
+                                {% if i.UltmtDbtr is not None %}<span>via {{ i.UltmtDbtr }}</span>{% endif %}
+                            <p>
                         {% endif %}
 
-
-
-                        {% if i.invoice is None %}
-                            {% if i.TxId is not None %}
-                                <p class="font-thin">{{ i.TxId|default:"" }} {% if i.EndToEndId != 'NOTPROVIDED' %}- {{ i.EndToEndId }}{% endif %}</p>
-                            {% endif %}
+                        {% if i.TxId is not None %}
+                            <p class="font-thin">{{ i.TxId|default:"" }} {% if i.EndToEndId != 'NOTPROVIDED' %}{{ " ( & " }}{{ i.EndToEndId }}{{ ")" }}{% endif %}</p>
                         {% endif %}
 
                         {% if i.invoice is not None and not i.valid %}
