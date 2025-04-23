@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static custom_filters i18n %}
+
+{% block html_title %}Assign members - {{ subscription.name }}{% endblock %}
+
+{% block title %}
+    <h1 class="text-3xl font-semibold tracking-tight">
+        {{ "Assign members to subscription" }} - {{ subscription.name }}
+    </h1>
+{% endblock %}
+
+{% block content %}
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- (Left Column) -->
+            <section>
+                <h2 class="text-xl font-semibold mb-4">{% trans "Candidates" %}</h2>
+                <ul class="flex flex-col space-y-8 divide-gray-300 divide-y">
+                    {% for form in forms %}
+                        <li>
+                            <form method="POST" class="space-y-2">
+                                {% csrf_token %}
+                                {% include "./partials/_forms.html" %}
+                                <input type="hidden" name="form" value="link">
+                                <button type="submit"
+                                        onclick="return confirm('{% trans "Are you sure you want to link this user?" %}')"
+                                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded shadow">
+                                    Link {% if form.instance %}{{ form.instance.member }}{% endif %}
+                                </button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <!-- (Right Column) -->
+            <section>
+                <h2 class="text-xl font-semibold mb-4">{% trans "Assigned members" %}</h2>
+                <ul class="space-y-2">
+                    {% for subscription in member_subscriptions %}
+                        <li>
+                            <div class="flex items-center justify-between space-x-4">
+                                <div class="grow">
+                                    <a href="{% url "admin:myapp_member_change" object_id=subscription.member.pk %}">{{ subscription.member }}</a>
+                                    <span class="text-gray-300">({{ subscription.type }})</span>
+                                </div>
+                                <div>
+                                    <a href="{% url "admin:myapp_membersubscription_changelist" %}?id={{ subscription.pk }}"
+                                       class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition inline-block">
+                                        {% sprite 'lucide-pencil' %}
+                                    </a>
+                                </div>
+                            </div>
+                            <ul class="list-disc list-inside text-gray-700 pl-5 space-y-1">
+                                {% for child in subscription.children.all %}
+                                    <li>
+                                    <a href="{% url "admin:myapp_member_change" object_id=child.member.pk %}">{{ child.member }}</a>
+                                        {{ child.member }}
+                                        <span class="text-gray-300">({{ child.type }})</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+
+                <!-- Add User Button -->
+                <div class="mt-6">
+                    <button onclick="document.getElementById('modal').classList.remove('hidden')"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded shadow">
+                        {% trans "Add a new member" %}
+                    </button>
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- Modal -->
+        <div id="modal"
+             class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center hidden">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 space-y-4">
+                <h1>{% trans "Create a new member" %}</h1>
+                <form method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="form" value="create">
+                    {% include "./partials/_forms.html" %}
+                    <div class="flex justify-end gap-2">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                            {% trans "Save" %}
+                        </button>
+                        <button type="button" onclick="document.getElementById('modal').classList.add('hidden')"
+                                class="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">
+                            {% trans "Cancel" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+

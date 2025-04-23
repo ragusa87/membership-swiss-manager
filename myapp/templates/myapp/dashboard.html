@@ -251,6 +251,10 @@
                 <a href="{% url 'subscription_export_with_extension' subscription_name=subscription.name extension='xslx' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg">{% translate "Export list as XLSX" %}</a>
             </div>
         </div>
+
+            <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'assign_user' subscription_name=subscription.name %}">Assign users</a>
+
+
     </div>
 </nav>
 
