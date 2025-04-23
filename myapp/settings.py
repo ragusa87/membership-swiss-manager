@@ -195,3 +195,5 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
+
+AUTHENTICATION_BACKENDS = ["myapp.auth.settings_backend.SettingsBackend"]
