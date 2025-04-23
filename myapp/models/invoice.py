@@ -11,6 +11,15 @@ class InvoiceStatusEnum(models.TextChoices):
     PENDING = "pending"
     CANCELED = "canceled"
 
+    @staticmethod
+    def from_string(value: str | None) -> "InvoiceStatusEnum|None":
+        if value is None:
+            return None
+        try:
+            return InvoiceStatusEnum(value)
+        except ValueError:
+            return None
+
 
 class Invoice(models.Model):
     reference = models.IntegerField(null=True, blank=True)
