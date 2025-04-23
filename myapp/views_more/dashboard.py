@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 from datetime import datetime
 from django.db.models import Sum
 
+from myapp.settings import DB_ENV
+
 
 class DashboardView(TemplateView):
     template_name = "myapp/dashboard.html"
@@ -132,6 +134,7 @@ class DashboardView(TemplateView):
                     "total_users": total_users,
                 },
                 "member_subscriptions": member_subscriptions,
+                "env_is_prod": str(DB_ENV).lower() == "prod",
             }
         )
         return context
