@@ -19,3 +19,8 @@ def sprite(sprite_name: str, sprite_size=24):
         "sprite_name": sprite_name,
         "sprite_size": sprite_size,
     }
+
+
+@register.filter(name="add_class")
+def add_class(field, css):
+    return field.as_widget(attrs={**field.field.widget.attrs, "class": css})

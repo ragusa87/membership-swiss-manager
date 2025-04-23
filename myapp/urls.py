@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, re_path
 from . import views
 from django.views.generic.base import RedirectView
+
+from .views_more.assign import AssignUserFormView
 from .views_more.invoices import (
     pdf_by_invoice,
     pdfs_by_subscription,
@@ -51,6 +53,11 @@ urlpatterns = [
     path("process-camt", CamtProcessView.as_view(), name="camt_process"),
     path(
         "dashboard/<str:subscription_name>", DashboardView.as_view(), name="dashboard"
+    ),
+    path(
+        "assign/<str:subscription_name>",
+        AssignUserFormView.as_view(),
+        name="assign_user",
     ),
     path("invoice/<int:invoice_id>/pdf/", pdf_by_invoice, name="pdf_by_invoice"),
     path(
