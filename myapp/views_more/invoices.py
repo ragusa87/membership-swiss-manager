@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from myapp.models import Invoice, Subscription, InvoiceStatusEnum, MemberSubscription
@@ -16,16 +16,26 @@ def pdf_by_invoice(self, invoice_id: int) -> HttpResponse:
     return HttpResponse(pdf_output.read(), content_type="application/pdf")
 
 
-def pdfs_by_subscription(self, subscription_id: int) -> HttpResponse:
+def pdfs_by_subscription(request, subscription_id: int) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
-    invoices = Invoice.objects.filter(
-        member_subscription__subscription=subscription,
-        member_subscription__active=True,
-        status__in=[InvoiceStatusEnum.CREATED],
+    filter_raw = request.GET.get("status", None)
+    status = InvoiceStatusEnum.from_string(filter_raw)
+    url_filter = (
+        Q(status=status)
+        if status is not None
+        else Q(status__in=[InvoiceStatusEnum.CREATED])
     )
 
+    invoices = Invoice.objects.filter(
+        Q(
+            member_subscription__subscription=subscription,
+            member_subscription__active=True,
+        )
+        & url_filter
+    ).select_related("member_subscription")
+
     if len(invoices) == 0:
-        messages.error(self, _("No matching invoices found"))
+        messages.error(request, _("No matching invoices found"))
         return HttpResponseRedirect(
             redirect_to=reverse_lazy(
                 "dashboard", kwargs={"subscription_name": subscription.name}

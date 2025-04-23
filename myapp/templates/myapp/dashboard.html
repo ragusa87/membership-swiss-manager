@@ -4,20 +4,23 @@
 {% block html_title  %}Dashboard - {{ subscription.name }}{% endblock %}
 {% block scripts %}
 <script>
-    document.getElementById("exportDropdownButton").addEventListener("click", function () {
-        const menu = document.querySelector(".dropdown-menu");
-        menu.classList.toggle("hidden");
-    });
+    ["exportDropdownButton", "pdfDropdownButton"].forEach(id => {
+        document.getElementById(id).addEventListener("click", function () {
+            const menu = document.querySelector(".dropdown-menu[aria-labelledby=" + id + "]");
+            menu.classList.toggle("hidden");
+        });
 
-    // Close the dropdown when clicking outside
-    window.addEventListener("click", function (event) {
-        const menu = document.querySelector(".dropdown-menu");
-        const button = document.getElementById("exportDropdownButton");
+        // Close the dropdown when clicking outside
+        const menu = document.querySelector(".dropdown-menu[aria-labelledby=" + id + "]");
+        const button = document.getElementById(id);
+        window.addEventListener("click", function (event) {
+            if (!button.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add("hidden");
+            }
+        });
+    })
 
-        if (!button.contains(event.target) && !menu.contains(event.target)) {
-            menu.classList.add("hidden");
-        }
-    });
+
 </script>
 
 {% endblock %}
@@ -206,10 +209,24 @@
             {% sprite 'lucide-cloud-upload' %}
             <span>CSV</span>
         </a>
-        <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'pdf_by_subscription' subscription_id=subscription.pk %}" title="{% translate "Export created invoices" %}">
-            {% sprite 'lucide-receipt' %}
-            <span>PDF</span>
-        </a>
+
+        <!-- Dropdown for PDF -->
+        <div class="relative inline-block text-left">
+            <button title="{% translate "Export list" %}" type="button" class="flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition" id="pdfDropdownButton" aria-expanded="false" aria-haspopup="true">
+                    {% sprite 'lucide-receipt' %}
+                    <span>PDF</span>
+                    {% sprite 'lucide-chevron-down' %}
+            </button>
+            <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10" aria-labelledby="pdfDropdownButton">
+                {% for status in InvoiceStatusEnum %}
+                <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg" href="{% url 'pdf_by_subscription' subscription_id=subscription.pk %}?status={{ status }}" title="{% blocktrans %}Export {{ status }} invoices{% endblocktrans %}">
+                    {% sprite 'lucide-receipt' %}
+                    <span>PDF {{ status }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
         <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'pdf_by_subscription_blank' subscription_id=subscription.pk %}" title="{% translate "Export anonymous bills" %}">
             {% sprite 'lucide-qr-code' %}
             <span>QR</span>

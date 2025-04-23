@@ -10,6 +10,7 @@ from ..models import (
     MemberSubscription,
     Subscription,
     SubscriptionTypeEnum,
+    InvoiceStatusEnum,
 )
 from django.utils import translation
 from contextlib import ContextDecorator
@@ -120,6 +121,11 @@ class PDFGenerator:
         reminder_text: str = (
             invoice.get_reminder_text() + " - " if invoice.reminder > 0 else ""
         )
+        if invoice.status == InvoiceStatusEnum.CANCELED:
+            reminder_text += _("** Annulé **")
+        if invoice.status == InvoiceStatusEnum.PAID:
+            reminder_text += _("** Payé **")
+
         return str(f"{reminder_text} {type} {name}")
 
     def __isIbanCompatibleWithQRCodeReference__(self, iban: str) -> bool:
@@ -344,6 +350,21 @@ class PDFGenerator:
                 )
             )
             pos.move(0, 14)
+
+        if invoice.status in [InvoiceStatusEnum.CANCELED, InvoiceStatusEnum.PAID]:
+            pos.move(0, 20)
+            dwg.add(
+                dwg.text(
+                    _("** Annulé **")
+                    if invoice.status == InvoiceStatusEnum.CANCELED
+                    else _("** Payé **"),
+                    insert=pos.as_tuple(),
+                    fill="red",
+                    font_size="28px",
+                    font_family="Arial",
+                )
+            )
+            pos.move(0, 28)
 
         return pos
 
