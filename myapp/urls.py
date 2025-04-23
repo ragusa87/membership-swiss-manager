@@ -25,6 +25,7 @@ from .views_more.invoices import (
     create_reminder_for_pending_by_subscription,
     mark_created_as_pending_by_subscription,
     create_first_invoices_by_subscription,
+    pdfs_by_subscription_blank,
 )
 from .views_more.dashboard import DashboardView
 from .views_more.switch_language import switch_language
@@ -56,6 +57,11 @@ urlpatterns = [
         "invoices/<int:subscription_id>/pdf/",
         pdfs_by_subscription,
         name="pdf_by_subscription",
+    ),
+    path(
+        "invoices/<int:subscription_id>/pdf-blank/",
+        pdfs_by_subscription_blank,
+        name="pdf_by_subscription_blank",
     ),
     path(
         "process-camt_reconciliation",

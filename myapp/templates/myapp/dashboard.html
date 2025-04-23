@@ -210,6 +210,10 @@
             {% sprite 'lucide-receipt' %}
             <span>PDF</span>
         </a>
+        <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'pdf_by_subscription_blank' subscription_id=subscription.pk %}" title="{% translate "Export anonymous bills" %}">
+            {% sprite 'lucide-qr-code' %}
+            <span>QR</span>
+        </a>
 
         <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'camt_upload'  %}" title="{% translate "Import CAMT file" %}">
             {% sprite 'lucide-cloud-upload' %}

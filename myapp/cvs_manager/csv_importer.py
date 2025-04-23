@@ -6,13 +6,14 @@ from ..models import (
     MemberSubscription,
     Subscription,
     Member,
-    SubscriptionTypeEnum,
 )
 import csv
 from django.db.models import Q
 from django.db.models import F
 from django.db.models import Value
 from django.db.models.functions import Concat, Lower, Coalesce, Trim
+
+from ..models.enum import SubscriptionTypeEnum
 
 
 class Row:
@@ -94,12 +95,13 @@ class Row:
 
         return [m for m in results.all()]
 
-    def __as_type__(self, param: str):
+    @staticmethod
+    def __as_type__(param: str):
         match str(param):
             case SubscriptionTypeEnum.MEMBER | "member":
                 return SubscriptionTypeEnum.MEMBER
-            case SubscriptionTypeEnum.SUPPORTER | "other" | "supporter" | "supporter?":
-                return SubscriptionTypeEnum.SUPPORTER
+            case SubscriptionTypeEnum.OTHER | "other" | "supporter" | "supporter?":
+                return SubscriptionTypeEnum.OTHER
             case _:
                 return SubscriptionTypeEnum.MEMBER
 
