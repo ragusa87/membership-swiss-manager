@@ -36,6 +36,13 @@ def pdfs_by_subscription(self, subscription_id: int) -> HttpResponse:
     return HttpResponse(pdf_output.read(), content_type="application/pdf")
 
 
+def pdfs_by_subscription_blank(request, subscription_id: int) -> HttpResponse:
+    subscription = get_object_or_404(Subscription, pk=subscription_id)
+    generator = PDFGenerator()
+    pdf_output = generator.generate_pdf_blank(subscription)
+    return HttpResponse(pdf_output.read(), content_type="application/pdf")
+
+
 def mark_created_as_pending_by_subscription(self, subscription_id: int) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     invoices = Invoice.objects.filter(

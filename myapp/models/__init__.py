@@ -1,4 +1,5 @@
-from .member_subscription import MemberSubscription, SubscriptionTypeEnum
+from .member_subscription import MemberSubscription
+from .enum import SubscriptionTypeEnum
 from .subscription import Subscription
 from .invoice import Invoice, InvoiceStatusEnum
 from .member import Member

@@ -1,11 +1,19 @@
 import io
+from collections import OrderedDict
 from io import StringIO
 import cairosvg
 from PyPDF2 import PdfMerger
 import locale
-from ..models import Invoice, Member, MemberSubscription
+from ..models import (
+    Invoice,
+    Member,
+    MemberSubscription,
+    Subscription,
+    SubscriptionTypeEnum,
+)
 from django.utils import translation
 from contextlib import ContextDecorator
+from django.utils.translation import gettext_lazy as _
 from ..settings import (
     INVOICE_CUSTOMER_IDENTIFICATION_NUMBER,
     INVOICE_LANGUAGE,
@@ -198,7 +206,7 @@ class PDFGenerator:
                 additional_information=self.__get_additional_information__(invoice),
             )
 
-            # A4 page with white background
+            # A4 page with a white background
             dwg = svgwrite.Drawing(
                 size=A4,
                 viewBox=("0 0 %f %f" % (mm(A4[0]), mm(A4[1]))),
@@ -207,9 +215,10 @@ class PDFGenerator:
             dwg.add(dwg.rect(insert=(0, 0), size=("100%", "100%"), fill="white"))
 
             # Draw header
-            self.__draw_invoice_header__(dwg, invoice)
+            pos = self.__draw_invoice_logo__(dwg)
+            self.__draw_invoice_header__(dwg, pos, invoice)
 
-            # Draw bill and make it A4
+            # Draw a bill and make it A4
             group = bill.draw_bill(dwg, True)
             bill.transform_to_full_page(dwg, group)
 
@@ -217,7 +226,7 @@ class PDFGenerator:
 
             return self.__svg2Pdf__(svg_buffer)
 
-    def __draw_invoice_header__(self, dwg, invoice: Invoice):
+    def __draw_invoice_logo__(self, dwg):
         pos = Position(20, 20)
 
         # Add logo placeholder
@@ -251,9 +260,12 @@ class PDFGenerator:
             )
         )
 
+        return pos
+
+    def __draw_invoice_header__(self, dwg, pos, invoice: Invoice):
+        # Add invoice title (member)
         pos.set(20, 164)
 
-        # Add invoice title (member)
         dwg.add(
             dwg.text(
                 invoice.member_subscription.member.get_fullname(),
@@ -334,3 +346,92 @@ class PDFGenerator:
             pos.move(0, 14)
 
         return pos
+
+    def generate_pdf_blank(self, subscription: Subscription):
+        merger = PdfMerger()
+
+        for order, subscription_type in enumerate(
+            OrderedDict(SubscriptionTypeEnum.choices)
+        ):
+            svg_buffer = StringIO()
+            with TranslationContext(INVOICE_LANGUAGE):
+                amount = str(subscription.get_price_by_type(subscription_type) / 100)
+                price_info = _("Prix conseillé") + ": " + amount + " CHF"
+                infos = (
+                    _("Transmissible")
+                    + ": "
+                    + SubscriptionTypeEnum.get_type(subscription_type)
+                )
+                infos += "\n" + price_info + "\n" + subscription.name
+                if subscription_type == SubscriptionTypeEnum.OTHER:
+                    amount = None
+                bill = QRBill(
+                    INVOICE_IBAN,
+                    creditor=self.__get_creditor__(),
+                    debtor=None,
+                    amount=amount,
+                    language=INVOICE_LANGUAGE,
+                    reference_number=None,
+                    additional_information=infos,
+                )
+                # A4 page with a white background
+                dwg = svgwrite.Drawing(
+                    size=A4,
+                    viewBox=("0 0 %f %f" % (mm(A4[0]), mm(A4[1]))),
+                    debug=False,
+                )
+                dwg.add(dwg.rect(insert=(0, 0), size=("100%", "100%"), fill="white"))
+
+                # Draw header
+                pos = self.__draw_invoice_logo__(dwg)
+
+                # Draw infos
+                # Add subscription infos
+                pos.set(20, 164)
+                dwg.add(
+                    dwg.text(
+                        (
+                            SubscriptionTypeEnum.get_type(subscription_type)
+                            + " "
+                            + subscription.name
+                        ).capitalize(),
+                        insert=pos.as_tuple(),
+                        fill="black",
+                        font_size="24px",
+                        font_weight="bold",
+                        font_family="Arial",
+                    )
+                )
+                pos.move(0, 24)
+                dwg.add(
+                    dwg.text(
+                        price_info,
+                        insert=pos.as_tuple(),
+                        fill="black",
+                        font_size="14px",
+                        font_family="Arial",
+                    )
+                )
+                pos.move(0, 24)
+                dwg.add(
+                    dwg.text(
+                        _("Transmissible"),
+                        insert=pos.as_tuple(),
+                        fill="black",
+                        font_size="14px",
+                        font_family="Arial",
+                    )
+                )
+
+                # Draw a bill and make it A4
+                group = bill.draw_bill(dwg, True)
+                bill.transform_to_full_page(dwg, group)
+
+                dwg.write(svg_buffer)
+
+                merger.append(self.__svg2Pdf__(svg_buffer))
+        result = io.BytesIO()
+        merger.write(result)
+        result.seek(0)
+
+        return result
