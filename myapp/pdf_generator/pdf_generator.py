@@ -376,16 +376,20 @@ class PDFGenerator:
         ):
             svg_buffer = StringIO()
             with TranslationContext(INVOICE_LANGUAGE):
+                price_info = ""
                 amount = str(subscription.get_price_by_type(subscription_type) / 100)
-                price_info = _("Prix conseillé") + ": " + amount + " CHF"
+
+                if subscription_type == SubscriptionTypeEnum.OTHER:
+                    price_info = _("Prix conseillé") + ": " + amount + " CHF"
+                    amount = None
+
                 infos = (
                     _("Transmissible")
                     + ": "
                     + SubscriptionTypeEnum.get_type(subscription_type)
                 )
                 infos += "\n" + price_info + "\n" + subscription.name
-                if subscription_type == SubscriptionTypeEnum.OTHER:
-                    amount = None
+
                 bill = QRBill(
                     INVOICE_IBAN,
                     creditor=self.__get_creditor__(),
@@ -393,7 +397,7 @@ class PDFGenerator:
                     amount=amount,
                     language=INVOICE_LANGUAGE,
                     reference_number=None,
-                    additional_information=infos,
+                    additional_information=price_info,
                 )
                 # A4 page with a white background
                 dwg = svgwrite.Drawing(
