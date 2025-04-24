@@ -39,8 +39,8 @@
                 <h2 class="text-xl font-semibold mb-4">{% trans "Assigned members" %}</h2>
                 <ul class="space-y-2">
                     {% for subscription in member_subscriptions %}
-                        <li>
-                            <div class="flex items-center justify-between space-x-4">
+                        <div>
+                            <div class="flex items-center justify-between pt-4">
                                 <div class="grow">
                                     <a href="{% url "admin:myapp_member_change" object_id=subscription.member.pk %}">{{ subscription.member }}</a>
                                     <span class="text-gray-300">({{ subscription.type }})</span>
@@ -52,16 +52,22 @@
                                     </a>
                                 </div>
                             </div>
-                            <ul class="list-disc list-inside text-gray-700 pl-5 space-y-1">
-                                {% for child in subscription.children.all %}
-                                    <li>
-                                    <a href="{% url "admin:myapp_member_change" object_id=child.member.pk %}">{{ child.member }}</a>
-                                        {{ child.member }}
+                        <div>
+                            {% for child in subscription.children.all %}
+                                <div class="flex items-center justify-between pt-4 pl-8">
+                                    <div class="grow">
+                                        <a href="{% url "admin:myapp_member_change" object_id=child.member.pk %}">{{ child.member }}</a>
                                         <span class="text-gray-300">({{ child.type }})</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </li>
+                                    </div>
+                                    <div class="items-center">
+                                        <a href="{% url "admin:myapp_membersubscription_changelist" %}?id={{ child.pk }}"
+                                           class="px-4 py-2 bg-blue-300 text-white rounded-lg hover:bg-blue-400 transition inline-block">
+                                            {% sprite 'lucide-pencil' %}
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     {% endfor %}
                 </ul>
 
