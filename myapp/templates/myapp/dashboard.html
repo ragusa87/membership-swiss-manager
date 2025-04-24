@@ -248,7 +248,7 @@
             <!-- Dropdown Menu -->
             <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10" aria-labelledby="exportDropdownButton">
                 <a href="{% url 'subscription_export_with_extension' subscription_name=subscription.name extension='csv' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg">{% translate "Export list as CSV" %}</a>
-                <a href="{% url 'subscription_export_with_extension' subscription_name=subscription.name extension='xslx' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg">{% translate "Export list as XLSX" %}</a>
+                <a href="{% url 'subscription_export_with_extension' subscription_name=subscription.name extension='xlsx' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg">{% translate "Export list as XLSX" %}</a>
             </div>
         </div>
 

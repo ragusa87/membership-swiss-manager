@@ -41,7 +41,9 @@ class AssignUserFormView(FormView):
             subscription=self.subscription
         ).values_list("member__pk", flat=True)
         assigned_children = MemberSubscription.objects.filter(
-            parent__in=assigned_users_ids
+            parent__in=MemberSubscription.objects.filter(
+                subscription=self.subscription
+            ),
         ).values_list("member__pk", flat=True)
 
         return (

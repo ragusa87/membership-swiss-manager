@@ -129,7 +129,9 @@ class MemberSubscription(models.Model):
     @staticmethod
     def list_for_dashboard(subscription: Subscription):
         return (
-            MemberSubscription.objects.filter(subscription=subscription, active=True)
+            MemberSubscription.objects.filter(
+                subscription=subscription, active=True, parent__isnull=True
+            )
             .select_related("subscription", "member", "parent")
             .annotate(invoice_count=Count("invoices"))
             .annotate(parent_count=Count("children"))
