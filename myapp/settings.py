@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "phonenumber_field",
     "myapp",
 ]
 
@@ -197,3 +198,4 @@ FILE_UPLOAD_HANDLERS = [
 ]
 
 AUTHENTICATION_BACKENDS = ["myapp.auth.settings_backend.SettingsBackend"]
+PHONENUMBER_DEFAULT_REGION = "CH"

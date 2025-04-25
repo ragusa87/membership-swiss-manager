@@ -1,14 +1,16 @@
 from collections import OrderedDict
 
 from django import forms
-
+from phonenumber_field.formfields import PhoneNumberField
 from myapp.models import MemberSubscription, Member
 
 
 class MemberForm(forms.ModelForm):
+    phone = PhoneNumberField(region="CH")
+
     class Meta:
         model = Member
-        fields = ["firstname", "lastname", "email"]
+        fields = ["firstname", "lastname", "email", "phone"]
         exclude = ["created_at", "updated_at"]
 
 

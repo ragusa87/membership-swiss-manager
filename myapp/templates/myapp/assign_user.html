@@ -87,7 +87,7 @@
 
         <!-- Modal -->
         <div id="modal"
-             class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center hidden">
+             class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center {% if form and form.is_valid %}hidden{% endif %}">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 space-y-4">
                 <h1>{% trans "Create a new member" %}</h1>
                 <form method="POST" class="space-y-4">

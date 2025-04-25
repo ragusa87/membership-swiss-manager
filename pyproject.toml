@@ -13,7 +13,7 @@ dependencies = [
   "xlsxwriter",
   "django-debug-toolbar",
   "pycamt",
-  "django-phonenumber-field",
+  "django-phonenumber-field[phonenumberslite]",
 ]
 [tool.setuptools.packages.find]
 exclude = ["tests*", "migrations*", "public*"]

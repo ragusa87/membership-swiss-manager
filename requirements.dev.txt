@@ -29,7 +29,7 @@ django==5.1.5
     #   myproject (pyproject.toml)
 django-debug-toolbar==5.0.1
     # via myproject (pyproject.toml)
-django-phonenumber-field==8.1.0
+django-phonenumber-field[phonenumberslite]==8.1.0
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
@@ -43,6 +43,8 @@ packaging==24.2
     #   gunicorn
 pandas==2.2.3
     # via myproject (pyproject.toml)
+phonenumberslite==9.0.4
+    # via django-phonenumber-field
 pillow==11.1.0
     # via cairosvg
 pip-tools==7.4.1

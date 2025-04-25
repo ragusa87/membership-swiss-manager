@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Member(models.Model):
@@ -10,7 +11,7 @@ class Member(models.Model):
     address = models.CharField(max_length=255, null=True, blank=True)
     address_number = models.CharField(max_length=20, null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)
-    phone = models.CharField(max_length=255, null=True, blank=True)
+    phone = PhoneNumberField(null=True, blank=True)
     zip = models.PositiveIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(default=now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
