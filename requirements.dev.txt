@@ -25,8 +25,11 @@ defusedxml==0.7.1
 django==5.1.5
     # via
     #   django-debug-toolbar
+    #   django-phonenumber-field
     #   myproject (pyproject.toml)
 django-debug-toolbar==5.0.1
+    # via myproject (pyproject.toml)
+django-phonenumber-field==8.1.0
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
