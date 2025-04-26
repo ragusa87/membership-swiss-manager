@@ -1,3 +1,4 @@
+from django import forms
 from django.db.models.aggregates import Count
 from django.contrib import admin
 from django.http import HttpResponse
@@ -114,7 +115,19 @@ class MemberAdmin(admin.ModelAdmin):
 
     def get_list_display(self, request):
         default_list_display = super().get_list_display(request)
-        return default_list_display + ("view_subscriptions",)
+        return default_list_display + (
+            "email",
+            "phone",
+            "full_address",
+            "view_subscriptions",
+        )
+
+    def full_address(self, obj):
+        address = [obj.address, obj.address_number, obj.zip, obj.city]
+        address = [str(i) for i in address if str(i if i else "").strip() != ""]
+        if address:
+            return format_html(" ".join(address))
+        return ""
 
     def view_subscriptions(self, obj):
         name = "View subscriptions"
@@ -253,7 +266,30 @@ class InvoiceAdmin(admin.ModelAdmin):
     view_reminder.short_description = "Reminder"
 
 
+class MemberSubscriptionForm(forms.ModelForm):
+    class Meta:
+        model = MemberSubscription
+        fields = "__all__"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        parent = cleaned_data.get("parent")
+        subscription = cleaned_data.get("subscription")
+
+        # Check if parent and subscription are aligned
+        if parent and subscription:
+            if parent.subscription != subscription:
+                raise forms.ValidationError(
+                    "The parent and subscription fields must be aligned."
+                )
+
+        return cleaned_data
+
+
 class MemberSubscriptionAdmin(admin.ModelAdmin):
+    form = MemberSubscriptionForm
+
     list_filter = (
         FilterMemberSubscriptionBySubscription,
         FilterMemberSubscriptionByMember,
@@ -261,10 +297,24 @@ class MemberSubscriptionAdmin(admin.ModelAdmin):
     )
     readonly_fields = ["price"]
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "parent":
+            object_id = request.resolver_match.kwargs.get("object_id")
+            if object_id:
+                obj = self.get_object(request, object_id)
+                if obj and obj.subscription:
+                    kwargs["queryset"] = MemberSubscription.objects.filter(
+                        parent=None, subscription=obj.subscription
+                    )  # Adjust the filter
+
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def get_list_display(self, request):
         default_list_display = super().get_list_display(request)
         return default_list_display + (
             "view_member",
+            "parent",
+            "active",
             "view_invoices",
         )
 
