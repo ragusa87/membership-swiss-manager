@@ -199,3 +199,5 @@ FILE_UPLOAD_HANDLERS = [
 
 AUTHENTICATION_BACKENDS = ["myapp.auth.settings_backend.SettingsBackend"]
 PHONENUMBER_DEFAULT_REGION = "CH"
+LOCATIONS_SEARCH_API = "https://api3.geo.admin.ch/rest/services/api/SearchServer"
+LOCATIONS_SEARCH_API_DETAILS = "https://api3.geo.admin.ch/rest/services/api/MapServer/ch.bfs.gebaeude_wohnungs_register/"

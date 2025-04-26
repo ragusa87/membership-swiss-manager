@@ -1,0 +1,102 @@
+{% include "django/forms/widgets/text.html" %}
+<div id="{{ widget.name }}__suggestions"></div>
+<script>
+    class Autcomplete{
+        constructor(input, config, list){
+            this.input = input
+            this.config = config || {}
+            if(this.config.lang && ! ["fr","de","it","rm","en"].includes(this.config.lang)){
+                throw new Error("Invalid language: "+this.config.lang)
+            }
+            this.debug = this.config.debug || false
+            this.list = list
+            this.limit = this.config.limit || 5
+            this.item_tag = this.config.item_tag || "a"
+            this.item_classes = this.config.item_classes || ['autocomplete-item','block', "text-gray-500", "p-2"]
+            this.suggestions = new Map()
+            this.listener = () => {
+                this.query(input.value).then(results => this.populate(results))
+            }
+            input.addEventListener('input', this.listener)
+        }
+
+        query(value){
+            if(this.suggestions.has(value)){
+                return new Promise((resolve) => resolve(this.suggestions.get(value)))
+            }
+
+            return fetch(`${this.config.apiurl}?${this.buildParams(value)}`)
+                .then(d => d.json())
+                .then(data => data.results)
+                .then(results => {
+                    if(this.debug){
+                        console.log(results)
+                    }
+
+                    this.suggestions.set(value, results)
+                    return results
+                })
+        }
+        choose(result){
+            this.list.innerHTML = ""
+            return fetch(`${this.config.apiurlDetail}${result.attrs.featureId}?returnGeometry=false`).then((data) => data.json())
+                .then(json => {
+                    this.input.removeEventListener('input', this.listener)
+                    this.set(json.feature.attributes)
+                    this.input.addEventListener('input', this.listener)
+                })
+        }
+
+        set(attributes){
+            const assign = function(selector, value) {
+                const obj = document.querySelector(selector)
+                if(obj){
+                    obj.value = value
+                }else{
+                    console.error(`Could not find field ${selector}`)
+                }
+            }
+            if(this.debug){
+                console.log(attributes)
+            }
+            const splitNumber = this.config.field_number !== false
+            const street = splitNumber ? attributes.strname[0] : attributes.strname_deinr
+            assign(this.config.field_zip, attributes.dplz4)
+            assign(this.config.field_city, attributes.dplzname)
+            if(splitNumber){
+                assign(this.config.field_number, attributes.num ?? attributes.strname_deinr.replace(street, "").trim())
+            }
+            this.input.value = street
+        }
+        populate(results){
+            const items = results.map(({ attrs }) => {
+                const item = Object.assign(document.createElement(this.item_tag), {
+                    textContent: attrs.label.replace(/<\/?[^>]+(>|$)/g, "")
+                });
+                item.classList.add(...this.item_classes);
+                item.addEventListener('click', () => this.choose({ attrs }));
+                return item;
+            });
+            this.list.replaceChildren(...items);
+        }
+
+        buildParams(value){
+           // https://api3.geo.admin.ch/services/sdiservices.html#id25
+           return new URLSearchParams({
+                searchText: value, // Maximum of 10 words allowed
+                limit: this.limit,
+                origins: "address",
+                type: 'locations',
+                lang: this.config.lang || "en",
+            });
+        }
+
+
+    }
+    widget = document.querySelector('[name={{ widget.name }}]')
+    if(widget) {
+        const config = JSON.parse(widget.getAttribute("data-config"))
+        const list = document.getElementById("{{ widget.name }}__suggestions")
+        new Autcomplete(widget, config, list)
+    }
+</script>

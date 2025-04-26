@@ -2,16 +2,39 @@ from collections import OrderedDict
 
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
+from myapp.forms.autocomplete import AddressWidget
 from myapp.models import MemberSubscription, Member
 
 
 class MemberForm(forms.ModelForm):
-    phone = PhoneNumberField(region="CH")
+    phone = PhoneNumberField(
+        region="CH",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "+41 7x xxx xx xx"}),
+    )
 
     class Meta:
         model = Member
-        fields = ["firstname", "lastname", "email", "phone"]
+        fields = [
+            "firstname",
+            "lastname",
+            "email",
+            "phone",
+            "address",
+            "address_number",
+            "city",
+            "zip",
+        ]
         exclude = ["created_at", "updated_at"]
+        widgets = {
+            "firstname": forms.TextInput(attrs={"placeholder": "Frederic"}),
+            "lastname": forms.TextInput(attrs={"placeholder": "Dupont"}),
+            "email": forms.TextInput(attrs={"placeholder": "me@example.com"}),
+            "address": AddressWidget(attrs=dict(placeholder="Chemin du Vanil")),
+            "address_number": forms.TextInput(attrs={"placeholder": "10"}),
+            "city": forms.TextInput(attrs={"placeholder": "Lausanne"}),
+            "zip": forms.TextInput(attrs={"placeholder": "1006"}),
+        }
 
 
 class MemberSubscriptionUserForm(forms.ModelForm):
