@@ -122,9 +122,9 @@ class PDFGenerator:
             invoice.get_reminder_text() + " - " if invoice.reminder > 0 else ""
         )
         if invoice.status == InvoiceStatusEnum.CANCELED:
-            reminder_text += _("** Annulé **")
+            reminder_text += _("** Cancelled **")
         if invoice.status == InvoiceStatusEnum.PAID:
-            reminder_text += _("** Payé **")
+            reminder_text += _("** Paid **")
 
         return str(f"{reminder_text} {type} {name}")
 
@@ -355,9 +355,9 @@ class PDFGenerator:
             pos.move(0, 20)
             dwg.add(
                 dwg.text(
-                    _("** Annulé **")
+                    _("** Cancelled **")
                     if invoice.status == InvoiceStatusEnum.CANCELED
-                    else _("** Payé **"),
+                    else _("** Paid **"),
                     insert=pos.as_tuple(),
                     fill="red",
                     font_size="28px",
@@ -380,7 +380,7 @@ class PDFGenerator:
                 amount = str(subscription.get_price_by_type(subscription_type) / 100)
 
                 if subscription_type == SubscriptionTypeEnum.OTHER:
-                    price_info = _("Prix conseillé") + ": " + amount + " CHF"
+                    price_info = _("Suggested price") + ": " + amount + " CHF"
                     amount = None
 
                 infos = (

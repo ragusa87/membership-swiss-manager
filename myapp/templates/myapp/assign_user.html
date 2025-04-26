@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static custom_filters i18n %}
 
-{% block html_title %}Assign members - {{ subscription.name }}{% endblock %}
+{% block html_title %}{% translate "Assign members to subscription" %} - {{ subscription.name }}{% endblock %}
 
 {% block title %}
     <div class="flex flex-row items-center">
@@ -9,7 +9,7 @@
             {% sprite 'lucide-layout-dashboard' %}
         </a>
         <h1 class="text-3xl font-semibold tracking-tight">
-            {{ "Assign members to subscription" }} - {{ subscription.name }}
+            {% translate "Assign members to subscription" %} - {{ subscription.name }}
         </h1>
     </div>
 {% endblock %}
@@ -49,7 +49,7 @@
                                 <button type="submit"
                                         onclick="return confirm('{% trans "Are you sure you want to link this user?" %}')"
                                         class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded shadow">
-                                    Link {% if form.instance %}{{ form.instance.member }}{% endif %}
+                                    {% translate 'Link' %} {% if form.instance %}{{ form.instance.member }}{% endif %}
                                 </button>
                             </form>
                         </li>
@@ -112,7 +112,7 @@
         <div id="modal"
              class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center hidden m-2">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 space-y-4 overflow-y-auto" style="max-height: 98vh;">
-                <h1>{% trans "Create a new member" %}</h1>
+                <h1>{% trans "Add a new member" %}</h1>
                 <form method="POST" class="space-y-4">
                     {% csrf_token %}
                     <input type="hidden" name="form" value="create">
