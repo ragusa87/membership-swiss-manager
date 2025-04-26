@@ -110,8 +110,8 @@
 
         <!-- Modal -->
         <div id="modal"
-             class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center hidden">
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 space-y-4 overflow-y-auto">
+             class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center hidden m-2">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 space-y-4 overflow-y-auto" style="max-height: 98vh;">
                 <h1>{% trans "Create a new member" %}</h1>
                 <form method="POST" class="space-y-4">
                     {% csrf_token %}
