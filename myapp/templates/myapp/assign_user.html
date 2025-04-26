@@ -4,9 +4,14 @@
 {% block html_title %}Assign members - {{ subscription.name }}{% endblock %}
 
 {% block title %}
-    <h1 class="text-3xl font-semibold tracking-tight">
-        {{ "Assign members to subscription" }} - {{ subscription.name }}
-    </h1>
+    <div class="flex flex-row items-center">
+        <a title="{% translate 'Back to dashboard' %}" href="{% url 'dashboard' subscription_name=subscription.name %}" class="p-1 mr-4 ml-4 hover:bg-blue-600 text-white font-semibold py-4 rounded-lg transition duration-200">
+            {% sprite 'lucide-layout-dashboard' %}
+        </a>
+        <h1 class="text-3xl font-semibold tracking-tight">
+            {{ "Assign members to subscription" }} - {{ subscription.name }}
+        </h1>
+    </div>
 {% endblock %}
 
 {% block scripts %}
