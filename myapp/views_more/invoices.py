@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
@@ -6,6 +8,7 @@ from myapp.models import Invoice, Subscription, InvoiceStatusEnum, MemberSubscri
 from myapp.pdf_generator import PDFGenerator
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 
 def pdf_by_invoice(self, invoice_id: int) -> HttpResponse:
@@ -75,10 +78,12 @@ def create_reminder_for_pending_by_subscription(
     self, subscription_id: int
 ) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
+    thirty_days_ago = timezone.now() - timedelta(days=30)
     invoices = Invoice.objects.filter(
         member_subscription__subscription=subscription,
         member_subscription__active=True,
         status__in=[InvoiceStatusEnum.PENDING],
+        updated_at__lt=thirty_days_ago,
     )
     for invoice in invoices:
         invoice.create_reminder()
