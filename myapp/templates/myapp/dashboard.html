@@ -4,10 +4,20 @@
 {% block html_title  %}Dashboard - {{ subscription.name }}{% endblock %}
 {% block scripts %}
 <script>
-    ["exportDropdownButton", "pdfDropdownButton"].forEach(id => {
+    ["exportDropdownButton", "pdfDropdownButton", "actionsDropdownButton"].forEach(id => {
         document.getElementById(id).addEventListener("click", function () {
             const menu = document.querySelector(".dropdown-menu[aria-labelledby=" + id + "]");
             menu.classList.toggle("hidden");
+
+            // Check if dropdown needs to open upwards
+            const rect = this.getBoundingClientRect();
+            const icon = this.querySelector("svg");
+            menu.style.top = '';
+            icon.style.transform = "";
+            if (window.innerHeight - rect.bottom < menu.offsetHeight) {
+                menu.style.top = `-${menu.offsetHeight}px`;
+                icon.style.transform = "rotate(180deg)";
+            }
         });
 
         // Close the dropdown when clicking outside
@@ -16,6 +26,7 @@
         window.addEventListener("click", function (event) {
             if (!button.contains(event.target) && !menu.contains(event.target)) {
                 menu.classList.add("hidden");
+                menu.style.top = '';
             }
         });
     })
@@ -201,17 +212,19 @@
 
     <!-- actions buttons -->
 <nav class="bg-white shadow-lg shadow rounded-lg gap-6 mb-8">
-    <div class="flex justify-evenly items-center p-6">
-        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'mark_created_as_pending_by_subscription' subscription_id=subscription.pk %}">Mark created invoices as pending</a>
-        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'create_reminder_for_pending_by_subscription' subscription_id=subscription.pk %}">Create reminder for pending invoice (TODO: older than 30 days)</a>
-        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'create_first_invoices_by_subscription' subscription_id=subscription.pk %}">Generate first invoices</a>
-        <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition items-center" title="{%  translate 'action.csv_import' %}" href="{% url 'csv_import' %}">
-            {% sprite 'lucide-cloud-upload' %}
-            <span>CSV</span>
+    <div class="flex justify-stretch items-center p-6">
+
+        <a class="inline-block m-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'assign_user' subscription_name=subscription.name %}">
+            {% translate 'Assign users' %}
+        </a>
+
+        <a class="inline-block m-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'pdf_by_subscription_blank' subscription_id=subscription.pk %}" title="{% translate "Export anonymous bills" %}">
+            {% sprite 'lucide-qr-code' %}
+            <span>QR</span>
         </a>
 
         <!-- Dropdown for PDF -->
-        <div class="relative inline-block text-left">
+        <div class="inline-block relative text-left px-2">
             <button title="{% translate "Export list" %}" type="button" class="flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition" id="pdfDropdownButton" aria-expanded="false" aria-haspopup="true">
                     {% sprite 'lucide-receipt' %}
                     <span>PDF</span>
@@ -227,19 +240,19 @@
             </div>
         </div>
 
-        <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'pdf_by_subscription_blank' subscription_id=subscription.pk %}" title="{% translate "Export anonymous bills" %}">
-            {% sprite 'lucide-qr-code' %}
-            <span>QR</span>
-        </a>
-
-        <a class="grow m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'camt_upload'  %}" title="{% translate "Import CAMT file" %}">
+        <a class="inline-block m-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'camt_upload'  %}" title="{% translate "Import CAMT file" %}">
             {% sprite 'lucide-cloud-upload' %}
             <span>Camt</span>
 
         </a>
 
+        <a class="inline-block m-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'csv_import' %}" title="{% translate "Import CSV file" %}">
+            {% sprite 'lucide-cloud-upload' %}
+            <span>CSV</span>
+        </a>
+
         <!-- Dropdown for Export -->
-        <div class="relative inline-block text-left">
+        <div class="inline-block relative text-left px-2">
             <button title="{% translate "Export list" %}" type="button" class="flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition" id="exportDropdownButton" aria-expanded="false" aria-haspopup="true">
                 {% sprite 'lucide-download' %}
                 {% sprite 'lucide-chevron-down' %}
@@ -252,7 +265,26 @@
             </div>
         </div>
 
-            <a class="grow m-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition" href="{% url 'assign_user' subscription_name=subscription.name %}">Assign users</a>
+
+        <div class="grow"></div>
+        <!-- Dropdown for the last group of actions -->
+        <div class="inline-block relative text-left px-2">
+            <button title="{% translate 'Actions' %}" type="button" class="flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition" id="actionsDropdownButton" aria-expanded="false" aria-haspopup="true">
+                <span>{% translate 'Actions' %}</span>
+                {% sprite 'lucide-chevron-down' %}
+            </button>
+            <div class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white border border-blue-200 rounded-lg shadow-lg z-10" aria-labelledby="actionsDropdownButton">
+                <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg" href="{% url 'mark_created_as_pending_by_subscription' subscription_id=subscription.pk %}">
+                    {% translate 'Mark created invoices as pending' %}
+                </a>
+                <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg" href="{% url 'create_reminder_for_pending_by_subscription' subscription_id=subscription.pk %}">
+                    {% translate 'Create reminder for pending invoice (older than 30 days)' %}
+                </a>
+                <a class="block px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-lg" href="{% url 'create_first_invoices_by_subscription' subscription_id=subscription.pk %}">
+                    {% translate 'Generate first invoices' %}
+                </a>
+            </div>
+        </div>
 
 
     </div>
