@@ -15,20 +15,6 @@ services:
       - "8000:8000"
     volumes:
       - venv:/venv
-      - .:/app
-    environment:
-      <<: *x-environment
-      ALLOWED_HOSTS: >-
-        localhost
-      DATABASE_URL: postgresql://postgres@db/hello-db
-    stdin_open: true
-    tty: true
-#  redis:
-#    image: redis:latest
-#    ports:
-#      - "6379:6379"
-#    volumes:
-#      - redisdata:/data
+      - ./db/:/app/db/
 volumes:
-  pgdata:
   venv:

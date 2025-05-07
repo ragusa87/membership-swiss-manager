@@ -4,22 +4,25 @@ x-environment:
 
 services:
   web:
-    command: sh -c 'while true; do ./manage.py runserver 0.0.0.0:8000; sleep 1; done'
-    build:
-      target: dev
+    command: gunicorn myapp.wsgi:application -w 2 -b :8000
+    # command: sh -c 'while true; do ./manage.py runserver 0.0.0.0:8000; sleep 1; done'
+    #build:
+    #  target: dev
+    # ports:
+    #   - "8000:8000"
     volumes:
-      - .:/app/
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.docker.network=pontsun'
-      - 'traefik.http.middlewares.https_redirect.redirectscheme.scheme=https'
-      - 'traefik.http.middlewares.https_redirect.redirectscheme.permanent=true'
-      - 'traefik.http.routers.hello.rule=Host(`membership.docker.test`)'
-      - 'traefik.http.routers.hello.middlewares=https_redirect'
-      - 'traefik.http.routers.hello.service=web-django-hello'
-    networks:
-      - 'pontsun'
-      - 'default'
-
-networks:
-    pontsun: {external: true}
+      - .env.local:/app/.env.local
+      #- .:/app/
+#    labels:
+#      - 'traefik.enable=true'
+#      - 'traefik.docker.network=pontsun'
+#      - 'traefik.http.middlewares.https_redirect.redirectscheme.scheme=https'
+#      - 'traefik.http.middlewares.https_redirect.redirectscheme.permanent=true'
+#      - 'traefik.http.routers.hello.rule=Host(`membership.docker.test`)'
+#      - 'traefik.http.routers.hello.middlewares=https_redirect'
+#      - 'traefik.http.routers.hello.service=web-django-hello'
+#    networks:
+#      - 'pontsun'
+#      - 'default'
+#networks:
+#    pontsun: {external: true}
