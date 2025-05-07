@@ -4,10 +4,16 @@ I switched from Symfony to Django at work, and this project is just a playground
 
 GOAL: Assign members to a subscription plan and manage the billing process.
 
+> This project is used to manage a community garden where members pay for a plot.
+
 There are currently two types of registration:
 - As a member: You paid the subscription fee
 - Other: You paid a donation (or you are a sponsor)
+
 I create one subscription plan per year, but there is no limitation.
+
+You can group member's registration together, so only one member will be billed for the whole group.
+
 
 ## Features
 
