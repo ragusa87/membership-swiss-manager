@@ -57,6 +57,7 @@ try:
     ssl_header = json.loads(os.environ.get("SECURE_PROXY_SSL_HEADER", "{}"))
     if isinstance(ssl_header, dict) and len(ssl_header.items()) > 0:
         SECURE_PROXY_SSL_HEADER = list(ssl_header.items())[0]
+        USE_X_FORWARDED_HOST = True
 except (json.JSONDecodeError, TypeError):
     pass
 
@@ -129,7 +130,7 @@ WSGI_APPLICATION = "myapp.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-DB_ENV = os.environ.get("DB_ENV", "dev")
+DB_ENV = os.environ.get("DB_ENV", "prod")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
