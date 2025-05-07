@@ -84,6 +84,7 @@ class DashboardView(TemplateView):
             MemberSubscription.objects.filter(
                 subscription=subscription,
                 active=True,
+                parent__isnull=True,
             ).aggregate(total=Sum("price"))["total"]
             or 0
         )
@@ -94,7 +95,6 @@ class DashboardView(TemplateView):
         active_users = (
             MemberSubscription.objects.filter(
                 active=True,
-                parent__subscription=None,
                 subscription=subscription,
             )
             .values("member_id")
