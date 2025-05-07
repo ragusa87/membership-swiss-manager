@@ -33,9 +33,9 @@ You can group member's registration together, so only one member will be billed 
 ## Setup
 
 - Have `docker compose` installed as requirement (and traefik ideally)
-- Copy `.env.example` to `.env` and set the environment variables.
-- Copy `docker-compose.override.yaml.example` to `docker-compose.override.yaml` and set the environment variables.
-- Run `exec INITIAL=1 docker compose up -d` to start and initialize the containers.
+- Copy `.env.local.dist` to `.env.local` and set the environment variables.
+- Copy `compose.override.example.yaml` to `compose.override.yaml` and set the environment variables.
+- Run `env INITIAL=1 docker compose up -d` to start and initialize the containers.
 
 ### .env.local variables overview
 | Variable | Description                                                                                                                      |
