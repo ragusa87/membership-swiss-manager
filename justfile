@@ -52,7 +52,4 @@ translate:
     ./manage.py compilemessages
 
 fixtures:
-    ./manage.py migrate
-    ./manage.py loaddata 1_member.json
-    ./manage.py loaddata 2_subscription.json
-    ./manage.py loaddata 3_member_subscription.json
+    ./manage.py migrate fixturize
