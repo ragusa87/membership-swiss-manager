@@ -45,7 +45,7 @@ COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 COPY --link --chown=$USER_ID:$GROUP_ID . /app/
 RUN ./manage.py compilemessages
-RUN ./manage.py collectstatic
+RUN ./manage.py collectstatic --noinput
 
 FROM prod AS dev
 USER app
