@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 12:26+0000\n"
+"POT-Creation-Date: 2025-05-09 14:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: myapp/admin.py:96
+#: myapp/admin.py:98
 msgid "Filter by Id"
 msgstr "Filter par Id"
 
@@ -77,11 +77,11 @@ msgid_plural "%dth reminder"
 msgstr[0] "%d rappel"
 msgstr[1] "%d rappel"
 
-#: myapp/models/member_subscription.py:73
+#: myapp/models/member_subscription.py:79
 msgid "active subscription"
 msgstr "active"
 
-#: myapp/models/member_subscription.py:73
+#: myapp/models/member_subscription.py:79
 msgid "inactive subscription"
 msgstr "inactif"
 
@@ -229,55 +229,61 @@ msgstr "Factures"
 msgid "column.Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:218
-msgid "Assign users"
-msgstr "Assigner des utilisateurs"
+#: myapp/templates/myapp/dashboard.html:157
+#, fuzzy
+#| msgid "Create new invoice"
+msgid "Create invoice"
+msgstr "Exporter les factures créées"
 
-#: myapp/templates/myapp/dashboard.html:221
+#: myapp/templates/myapp/dashboard.html:226
+msgid "Assign members"
+msgstr "Assigner des membres"
+
+#: myapp/templates/myapp/dashboard.html:229
 msgid "Export anonymous bills"
 msgstr "Exporter les factures anonymes"
 
-#: myapp/templates/myapp/dashboard.html:228
-#: myapp/templates/myapp/dashboard.html:256
+#: myapp/templates/myapp/dashboard.html:236
+#: myapp/templates/myapp/dashboard.html:264
 msgid "Export list"
 msgstr "Exporter la liste"
 
-#: myapp/templates/myapp/dashboard.html:235
+#: myapp/templates/myapp/dashboard.html:243
 #, fuzzy, python-format
 #| msgid "Export %(status)s invoices"
 msgid "Export %(status)s invoices"
 msgstr "Exporter les factures créées"
 
-#: myapp/templates/myapp/dashboard.html:243
+#: myapp/templates/myapp/dashboard.html:251
 msgid "Import CAMT file"
 msgstr "Importer un fichier CAMT"
 
-#: myapp/templates/myapp/dashboard.html:249
+#: myapp/templates/myapp/dashboard.html:257
 msgid "Import CSV file"
 msgstr "Importer un fichier CAMT"
 
-#: myapp/templates/myapp/dashboard.html:263
+#: myapp/templates/myapp/dashboard.html:271
 msgid "Export list as CSV"
 msgstr "Exporter en CSV"
 
-#: myapp/templates/myapp/dashboard.html:264
+#: myapp/templates/myapp/dashboard.html:272
 msgid "Export list as XLSX"
 msgstr "Exporter en XLSX"
 
-#: myapp/templates/myapp/dashboard.html:272
-#: myapp/templates/myapp/dashboard.html:273
+#: myapp/templates/myapp/dashboard.html:280
+#: myapp/templates/myapp/dashboard.html:281
 msgid "Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:278
+#: myapp/templates/myapp/dashboard.html:286
 msgid "Mark created invoices as pending"
 msgstr "Marquer les factures créées comme en attente"
 
-#: myapp/templates/myapp/dashboard.html:281
+#: myapp/templates/myapp/dashboard.html:289
 msgid "Create reminder for pending invoice (older than 30 days)"
 msgstr "Créer un rappel pour les factures en attente (plus de 30 jours)"
 
-#: myapp/templates/myapp/dashboard.html:284
+#: myapp/templates/myapp/dashboard.html:292
 msgid "Generate first invoices"
 msgstr "Créer les factures manquantes"
 
@@ -333,85 +339,85 @@ msgstr ""
 msgid "Import member's subscription"
 msgstr "active"
 
-#: myapp/views_more/camt_import.py:22
+#: myapp/views_more/camt_import.py:23
 msgid "File must be in CAMT format"
 msgstr "Le fichier doit être un CSV"
 
-#: myapp/views_more/camt_import.py:32 myapp/views_more/csv_upload.py:40
+#: myapp/views_more/camt_import.py:33 myapp/views_more/csv_upload.py:41
 msgid "Select a subscription"
 msgstr "Selectionner un abonnement"
 
-#: myapp/views_more/camt_import.py:60
+#: myapp/views_more/camt_import.py:61
 msgid "Please upload a XML file"
 msgstr "Merci de téléverser un fichier CSV"
 
-#: myapp/views_more/camt_import.py:64 myapp/views_more/csv_upload.py:96
+#: myapp/views_more/camt_import.py:65 myapp/views_more/csv_upload.py:97
 msgid "File too large"
 msgstr "Le fichier est trop volumineux"
 
-#: myapp/views_more/camt_import.py:75 myapp/views_more/csv_upload.py:106
+#: myapp/views_more/camt_import.py:76 myapp/views_more/csv_upload.py:107
 msgid "Please upload a valid CSV file"
 msgstr "Merci de téléverser un fichier CSV valide"
 
-#: myapp/views_more/camt_import.py:85
+#: myapp/views_more/camt_import.py:86
 msgid "CAMT file uploaded successfully!"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: myapp/views_more/camt_import.py:87 myapp/views_more/csv_upload.py:116
-#: myapp/views_more/csv_upload.py:209
+#: myapp/views_more/camt_import.py:88 myapp/views_more/csv_upload.py:117
+#: myapp/views_more/csv_upload.py:210
 #, python-format
 msgid "Error processing file: %s"
 msgstr "Erreur d'import du fichier: %s"
 
-#: myapp/views_more/camt_import.py:213
+#: myapp/views_more/camt_import.py:214
 msgid "Invoice split and paid successfully"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: myapp/views_more/camt_import.py:219
+#: myapp/views_more/camt_import.py:220
 msgid "Invoice paid"
 msgstr "Facture payée"
 
-#: myapp/views_more/camt_import.py:222
+#: myapp/views_more/camt_import.py:223
 msgid "Error while processing reconcilation"
 msgstr "Erreur d'import du fichier: %s"
 
-#: myapp/views_more/camt_import.py:234
+#: myapp/views_more/camt_import.py:235
 msgid "New invoice created"
 msgstr "Nouvelle facture créée"
 
-#: myapp/views_more/csv_upload.py:23
+#: myapp/views_more/csv_upload.py:24
 msgid "step.upload_csv"
 msgstr "Téléverser le CVS"
 
-#: myapp/views_more/csv_upload.py:23
+#: myapp/views_more/csv_upload.py:24
 msgid "step.create_members"
 msgstr "Créer les membres"
 
-#: myapp/views_more/csv_upload.py:23
+#: myapp/views_more/csv_upload.py:24
 msgid "step.import"
 msgstr "Importer"
 
-#: myapp/views_more/csv_upload.py:30
+#: myapp/views_more/csv_upload.py:31
 msgid "File must be in CSV format"
 msgstr "Le fichier doit être un CSV"
 
-#: myapp/views_more/csv_upload.py:92
+#: myapp/views_more/csv_upload.py:93
 msgid "Please upload a CSV file"
 msgstr "Merci de téléverser un fichier CSV"
 
-#: myapp/views_more/csv_upload.py:114
+#: myapp/views_more/csv_upload.py:115
 msgid "CSV file uploaded successfully!"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: myapp/views_more/csv_upload.py:187
+#: myapp/views_more/csv_upload.py:188
 msgid "Session expired, try again"
 msgstr "La session a expirée, réessayer"
 
-#: myapp/views_more/invoices.py:41
+#: myapp/views_more/invoices.py:44
 msgid "No matching invoices found"
 msgstr "Aucune correspondance trouvée"
 
-#: myapp/views_more/invoices.py:105
+#: myapp/views_more/invoices.py:112
 msgid "No matching subscription found"
 msgstr "Aucune inscription correspondante"
 

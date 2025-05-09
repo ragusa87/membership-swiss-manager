@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 12:26+0000\n"
+"POT-Creation-Date: 2025-05-09 14:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: myapp/admin.py:96
+#: myapp/admin.py:98
 msgid "Filter by Id"
 msgstr "Filter by Id"
 
@@ -79,11 +79,11 @@ msgid_plural "%dth reminder"
 msgstr[0] "%dth reminder"
 msgstr[1] "%dth reminder"
 
-#: myapp/models/member_subscription.py:73
+#: myapp/models/member_subscription.py:79
 msgid "active subscription"
 msgstr "active"
 
-#: myapp/models/member_subscription.py:73
+#: myapp/models/member_subscription.py:79
 msgid "inactive subscription"
 msgstr "inactive"
 
@@ -235,61 +235,67 @@ msgstr "Invoices"
 msgid "column.Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:218
-msgid "Assign users"
+#: myapp/templates/myapp/dashboard.html:157
+#, fuzzy
+#| msgid "Export created invoices"
+msgid "Create invoice"
+msgstr "Export created invoices"
+
+#: myapp/templates/myapp/dashboard.html:226
+msgid "Assign members"
 msgstr ""
 
-#: myapp/templates/myapp/dashboard.html:221
+#: myapp/templates/myapp/dashboard.html:229
 msgid "Export anonymous bills"
 msgstr ""
 
-#: myapp/templates/myapp/dashboard.html:228
-#: myapp/templates/myapp/dashboard.html:256
+#: myapp/templates/myapp/dashboard.html:236
+#: myapp/templates/myapp/dashboard.html:264
 msgid "Export list"
 msgstr "Export list"
 
-#: myapp/templates/myapp/dashboard.html:235
+#: myapp/templates/myapp/dashboard.html:243
 #, fuzzy, python-format
 #| msgid "Export created invoices"
 msgid "Export %(status)s invoices"
 msgstr "Export created invoices"
 
-#: myapp/templates/myapp/dashboard.html:243
+#: myapp/templates/myapp/dashboard.html:251
 msgid "Import CAMT file"
 msgstr "Import CAMT file"
 
-#: myapp/templates/myapp/dashboard.html:249
+#: myapp/templates/myapp/dashboard.html:257
 #, fuzzy
 #| msgid "Import CAMT file"
 msgid "Import CSV file"
 msgstr "Import CAMT file"
 
-#: myapp/templates/myapp/dashboard.html:263
+#: myapp/templates/myapp/dashboard.html:271
 msgid "Export list as CSV"
 msgstr "Export list as CSV"
 
-#: myapp/templates/myapp/dashboard.html:264
+#: myapp/templates/myapp/dashboard.html:272
 msgid "Export list as XLSX"
 msgstr "Export list as XLSX"
 
-#: myapp/templates/myapp/dashboard.html:272
-#: myapp/templates/myapp/dashboard.html:273
+#: myapp/templates/myapp/dashboard.html:280
+#: myapp/templates/myapp/dashboard.html:281
 #, fuzzy
 #| msgid "column.Actions"
 msgid "Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:278
+#: myapp/templates/myapp/dashboard.html:286
 #, fuzzy
 #| msgid "Export created invoices"
 msgid "Mark created invoices as pending"
 msgstr "Export created invoices"
 
-#: myapp/templates/myapp/dashboard.html:281
+#: myapp/templates/myapp/dashboard.html:289
 msgid "Create reminder for pending invoice (older than 30 days)"
 msgstr ""
 
-#: myapp/templates/myapp/dashboard.html:284
+#: myapp/templates/myapp/dashboard.html:292
 #, fuzzy
 #| msgid "Export created invoices"
 msgid "Generate first invoices"
@@ -348,95 +354,95 @@ msgstr ""
 msgid "Import member's subscription"
 msgstr "Import member's subscription"
 
-#: myapp/views_more/camt_import.py:22
+#: myapp/views_more/camt_import.py:23
 #, fuzzy
 #| msgid "File must be in CSV format"
 msgid "File must be in CAMT format"
 msgstr "File must be in CSV format"
 
-#: myapp/views_more/camt_import.py:32 myapp/views_more/csv_upload.py:40
+#: myapp/views_more/camt_import.py:33 myapp/views_more/csv_upload.py:41
 msgid "Select a subscription"
 msgstr "Select a subscription"
 
-#: myapp/views_more/camt_import.py:60
+#: myapp/views_more/camt_import.py:61
 #, fuzzy
 #| msgid "Please upload a CSV file"
 msgid "Please upload a XML file"
 msgstr "Please upload a CSV file"
 
-#: myapp/views_more/camt_import.py:64 myapp/views_more/csv_upload.py:96
+#: myapp/views_more/camt_import.py:65 myapp/views_more/csv_upload.py:97
 msgid "File too large"
 msgstr "File too large"
 
-#: myapp/views_more/camt_import.py:75 myapp/views_more/csv_upload.py:106
+#: myapp/views_more/camt_import.py:76 myapp/views_more/csv_upload.py:107
 msgid "Please upload a valid CSV file"
 msgstr "Please upload a valid CSV file"
 
-#: myapp/views_more/camt_import.py:85
+#: myapp/views_more/camt_import.py:86
 #, fuzzy
 #| msgid "CSV file uploaded successfully!"
 msgid "CAMT file uploaded successfully!"
 msgstr "CSV file uploaded successfully!"
 
-#: myapp/views_more/camt_import.py:87 myapp/views_more/csv_upload.py:116
-#: myapp/views_more/csv_upload.py:209
+#: myapp/views_more/camt_import.py:88 myapp/views_more/csv_upload.py:117
+#: myapp/views_more/csv_upload.py:210
 #, python-format
 msgid "Error processing file: %s"
 msgstr "Error processing file: %s"
 
-#: myapp/views_more/camt_import.py:213
+#: myapp/views_more/camt_import.py:214
 #, fuzzy
 #| msgid "CSV file uploaded successfully!"
 msgid "Invoice split and paid successfully"
 msgstr "CSV file uploaded successfully!"
 
-#: myapp/views_more/camt_import.py:219
+#: myapp/views_more/camt_import.py:220
 msgid "Invoice paid"
 msgstr "Invoice paid"
 
-#: myapp/views_more/camt_import.py:222
+#: myapp/views_more/camt_import.py:223
 #, fuzzy
 #| msgid "Error processing file: %s"
 msgid "Error while processing reconcilation"
 msgstr "Error processing file: %s"
 
-#: myapp/views_more/camt_import.py:234
+#: myapp/views_more/camt_import.py:235
 msgid "New invoice created"
 msgstr "New invoice created"
 
-#: myapp/views_more/csv_upload.py:23
+#: myapp/views_more/csv_upload.py:24
 msgid "step.upload_csv"
 msgstr "Upload CSV"
 
-#: myapp/views_more/csv_upload.py:23
+#: myapp/views_more/csv_upload.py:24
 msgid "step.create_members"
 msgstr "Create members"
 
-#: myapp/views_more/csv_upload.py:23
+#: myapp/views_more/csv_upload.py:24
 msgid "step.import"
 msgstr "Import"
 
-#: myapp/views_more/csv_upload.py:30
+#: myapp/views_more/csv_upload.py:31
 msgid "File must be in CSV format"
 msgstr "File must be in CSV format"
 
-#: myapp/views_more/csv_upload.py:92
+#: myapp/views_more/csv_upload.py:93
 msgid "Please upload a CSV file"
 msgstr "Please upload a CSV file"
 
-#: myapp/views_more/csv_upload.py:114
+#: myapp/views_more/csv_upload.py:115
 msgid "CSV file uploaded successfully!"
 msgstr "CSV file uploaded successfully!"
 
-#: myapp/views_more/csv_upload.py:187
+#: myapp/views_more/csv_upload.py:188
 msgid "Session expired, try again"
 msgstr "Session expired, try again"
 
-#: myapp/views_more/invoices.py:41
+#: myapp/views_more/invoices.py:44
 msgid "No matching invoices found"
 msgstr "No matching invoices found"
 
-#: myapp/views_more/invoices.py:105
+#: myapp/views_more/invoices.py:112
 #, fuzzy
 #| msgid "active subscription"
 msgid "No matching subscription found"

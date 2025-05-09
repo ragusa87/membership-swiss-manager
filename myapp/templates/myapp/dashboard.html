@@ -223,7 +223,7 @@
     <div class="flex justify-stretch items-center p-6">
 
         <a class="inline-block m-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'assign_user' subscription_name=subscription.name %}">
-            {% translate 'Assign users' %}
+            {% translate 'Assign members' %}
         </a>
 
         <a class="inline-block m-2 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition flex items-center" href="{% url 'pdf_by_subscription_blank' subscription_id=subscription.pk %}" title="{% translate "Export anonymous bills" %}">
