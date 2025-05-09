@@ -212,11 +212,14 @@ CUSTOM_AUTHENTICATION_BACKEND = str(
     os.environ.get("CUSTOM_AUTHENTICATION_BACKEND", "")
 ).strip()
 
-if CUSTOM_AUTHENTICATION_BACKEND != "":
-    # Possible values are:
-    # myapp.auth.remote_user_backend.AuthcrunchRemoteUserMiddleware => Read X-Token-User-Email from headers
-    # myapp.auth.settings_backend.SettingsBackend => hardcoded admin/admin credentials
-    AUTHENTICATION_BACKENDS = [CUSTOM_AUTHENTICATION_BACKEND]
+if CUSTOM_AUTHENTICATION_BACKEND == "demo":
+    AUTHENTICATION_BACKENDS = ["myapp.auth.settings_backend.SettingsBackend"]
+
+if CUSTOM_AUTHENTICATION_BACKEND == "authcrunch":
+    AUTHENTICATION_BACKENDS = [
+        "myapp.auth.remote_user_backend.AuthcrunchRemoteUserBackend"
+    ]
+    MIDDLEWARE += ["myapp.auth.remote_user_backend.AuthcrunchRemoteUserMiddleware"]
 
 PHONENUMBER_DEFAULT_REGION = "CH"
 LOCATIONS_SEARCH_API = "https://api3.geo.admin.ch/rest/services/api/SearchServer"

@@ -25,6 +25,5 @@ def sprite(sprite_name: str, sprite_size=24):
 @register.inclusion_tag("myapp/partials/authentication_demo.html")
 def authentication_demo():
     return {
-        "authentication_demo_enabled": settings.CUSTOM_AUTHENTICATION_BACKEND
-        == "myapp.auth.settings_backend.SettingsBackend"
+        "authentication_demo_enabled": settings.CUSTOM_AUTHENTICATION_BACKEND == "demo"
     }

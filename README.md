@@ -54,12 +54,50 @@ You can group member's registration together, so only one member will be billed 
 
 It's just the most important ones. Check the .env and settings.py for more variables.
 
-Please note that you need to reload your containers to apply the changes in the `.env.*` files.
+> Please note that you need to reload your containers to apply the changes in the `.env.*` files.
 
-### Backups
+### (Optional) Login from proxy with Caddy's authcrunch
+
+You can configure django to use the reverse proxy for authentication. 
+
+* Set `CUSTOM_AUTHENTICATION_BACKEND=authcrunch` in your `.env.local` file.
+* Configure your reverse proxy to set the `X-TOKEN-USER-NAME` header with the logged user and `HTTP_X_TOKEN_USER_ROLES` for the role.
+* You need a header with the role "authp/admin" to access the admin interface.
+* Set `SECURE_SSL_REDIRECT=0` in your `.env.local` file to disable the redirection to HTTPS (handled by the reverse proxy).
+
+Configuration example for [authcrunch](https://authcrunch.com/) / [Caddy Security](https://github.com/greenpau/caddy-security):
+```config
+security {
+    authentication portal .... {
+        transform user {
+            match sub <your username subject>
+            action add role authp/admin
+        }
+    }
+}
+
+authorization policy admin_headers_policy {
+        inject headers with claims
+        allow authp/admin
+}
+https://membership.example.com {
+        tls admin@example.com
+        authorize with admin_headers_policy
+        handle_path /assets/* {
+                root * <your path to this project/assets>
+                file_server
+        }
+        handle {
+                reverse_proxy http://<your container ip>:<your container port>
+        }
+}
+
+```
+
+### Database
 
 The database is stored into `./data/db/` (mounted as a volume)
-There are some helpers to backup and restore the database using `rclone` from outside the container. See scripts in `./bin`.
+There are some helpers to back up and restore the database using `rclone` from outside the container. See scripts in `./bin`.
 
 ### Updates
 - Run `docker compose pull` to update the base images
@@ -71,7 +109,7 @@ There are some helpers to backup and restore the database using `rclone` from ou
 You can import the fixture like that:
 - Set `DB_ENV=test` in your `.env.local` file.
 - Run `manage.py fixturize --db test` commands to create the initial data.
-- Set `CUSTOM_AUTHENTICATION_BACKEND="myapp.auth.settings_backend.SettingsBackend"` in your `.env.local` file to ease login with fixed credentials.
+- Set `CUSTOM_AUTHENTICATION_BACKEND="demo"` in your `.env.local` file to ease login with fixed credentials.
 
 ### Preview
 
