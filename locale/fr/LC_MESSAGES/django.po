@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-26 23:32+0000\n"
+"POT-Creation-Date: 2025-05-09 11:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,8 +55,6 @@ msgid "InvoiceStatusEnum.UNKNOWN"
 msgstr "inconnu"
 
 #: myapp/models/invoice.py:67
-#, fuzzy
-#| msgid "1st reminder"
 msgid "No reminder"
 msgstr "premier rappel"
 
@@ -149,8 +147,6 @@ msgstr "Annuler"
 #: myapp/templates/myapp/camt_process.html:3
 #: myapp/templates/myapp/camt_upload.html:3
 #: myapp/templates/myapp/camt_upload.html:9
-#, fuzzy
-#| msgid "Upload File"
 msgid "Upload a CAMT file"
 msgstr "Téléverser le fichier"
 
@@ -162,7 +158,7 @@ msgstr "Retour"
 
 #: myapp/templates/myapp/camt_process.html:17
 #, fuzzy, python-format
-#| msgid "active subscription"
+#| msgid "Import for subscription %(name)s"
 msgid "Import for subscription %(name)s"
 msgstr "active"
 
@@ -248,7 +244,7 @@ msgstr "Exporter la liste"
 
 #: myapp/templates/myapp/dashboard.html:235
 #, fuzzy, python-format
-#| msgid "Export created invoices"
+#| msgid "Export %(status)s invoices"
 msgid "Export %(status)s invoices"
 msgstr "Exporter les factures créées"
 
@@ -257,8 +253,6 @@ msgid "Import CAMT file"
 msgstr "Importer un fichier CAMT"
 
 #: myapp/templates/myapp/dashboard.html:249
-#, fuzzy
-#| msgid "Import CAMT file"
 msgid "Import CSV file"
 msgstr "Importer un fichier CAMT"
 
@@ -272,8 +266,6 @@ msgstr "Exporter en XLSX"
 
 #: myapp/templates/myapp/dashboard.html:272
 #: myapp/templates/myapp/dashboard.html:273
-#, fuzzy
-#| msgid "column.Actions"
 msgid "Actions"
 msgstr "Actions"
 
@@ -288,6 +280,14 @@ msgstr "Créer un rappel pour les factures en attente (plus de 30 jours)"
 #: myapp/templates/myapp/dashboard.html:284
 msgid "Generate first invoices"
 msgstr "Créer les factures manquantes"
+
+#: myapp/templates/myapp/partials/authentication_demo.html:4
+msgid "Authentication Demo"
+msgstr "Authentification - Démo"
+
+#: myapp/templates/myapp/partials/authentication_demo.html:7
+msgid "You can log in as \"admin\" and \"admin\"."
+msgstr "Vous pouvez vous connecter en tant que \"admin\" et \"admin\"."
 
 #: myapp/templates/myapp/partials/camt_reconciliation.html:4
 msgid "Reconciliate"
@@ -330,26 +330,18 @@ msgstr ""
 
 #: myapp/templates/myapp/upload_csv_step_0.html:3
 #: myapp/templates/myapp/upload_csv_step_0.html:15
-#, fuzzy
-#| msgid "active subscription"
 msgid "Import member's subscription"
 msgstr "active"
 
 #: myapp/views_more/camt_import.py:22
-#, fuzzy
-#| msgid "File must be in CSV format"
 msgid "File must be in CAMT format"
 msgstr "Le fichier doit être un CSV"
 
 #: myapp/views_more/camt_import.py:32 myapp/views_more/csv_upload.py:40
-#, fuzzy
-#| msgid "active subscription"
 msgid "Select a subscription"
 msgstr "Selectionner un abonnement"
 
 #: myapp/views_more/camt_import.py:60
-#, fuzzy
-#| msgid "Please upload a CSV file"
 msgid "Please upload a XML file"
 msgstr "Merci de téléverser un fichier CSV"
 
@@ -362,8 +354,6 @@ msgid "Please upload a valid CSV file"
 msgstr "Merci de téléverser un fichier CSV valide"
 
 #: myapp/views_more/camt_import.py:85
-#, fuzzy
-#| msgid "CSV file uploaded successfully!"
 msgid "CAMT file uploaded successfully!"
 msgstr "Téléversement de fichier CSV effectué"
 
@@ -374,8 +364,6 @@ msgid "Error processing file: %s"
 msgstr "Erreur d'import du fichier: %s"
 
 #: myapp/views_more/camt_import.py:213
-#, fuzzy
-#| msgid "CSV file uploaded successfully!"
 msgid "Invoice split and paid successfully"
 msgstr "Téléversement de fichier CSV effectué"
 
@@ -384,8 +372,6 @@ msgid "Invoice paid"
 msgstr "Facture payée"
 
 #: myapp/views_more/camt_import.py:222
-#, fuzzy
-#| msgid "Error processing file: %s"
 msgid "Error while processing reconcilation"
 msgstr "Erreur d'import du fichier: %s"
 
@@ -421,13 +407,11 @@ msgstr "Téléversement de fichier CSV effectué"
 msgid "Session expired, try again"
 msgstr "La session a expirée, réessayer"
 
-#: myapp/views_more/invoices.py:38
+#: myapp/views_more/invoices.py:41
 msgid "No matching invoices found"
 msgstr "Aucune correspondance trouvée"
 
-#: myapp/views_more/invoices.py:100
-#, fuzzy
-#| msgid "active subscription"
+#: myapp/views_more/invoices.py:105
 msgid "No matching subscription found"
 msgstr "Aucune inscription correspondante"
 
@@ -442,6 +426,3 @@ msgstr "Voir sur GitHub"
 #: templates/base.html:61
 msgid "Select Language"
 msgstr "Changer de langue"
-
-#~ msgid "Create a new member"
-#~ msgstr "Créer un nouveau membre"

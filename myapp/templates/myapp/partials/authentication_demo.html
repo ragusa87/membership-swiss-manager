@@ -1,10 +1,12 @@
+{% load i18n %}
 {% if authentication_demo_enabled %}
     <div style="justify-content: center; display:flex">
-        <h3>Authentication Demo</h3>
+        <h3>{% trans "Authentication Demo" %}</h3>
     </div>
-    <pre>
-        You can log in as "admin" and "admin".
-    </pre>
+    <div style="justify-content: center; display:flex">
+        <p class="description" style="text-align:center">{% trans 'You can log in as "admin" and "admin".' %}</p>
+    </div>
+
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById("id_username").value = "admin";

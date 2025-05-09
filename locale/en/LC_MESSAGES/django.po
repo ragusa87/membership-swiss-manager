@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-26 23:32+0000\n"
+"POT-Creation-Date: 2025-05-09 11:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -295,6 +295,14 @@ msgstr ""
 msgid "Generate first invoices"
 msgstr "Export created invoices"
 
+#: myapp/templates/myapp/partials/authentication_demo.html:4
+msgid "Authentication Demo"
+msgstr ""
+
+#: myapp/templates/myapp/partials/authentication_demo.html:7
+msgid "You can log in as \"admin\" and \"admin\"."
+msgstr ""
+
 #: myapp/templates/myapp/partials/camt_reconciliation.html:4
 msgid "Reconciliate"
 msgstr "Reconciliate"
@@ -424,11 +432,11 @@ msgstr "CSV file uploaded successfully!"
 msgid "Session expired, try again"
 msgstr "Session expired, try again"
 
-#: myapp/views_more/invoices.py:38
+#: myapp/views_more/invoices.py:41
 msgid "No matching invoices found"
 msgstr "No matching invoices found"
 
-#: myapp/views_more/invoices.py:100
+#: myapp/views_more/invoices.py:105
 #, fuzzy
 #| msgid "active subscription"
 msgid "No matching subscription found"
