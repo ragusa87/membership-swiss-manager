@@ -98,10 +98,15 @@ https://membership.example.com {
 The database is stored into `./data/db/` (mounted as a volume)
 There are some helpers to back up and restore the database using `rclone` from outside the container. See scripts in `./bin`.
 
-### Updates
+### Upgrades
+- Run `./bin/upgrade.sh` to update the project given you cloned the repository.
+
+As an alternative, you can run :
 - Run `docker compose pull` to update the base images
 - Run `docker compose up -d --build` to update the containers
 - Run `docker compose exec web python3 manage.py migrate` to update the database schema
+- Run `docker compose exec web python3 manage.py compilemessages` to update translations
+- Run `docker compose exec web python3 manage.py collectstatic` to update assets
 
 ## Demo
 
