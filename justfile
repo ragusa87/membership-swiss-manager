@@ -51,5 +51,6 @@ translate:
     ./manage.py makemessages --all
     ./manage.py compilemessages
 
-fixtures:
-    ./manage.py migrate fixturize
+fixturize:
+    ./manage.py fixturize
+fixtures: fixturize
