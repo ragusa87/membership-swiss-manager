@@ -12,6 +12,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Prefetch
 from myapp.templatetags.custom_filters import format_price
+from .forms.invoice import InvoiceForm
 from .pdf_generator.pdf_generator import PDFGenerator
 
 
@@ -189,6 +190,7 @@ def mark_as_paid(modeladmin, request, queryset):
 
 
 class InvoiceAdmin(admin.ModelAdmin):
+    form = InvoiceForm
     list_filter = [
         FilterInvoiceByStatus,
         FilterInvoiceBySubscription,
