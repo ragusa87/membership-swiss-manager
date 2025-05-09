@@ -1,0 +1,14 @@
+{% if authentication_demo_enabled %}
+    <div style="justify-content: center; display:flex">
+        <h3>Authentication Demo</h3>
+    </div>
+    <pre>
+        You can log in as "admin" and "admin".
+    </pre>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById("id_username").value = "admin";
+            document.getElementById("id_password").value = "admin";
+        })
+    </script>
+{% endif %}

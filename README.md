@@ -69,8 +69,9 @@ There are some helpers to backup and restore the database using `rclone` from ou
 ## Demo
 
 You can import the fixture like that:
-- Set `DB_ENV=test` in your `.env.local` file
+- Set `DB_ENV=test` in your `.env.local` file.
 - Run `manage.py fixturize --db test` commands to create the initial data.
+- Set `CUSTOM_AUTHENTICATION_BACKEND="myapp.auth.settings_backend.SettingsBackend"` in your `.env.local` file to ease login with fixed credentials.
 
 ### Preview
 

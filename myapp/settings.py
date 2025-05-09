@@ -46,12 +46,22 @@ STATICFILES_DIRS = [
 ]
 secure = str(os.environ.get("APP_SECURE", "true")).strip().lower() in ("true", "1")
 if secure:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = str(
+        os.environ.get("SECURE_SSL_REDIRECT", "true")
+    ).strip().lower() in ("true", "1")
+    SESSION_COOKIE_SECURE = str(
+        os.environ.get("SESSION_COOKIE_SECURE", "true")
+    ).strip().lower() in ("true", "1")
+    CSRF_COOKIE_SECURE = str(
+        os.environ.get("CSRF_COOKIE_SECURE", "true")
+    ).strip().lower() in ("true", "1")
     SECURE_HSTS_SECONDS = int(json.loads(os.environ.get("SECURE_HSTS_SECONDS", "300")))
-    SECURE_HSTS_PRELOAD = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = str(
+        os.environ.get("SECURE_HSTS_PRELOAD", "true")
+    ).strip().lower() in ("true", "1")
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = str(
+        os.environ.get("SECURE_HSTS_INCLUDE_SUBDOMAINS", "true")
+    ).strip().lower() in ("true", "1")
 
 try:
     ssl_header = json.loads(os.environ.get("SECURE_PROXY_SSL_HEADER", "{}"))
@@ -198,7 +208,16 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
 
-AUTHENTICATION_BACKENDS = ["myapp.auth.settings_backend.SettingsBackend"]
+CUSTOM_AUTHENTICATION_BACKEND = str(
+    os.environ.get("CUSTOM_AUTHENTICATION_BACKEND", "")
+).strip()
+
+if CUSTOM_AUTHENTICATION_BACKEND != "":
+    # Possible values are:
+    # myapp.auth.remote_user_backend.AuthcrunchRemoteUserMiddleware => Read X-Token-User-Email from headers
+    # myapp.auth.settings_backend.SettingsBackend => hardcoded admin/admin credentials
+    AUTHENTICATION_BACKENDS = [CUSTOM_AUTHENTICATION_BACKEND]
+
 PHONENUMBER_DEFAULT_REGION = "CH"
 LOCATIONS_SEARCH_API = "https://api3.geo.admin.ch/rest/services/api/SearchServer"
 LOCATIONS_SEARCH_API_DETAILS = "https://api3.geo.admin.ch/rest/services/api/MapServer/ch.bfs.gebaeude_wohnungs_register/"

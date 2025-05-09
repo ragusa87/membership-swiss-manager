@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 
 register = template.Library()
 
@@ -21,6 +22,9 @@ def sprite(sprite_name: str, sprite_size=24):
     }
 
 
-@register.filter(name="add_class")
-def add_class(field, css):
-    return field.as_widget(attrs={**field.field.widget.attrs, "class": css})
+@register.inclusion_tag("myapp/partials/authentication_demo.html")
+def authentication_demo():
+    return {
+        "authentication_demo_enabled": settings.CUSTOM_AUTHENTICATION_BACKEND
+        == "myapp.auth.settings_backend.SettingsBackend"
+    }

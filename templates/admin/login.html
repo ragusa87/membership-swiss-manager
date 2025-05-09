@@ -1,5 +1,6 @@
 {% extends "admin/login.html" %}
+{% load custom_filters %}
 {% block content %}
-  You can login as "admin" and "admin".
+  {% authentication_demo %}
   {{ block.super }}
 {% endblock %}
