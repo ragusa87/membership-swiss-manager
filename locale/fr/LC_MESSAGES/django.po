@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 11:27+0000\n"
+"POT-Creation-Date: 2025-05-09 12:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -415,6 +415,12 @@ msgstr "Aucune correspondance trouvée"
 msgid "No matching subscription found"
 msgstr "Aucune inscription correspondante"
 
+#: templates/admin/base_site.html:6
+#, fuzzy
+#| msgid "Back to dashboard"
+msgid "Back to Dashboard"
+msgstr "Retour au tableau de bord"
+
 #: templates/base.html:39
 msgid "membership-swiss-manager"
 msgstr "membership-swiss-manager"
@@ -423,6 +429,18 @@ msgstr "membership-swiss-manager"
 msgid "View on GitHub"
 msgstr "Voir sur GitHub"
 
-#: templates/base.html:61
+#: templates/base.html:63
+msgid "Connected as "
+msgstr "Connecté en tant que "
+
+#: templates/base.html:64
+msgid "Logout"
+msgstr "Déconnection"
+
+#: templates/base.html:67
+msgid "Login"
+msgstr "Connexion"
+
+#: templates/base.html:70
 msgid "Select Language"
 msgstr "Changer de langue"

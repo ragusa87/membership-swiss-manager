@@ -1,0 +1,8 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block branding %}
+    {{ block.super }}
+    {% if site_url %}
+        <a style="margin-top:5px; padding: 5px; font-weight: bold" href="{{site_url}}">{% translate "Back to Dashboard" %}</a>
+    {% endif %}
+{% endblock %}

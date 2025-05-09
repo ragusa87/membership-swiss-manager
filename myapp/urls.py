@@ -42,7 +42,7 @@ from .views_more.camt_import import (
     CamtReconciliationView,
     CamtLinkInvoice,
 )
-
+from django.contrib.auth import views as auth_views
 favicon_view = RedirectView.as_view(url="/assets/favicon.ico", permanent=True)
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -110,6 +110,7 @@ urlpatterns = [
         {"extension": "xlsx"},
         name="subscription_export",
     ),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout')
 ]
 
 if DEBUG:
