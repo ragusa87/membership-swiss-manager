@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.db.models import Prefetch
 from myapp.templatetags.custom_filters import format_price
 from .forms.invoice import InvoiceForm
+from .forms.subscription import SubscriptionForm
 from .pdf_generator.pdf_generator import PDFGenerator
 
 
@@ -141,6 +142,7 @@ class MemberAdmin(admin.ModelAdmin):
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
+    form = SubscriptionForm
     list_display = ("name", "view_dashboard")
 
     def view_dashboard(self, obj):
