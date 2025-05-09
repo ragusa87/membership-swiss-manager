@@ -50,7 +50,7 @@ class DashboardView(TemplateView, LoginRequiredMixin):
         current_due_amount = (
             Invoice.objects.filter(
                 member_subscription__subscription=subscription,
-                member_subscription__parent__subscription=None,
+                member_subscription__parent=None,
                 member_subscription__active=True,
                 status__in=(InvoiceStatusEnum.CREATED, InvoiceStatusEnum.PENDING),
             ).aggregate(total=Sum("price"))["total"]
@@ -60,7 +60,7 @@ class DashboardView(TemplateView, LoginRequiredMixin):
         last_year_due_amount = (
             Invoice.objects.filter(
                 member_subscription__subscription=previous_subscription,
-                member_subscription__parent__subscription=None,
+                member_subscription__parent=None,
                 member_subscription__active=True,
                 status__in=(InvoiceStatusEnum.CREATED, InvoiceStatusEnum.PENDING),
             ).aggregate(total=Sum("price"))["total"]

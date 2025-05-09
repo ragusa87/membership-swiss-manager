@@ -145,12 +145,19 @@
                                             ({{ count }})
                                         {% endwith %}
                                     </td>
-                                    {% with open_balance=member_subscription.has_due_balance %}
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-800 {% if member_subscription.get_paid_amount > member_subscription.get_price %}bg-green-100 text-green-800{% elif open_balance %}bg-red-100 text-red-800{% endif %}">
-                                            {{ member_subscription.get_paid_amount|format_price }}{{ " / " }}{{ member_subscription.get_price|format_price }}
+                                    {% with has_due_balance=member_subscription.has_due_balance %}
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-800 {% if member_subscription.get_paid_amount > member_subscription.get_price %}bg-green-100 text-green-800{% elif has_due_balance %}bg-red-100 text-red-800{% endif %}">
+                                            {{ member_subscription.get_paid_amount|format_price }}{{ " / " }}{{ member_subscription.price|format_price }}
                                         </td>
                                     {% endwith %}
                                     <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if member_subscription.should_create_new_invoice  %}
+                                            <a class="block px-2 inline-flex leading-5 rounded-lg bg-orange-100  hover:bg-orange-300 text-orange-800 p-2 mb-2" href="{% url "create_missing_invoice_by_member_subscription" member_subscription_id=member_subscription.pk %}">
+                                                {% sprite 'lucide-circle-plus' %}
+                                                <span class="ml-1">{% trans "Create invoice" %}</span>
+                                            </a>
+                                        {% endif %}
+
                                         {%  if member_subscription.invoice_count > 0 %}
                                         {% for invoice in member_subscription.invoices.all %}
                                             <div class="block flex">
@@ -181,6 +188,7 @@
                                                         {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
                                                     </span>
                                                 {% endif %}
+
                                                 <a class="block grow justify-self-end text-right" href="{% url 'admin:myapp_invoice_change' object_id=invoice.pk %}">
                                                     {% sprite 'lucide-eye' %}
                                                 </a>

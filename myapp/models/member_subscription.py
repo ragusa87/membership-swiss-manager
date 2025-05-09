@@ -62,6 +62,12 @@ class MemberSubscription(models.Model):
         return None
 
     def get_price(self):
+        return self.price
+
+    def calculate_price(self):
+        """
+        Calculate the price of the subscription based on its type.
+        """
         if self.active is False or self.parent is not None:
             return 0
         return self.get_price_by_type(self.type)
@@ -73,30 +79,26 @@ class MemberSubscription(models.Model):
         return _("active subscription") if self.active else _("inactive subscription")
 
     def get_due_amount(self):
-        if self.invoices:
-            sum = 0
-            for invoice in self.invoices.all():
-                if (
-                    invoice.status != InvoiceStatusEnum.PAID
-                    and invoice.status != InvoiceStatusEnum.CANCELED
-                ):
-                    sum += invoice.price
-            return sum
+        due_sum = self.price or self.calculate_price()
+        for invoice in self.invoices.filter(status=InvoiceStatusEnum.PAID):
+            due_sum -= invoice.price
+        return due_sum
 
-        expected = self.get_price() or 0
-        paid = sum(
-            invoice.price
-            for invoice in self.invoices.filter(status=InvoiceStatusEnum.PAID)
-            if invoice.price
-        )
-        return expected - paid
+    def should_create_new_invoice(self):
+        if not self.active or self.parent is not None:
+            return False
+
+        if self.get_due_amount() <= 0:
+            return False
+
+        return not self.invoices.filter(
+            status__in=[InvoiceStatusEnum.CREATED, InvoiceStatusEnum.PENDING]
+        ).exists()
 
     def generate_new_invoice(self):
         invoice = Invoice.objects.create(
             member_subscription=self,
-            price=(
-                self.get_due_amount() if self.get_due_amount() > 0 else self.get_price()
-            ),
+            price=(self.get_due_amount() if self.get_due_amount() > 0 else self.price),
             status=InvoiceStatusEnum.CREATED,
         )
         return invoice
@@ -123,7 +125,7 @@ class MemberSubscription(models.Model):
 
     # Update the subscription's price on save
     def save(self, *args, **kwargs):
-        self.price = self.get_price()
+        self.price = self.calculate_price()
         super().save(*args, **kwargs)
 
     @staticmethod

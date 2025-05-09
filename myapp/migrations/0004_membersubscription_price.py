@@ -7,7 +7,7 @@ from myapp.models.member_subscription import MemberSubscription
 
 def calculate_price(apps, schema_editor):
     for sub in MemberSubscription.objects.all():
-        sub.price = sub.get_price()
+        sub.price = sub.calculate_price()
         sub.save()
 
 

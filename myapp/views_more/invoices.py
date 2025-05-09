@@ -124,3 +124,22 @@ def create_first_invoices_by_subscription(self, subscription_id: int) -> HttpRes
         ),
         content_type="application/pdf",
     )
+
+
+@login_required
+def create_missing_invoice_by_member_subscription(
+    request, member_subscription_id: int
+) -> HttpResponse:
+    member_subscription = get_object_or_404(
+        MemberSubscription, pk=member_subscription_id
+    )
+
+    if member_subscription.should_create_new_invoice():
+        member_subscription.generate_new_invoice()
+
+    return HttpResponseRedirect(
+        reverse_lazy(
+            "dashboard",
+            kwargs={"subscription_name": member_subscription.subscription.name},
+        )
+    )

@@ -28,6 +28,7 @@ from .views_more.invoices import (
     mark_created_as_pending_by_subscription,
     create_first_invoices_by_subscription,
     pdfs_by_subscription_blank,
+    create_missing_invoice_by_member_subscription,
 )
 from .views_more.dashboard import DashboardView
 from .views_more.switch_language import switch_language
@@ -95,6 +96,11 @@ urlpatterns = [
         "invoices/<int:subscription_id>/create_first_invoices_by_subscription/",
         create_first_invoices_by_subscription,
         name="create_first_invoices_by_subscription",
+    ),
+    path(
+        "invoices/<int:member_subscription_id>/create_missing_invoices_by_subscription/",
+        create_missing_invoice_by_member_subscription,
+        name="create_missing_invoice_by_member_subscription",
     ),
     re_path(r"^favicon\.ico$", favicon_view),
     path("switch_language", switch_language, name="switch_language"),
