@@ -224,3 +224,4 @@ if CUSTOM_AUTHENTICATION_BACKEND == "authcrunch":
 PHONENUMBER_DEFAULT_REGION = "CH"
 LOCATIONS_SEARCH_API = "https://api3.geo.admin.ch/rest/services/api/SearchServer"
 LOCATIONS_SEARCH_API_DETAILS = "https://api3.geo.admin.ch/rest/services/api/MapServer/ch.bfs.gebaeude_wohnungs_register/"
+LOGIN_URL = "/admin/login/"

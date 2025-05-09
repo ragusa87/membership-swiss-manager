@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
@@ -11,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 
+@login_required
 def pdf_by_invoice(self, invoice_id: int) -> HttpResponse:
     generator = PDFGenerator()
     invoice = get_object_or_404(Invoice, pk=invoice_id)
@@ -19,6 +21,7 @@ def pdf_by_invoice(self, invoice_id: int) -> HttpResponse:
     return HttpResponse(pdf_output.read(), content_type="application/pdf")
 
 
+@login_required
 def pdfs_by_subscription(request, subscription_id: int) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     filter_raw = request.GET.get("status", None)
@@ -49,6 +52,7 @@ def pdfs_by_subscription(request, subscription_id: int) -> HttpResponse:
     return HttpResponse(pdf_output.read(), content_type="application/pdf")
 
 
+@login_required
 def pdfs_by_subscription_blank(request, subscription_id: int) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     generator = PDFGenerator()
@@ -56,6 +60,7 @@ def pdfs_by_subscription_blank(request, subscription_id: int) -> HttpResponse:
     return HttpResponse(pdf_output.read(), content_type="application/pdf")
 
 
+@login_required
 def mark_created_as_pending_by_subscription(self, subscription_id: int) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     invoices = Invoice.objects.filter(
@@ -74,6 +79,7 @@ def mark_created_as_pending_by_subscription(self, subscription_id: int) -> HttpR
     )
 
 
+@login_required
 def create_reminder_for_pending_by_subscription(
     self, subscription_id: int
 ) -> HttpResponse:
@@ -95,6 +101,7 @@ def create_reminder_for_pending_by_subscription(
     )
 
 
+@login_required
 def create_first_invoices_by_subscription(self, subscription_id: int) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     member_subscriptions = MemberSubscription.objects.annotate(

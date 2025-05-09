@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.forms.utils import RenderableMixin
 from django.http import HttpResponseRedirect
@@ -25,7 +26,7 @@ class StepAwareMixin(RenderableMixin):
     template_name_model = "myapp/upload_csv_step_%d.html"
 
 
-class CSVUploadForm(StepAwareMixin, forms.Form):
+class CSVUploadForm(StepAwareMixin, forms.Form, LoginRequiredMixin):
     csv_file = forms.FileField(
         label="Select a CSV file", help_text=_("File must be in CSV format")
     )
@@ -41,7 +42,7 @@ class CSVUploadForm(StepAwareMixin, forms.Form):
     )
 
 
-class CSVUploadView(StepAwareMixin, FormView):
+class CSVUploadView(StepAwareMixin, FormView, LoginRequiredMixin):
     template_name_model = "myapp/upload_csv_step_%d.html"
     form_class = CSVUploadForm
     success_url = reverse_lazy("csv_import_step", kwargs={"step": 2})
@@ -119,7 +120,7 @@ class CSVUploadView(StepAwareMixin, FormView):
         return super().form_valid(form)
 
 
-class CsvImport(TemplateView, StepAwareMixin):
+class CsvImport(TemplateView, StepAwareMixin, LoginRequiredMixin):
     step = 2
 
     def __session_valid__(self) -> bool:

@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from myapp.models import Invoice, MemberSubscription, Subscription, InvoiceStatusEnum
 from django.views.generic import TemplateView
@@ -7,7 +8,7 @@ from django.db.models import Sum
 from myapp.settings import DB_ENV
 
 
-class DashboardView(TemplateView):
+class DashboardView(TemplateView, LoginRequiredMixin):
     template_name = "myapp/dashboard.html"
 
     def get_context_data(self, **kwargs):

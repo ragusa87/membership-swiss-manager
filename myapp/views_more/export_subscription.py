@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from ..models import Subscription
@@ -14,6 +15,7 @@ def get_mime_type(file_extension: str) -> str:
             return "application/octet-stream"
 
 
+@login_required
 def export_subscription(self, subscription_name: str, extension: str) -> HttpResponse:
     subscription = get_object_or_404(Subscription, name=subscription_name)
     exporter = CsvExporter(subscription)

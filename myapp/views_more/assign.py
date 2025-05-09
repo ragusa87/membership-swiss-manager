@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormView
@@ -8,7 +9,7 @@ from myapp.forms.subscription_user_form import MemberSubscriptionUserForm, Membe
 from myapp.models import Subscription, MemberSubscription, Member
 
 
-class AssignUserFormView(FormView):
+class AssignUserFormView(FormView, LoginRequiredMixin):
     template_name = "myapp/assign_user.html"
     form_class = MemberForm
 

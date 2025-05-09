@@ -28,7 +28,6 @@ You can group member's registration together, so only one member will be billed 
 - Only one Account is configurable for Billing (the one used to generate the invoices)
 - Test are not implemented (yet)
 - We expect a reverse proxy (traefik, Caddy, nginx, etc) to use HTTPS.
-- There is no authentication in the app currently, use the reverse proxy to handle authentication. 
 
 ## Setup
 

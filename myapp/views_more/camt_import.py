@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -90,7 +91,7 @@ class CamtUploadView(FormView, TemplateView):
         return super().form_valid(form)
 
 
-class CamtLinkInvoice(TemplateView):
+class CamtLinkInvoice(TemplateView, LoginRequiredMixin):
     template_name = "myapp/partials/camt_link.html"
     invoice_id = None
 
@@ -125,7 +126,7 @@ class CamtLinkInvoice(TemplateView):
         return self.render_to_response(context)
 
 
-class CamtReconciliationView(TemplateView):
+class CamtReconciliationView(TemplateView, LoginRequiredMixin):
     route = "camt_reconciliation"
     template_name = "myapp/partials/camt_reconciliation.html"
 
@@ -234,7 +235,7 @@ class CamtReconciliationView(TemplateView):
         return HttpResponse(_("New invoice created"))
 
 
-class CamtProcessView(TemplateView):
+class CamtProcessView(TemplateView, LoginRequiredMixin):
     template_name = "myapp/camt_process.html"
 
     def get_context_data(self, **kwargs):
