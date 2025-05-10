@@ -23,6 +23,7 @@ dev = [
   "ruff",
   "pip-tools",
   "rust-just",
+  "pytest",
 ]
 
 [tool.black]
