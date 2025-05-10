@@ -62,7 +62,7 @@
                 <p class="text-2xl font-bold text-slate-800 mt-2">{{ stats.total_subscriptions }}</p>
                 <p class="text-sm {% if stats.subscription_growth >= 0 %}text-green-500{% else %}text-red-500{% endif %}">
                     {% if stats.subscription_growth >= 0 %}↑{% else %}↓{% endif %}
-                    {{ stats.subscription_growth|floatformat:0 }}{{ "%" }}
+                    <span data-test="subscription_growth">{{ stats.subscription_growth|floatformat:0 }}{{ "%" }}</span>
                     {% with last=stats.total_subscriptions_last_year  %}
                         {% blocktrans %}(last year {{ last }}){% endblocktrans %}
                     {% endwith %}
