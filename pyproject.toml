@@ -24,6 +24,7 @@ dev = [
   "pip-tools",
   "rust-just",
   "pytest",
+  "beautifulsoup4",
 ]
 
 [tool.black]

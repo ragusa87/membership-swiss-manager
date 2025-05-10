@@ -20,4 +20,8 @@ def main():
 
 
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["test"]:
+        os.environ["ENV"] = "TEST"
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myapp.settings_test")
+
     main()
