@@ -98,7 +98,7 @@ class Invoice(models.Model):
         invoice.status = InvoiceStatusEnum.PAID
         invoice.reminder = self.reminder
         invoice.transaction_id = transaction_id
-        invoice.price = price
+        invoice.price = price - self.price
 
         invoice.save()
 
