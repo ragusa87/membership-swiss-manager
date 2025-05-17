@@ -61,6 +61,19 @@ class Invoice(models.Model):
 
         return map[self.status]
 
+    def get_status_class(self):
+        match self.status.lower():
+            case InvoiceStatusEnum.PAID:
+                return "bg-green-100 text-green-800"
+            case InvoiceStatusEnum.CANCELED:
+                return "bg-gray-100 text-gray-800"
+            case InvoiceStatusEnum.PENDING:
+                return "bg-yellow-100 text-yellow-800"
+            case InvoiceStatusEnum.CREATED:
+                return "bg-red-100 text-red-800"
+            case _:
+                return "bg-red-100 text-red-800"
+
     def get_reminder_text(self):
         # Special cases for 1st, 2nd, 3rd
         reminder_text = {
