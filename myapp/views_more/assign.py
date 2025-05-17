@@ -12,12 +12,16 @@ from myapp.models import Subscription, MemberSubscription, Member
 class AssignUserFormView(FormView, LoginRequiredMixin):
     template_name = "myapp/assign_user.html"
     form_class = MemberForm
+    form_search_param = "q"
 
     def dispatch(self, request, *args, **kwargs):
         self.subscription = get_object_or_404(
             Subscription, name=self.kwargs["subscription_name"]
         )
         return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.POST.get("form") == "link":
@@ -37,6 +41,9 @@ class AssignUserFormView(FormView, LoginRequiredMixin):
             "assign_user", kwargs={"subscription_name": self.subscription.name}
         )
 
+    def get_search_query(self):
+        return self.request.GET.get(self.form_search_param, "").strip()
+
     def _get_candidates(self):
         assigned_users_ids = MemberSubscription.objects.filter(
             subscription=self.subscription
@@ -47,13 +54,23 @@ class AssignUserFormView(FormView, LoginRequiredMixin):
             ),
         ).values_list("member__pk", flat=True)
 
-        return (
+        q = (
             Member.objects.exclude(
                 Q(pk__in=assigned_users_ids) | Q(pk__in=assigned_children)
             )
             .order_by("lastname", "firstname")
             .all()
         )
+
+        search = self.get_search_query()
+        if search:
+            q = q.filter(
+                Q(firstname__icontains=search)
+                | Q(lastname__icontains=search)
+                | Q(email__icontains=search)
+            )
+
+        return q
 
     def _get_forms(self, bound=True):
         return [
@@ -70,7 +87,8 @@ class AssignUserFormView(FormView, LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
         context["subscription"] = self.subscription
         context["forms"] = self._get_forms(bound=False)
-
+        context["search"] = self.get_search_query()
+        context["form_search_param"] = self.form_search_param
         context["member_subscriptions"] = (
             MemberSubscription.objects.filter(
                 subscription=self.subscription, parent__isnull=True
