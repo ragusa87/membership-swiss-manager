@@ -2,7 +2,7 @@ import io
 from collections import OrderedDict
 from io import StringIO
 import cairosvg
-from PyPDF2 import PdfMerger
+from pypdf import PdfWriter, PdfReader
 import locale
 from ..models import (
     Invoice,
@@ -165,12 +165,13 @@ class PDFGenerator:
         return full_reference
 
     def generate_pdf(self, invoices: list[Invoice]) -> io.BytesIO:
-        merger = PdfMerger()
+        writer = PdfWriter()
         for invoice in invoices:
-            merger.append(self.__generate_pdf__(invoice))
+            reader = PdfReader(self.__generate_pdf__(invoice))
+            writer.append(reader)
 
         result = io.BytesIO()
-        merger.write(result)
+        writer.write(result)
         result.seek(0)
 
         return result
@@ -361,7 +362,7 @@ class PDFGenerator:
         return pos
 
     def generate_pdf_blank(self, subscription: Subscription):
-        merger = PdfMerger()
+        writer = PdfWriter()
 
         for order, subscription_type in enumerate(
             OrderedDict(SubscriptionTypeEnum.choices)
@@ -446,9 +447,10 @@ class PDFGenerator:
 
                 dwg.write(svg_buffer)
 
-                merger.append(self.__svg2Pdf__(svg_buffer))
+                pdf_reader = PdfReader(self.__svg2Pdf__(svg_buffer))
+                writer.append(pdf_reader)
         result = io.BytesIO()
-        merger.write(result)
+        writer.write(result)
         result.seek(0)
 
         return result

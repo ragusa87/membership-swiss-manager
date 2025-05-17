@@ -2,7 +2,7 @@ import io
 
 from myapp.models import Subscription, Invoice, Member, MemberSubscription
 from myapp.tests.test_common import LoggedInTestCase
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 
 class PdfsTestCase(LoggedInTestCase):
