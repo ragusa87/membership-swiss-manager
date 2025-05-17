@@ -60,7 +60,7 @@ pycamt==1.0.1
     # via myproject (pyproject.toml)
 pycparser==2.22
     # via cffi
-pypdf2==3.0.1
+pypdf==5.5.0
     # via myproject (pyproject.toml)
 pyproject-hooks==1.2.0
     # via

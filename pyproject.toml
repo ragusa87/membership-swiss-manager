@@ -8,7 +8,7 @@ dependencies = [
   "python-dotenv",
   "qrbill",
   "cairosvg",
-  "PyPDF2",
+  "pypdf>=3.9.0",
   "pandas",
   "xlsxwriter",
   "django-debug-toolbar",
