@@ -24,10 +24,12 @@ for file in *.svg; do
     # Construct the symbol tag with extracted attributes (without xmlns)
     SYMBOL="<symbol id=\"$ID\"$ATTRIBUTES>$CONTENT</symbol>"
 
+    printf "\n" >> "$OUTPUT_FILE"
     echo -n "$SYMBOL" >> "$OUTPUT_FILE"
 done
 
 # Close the SVG sprite
+printf "\n" >> "$OUTPUT_FILE"
 echo '</svg>' >> "$OUTPUT_FILE"
 
-echo "SVG sprite created: $OUTPUT_FILE (single line format, preserving attributes except xmlns)"
+echo "SVG sprite created: $OUTPUT_FILE"

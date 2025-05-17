@@ -1,4 +1,4 @@
 {% load static %}
-<svg class="icon inline-block" height="{{ sprite_size|default:'24' }}" width="{{ sprite_size|default:'24' }}">
+<svg class="{{ class_name }}" height="{{ sprite_size|default:'24' }}" width="{{ sprite_size|default:'24' }}" {{ attrs }}>
   <use xlink:href="#{{ sprite_name|default:'' }}"></use>
 </svg>
