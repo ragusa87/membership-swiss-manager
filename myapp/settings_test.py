@@ -14,4 +14,4 @@ DATABASES = {
 
 MEDIA_ROOT = tempfile.mkdtemp()
 DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-INVOICE_IBAN = "CH93 0839 0036 0024 1500 9"
+INVOICE_IBAN = "CH93 0076 2011 6238 5295 7"

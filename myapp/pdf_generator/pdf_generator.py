@@ -15,17 +15,7 @@ from ..models import (
 from django.utils import translation
 from contextlib import ContextDecorator
 from django.utils.translation import gettext_lazy as _
-from ..settings import (
-    INVOICE_CUSTOMER_IDENTIFICATION_NUMBER,
-    INVOICE_LANGUAGE,
-    INVOICE_IBAN,
-    CREDITOR_NAME,
-    CREDITOR_CITY,
-    CREDITOR_COUNTRY,
-    CREDITOR_ZIP,
-    CREDITOR_ADDRESS_HOUSE_NUMBER,
-    CREDITOR_ADDRESS,
-)
+from django.conf import settings
 from qrbill import QRBill
 from stdnum.iso11649 import is_valid
 from qrbill.bill import QR_IID
@@ -98,21 +88,23 @@ class PDFGenerator:
     def __get_debtor__(self, member: Member) -> dict:
         return {
             "name": member.get_fullname(),
-            "pcode": str(member.zip) if member.zip is not None else CREDITOR_ZIP,
+            "pcode": str(member.zip)
+            if member.zip is not None
+            else settings.CREDITOR_ZIP,
             "street": member.address,
             "house_num": member.address_number,
-            "city": member.city if member.city else CREDITOR_CITY,
+            "city": member.city if member.city else settings.CREDITOR_CITY,
             "country": member.get_country(),
         }
 
     def __get_creditor__(self) -> dict:
         return {
-            "name": CREDITOR_NAME,
-            "pcode": CREDITOR_ZIP,
-            "street": CREDITOR_ADDRESS,
-            "house_num": CREDITOR_ADDRESS_HOUSE_NUMBER,
-            "city": CREDITOR_CITY,
-            "country": CREDITOR_COUNTRY,
+            "name": settings.CREDITOR_NAME,
+            "pcode": settings.CREDITOR_ZIP,
+            "street": settings.CREDITOR_ADDRESS,
+            "house_num": settings.CREDITOR_ADDRESS_HOUSE_NUMBER,
+            "city": settings.CREDITOR_CITY,
+            "country": settings.CREDITOR_COUNTRY,
         }
 
     def __get_additional_information__(self, invoice: Invoice) -> str:
@@ -159,7 +151,7 @@ class PDFGenerator:
             raise RuntimeError("Reference number must be positive")
 
         if self.__isIbanCompatibleWithQRCodeReference__(
-            INVOICE_CUSTOMER_IDENTIFICATION_NUMBER
+            settings.INVOICE_CUSTOMER_IDENTIFICATION_NUMBER
         ):
             raise RuntimeError("QRR is not supported yet")
 
@@ -198,14 +190,14 @@ class PDFGenerator:
         """
         svg_buffer = StringIO()
 
-        with TranslationContext(INVOICE_LANGUAGE):
+        with TranslationContext(settings.INVOICE_LANGUAGE):
             member = invoice.member_subscription.member
             bill = QRBill(
-                INVOICE_IBAN,
+                settings.INVOICE_IBAN,
                 creditor=self.__get_creditor__(),
                 debtor=self.__get_debtor__(member),
                 amount=str(invoice.price_decimal()),
-                language=INVOICE_LANGUAGE,
+                language=settings.INVOICE_LANGUAGE,
                 reference_number=self.__generate_scor_reference__(
                     invoice.get_reference()
                 ),
@@ -257,7 +249,7 @@ class PDFGenerator:
         pos.set(120, 70)
         dwg.add(
             dwg.text(
-                CREDITOR_NAME,
+                settings.CREDITOR_NAME,
                 insert=pos.as_tuple(),
                 fill="black",
                 font_size="24px",
@@ -375,7 +367,7 @@ class PDFGenerator:
             OrderedDict(SubscriptionTypeEnum.choices)
         ):
             svg_buffer = StringIO()
-            with TranslationContext(INVOICE_LANGUAGE):
+            with TranslationContext(settings.INVOICE_LANGUAGE):
                 price_info = ""
                 amount = str(subscription.get_price_by_type(subscription_type) / 100)
 
@@ -391,11 +383,11 @@ class PDFGenerator:
                 infos += "\n" + price_info + "\n" + subscription.name
 
                 bill = QRBill(
-                    INVOICE_IBAN,
+                    settings.INVOICE_IBAN,
                     creditor=self.__get_creditor__(),
                     debtor=None,
                     amount=amount,
-                    language=INVOICE_LANGUAGE,
+                    language=settings.INVOICE_LANGUAGE,
                     reference_number=None,
                     additional_information=price_info,
                 )
