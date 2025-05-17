@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 14:49+0000\n"
+"POT-Creation-Date: 2025-05-17 21:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,25 +54,25 @@ msgstr "pending"
 msgid "InvoiceStatusEnum.UNKNOWN"
 msgstr "unknown"
 
-#: myapp/models/invoice.py:67
+#: myapp/models/invoice.py:80
 #, fuzzy
 #| msgid "1st reminder"
 msgid "No reminder"
 msgstr "1st reminder"
 
-#: myapp/models/invoice.py:68
+#: myapp/models/invoice.py:81
 msgid "1st reminder"
 msgstr "1st reminder"
 
-#: myapp/models/invoice.py:69
+#: myapp/models/invoice.py:82
 msgid "2nd reminder"
 msgstr "2nd reminder"
 
-#: myapp/models/invoice.py:70
+#: myapp/models/invoice.py:83
 msgid "3rd reminder"
 msgstr "3rd reminder"
 
-#: myapp/models/invoice.py:77
+#: myapp/models/invoice.py:90
 #, python-format
 msgid "%dth reminder"
 msgid_plural "%dth reminder"
@@ -87,22 +87,22 @@ msgstr "active"
 msgid "inactive subscription"
 msgstr "inactive"
 
-#: myapp/pdf_generator/pdf_generator.py:125
-#: myapp/pdf_generator/pdf_generator.py:358
+#: myapp/pdf_generator/pdf_generator.py:117
+#: myapp/pdf_generator/pdf_generator.py:351
 msgid "** Cancelled **"
 msgstr ""
 
-#: myapp/pdf_generator/pdf_generator.py:127
-#: myapp/pdf_generator/pdf_generator.py:360
+#: myapp/pdf_generator/pdf_generator.py:119
+#: myapp/pdf_generator/pdf_generator.py:353
 msgid "** Paid **"
 msgstr ""
 
-#: myapp/pdf_generator/pdf_generator.py:383
+#: myapp/pdf_generator/pdf_generator.py:376
 msgid "Suggested price"
 msgstr ""
 
-#: myapp/pdf_generator/pdf_generator.py:387
-#: myapp/pdf_generator/pdf_generator.py:443
+#: myapp/pdf_generator/pdf_generator.py:380
+#: myapp/pdf_generator/pdf_generator.py:436
 msgid "Transmissible"
 msgstr ""
 
@@ -119,32 +119,44 @@ msgstr "Import member's subscription"
 msgid "Back to dashboard"
 msgstr "Back to dashboard"
 
-#: myapp/templates/myapp/assign_user.html:41
+#: myapp/templates/myapp/assign_user.html:50
 msgid "Candidates"
 msgstr ""
 
-#: myapp/templates/myapp/assign_user.html:50
+#: myapp/templates/myapp/assign_user.html:64
+msgid "Search..."
+msgstr ""
+
+#: myapp/templates/myapp/assign_user.html:83
 msgid "Are you sure you want to link this user?"
 msgstr ""
 
-#: myapp/templates/myapp/assign_user.html:52
+#: myapp/templates/myapp/assign_user.html:85
 msgid "Link"
 msgstr ""
 
-#: myapp/templates/myapp/assign_user.html:62
+#: myapp/templates/myapp/assign_user.html:91
+msgid "No search results"
+msgstr ""
+
+#: myapp/templates/myapp/assign_user.html:93
+msgid "No suggestion"
+msgstr ""
+
+#: myapp/templates/myapp/assign_user.html:101
 msgid "Assigned members"
 msgstr ""
 
-#: myapp/templates/myapp/assign_user.html:102
-#: myapp/templates/myapp/assign_user.html:115
+#: myapp/templates/myapp/assign_user.html:143
+#: myapp/templates/myapp/assign_user.html:156
 msgid "Add a new member"
 msgstr ""
 
-#: myapp/templates/myapp/assign_user.html:122
+#: myapp/templates/myapp/assign_user.html:163
 msgid "Save"
 msgstr ""
 
-#: myapp/templates/myapp/assign_user.html:126
+#: myapp/templates/myapp/assign_user.html:167
 msgid "Cancel"
 msgstr ""
 
@@ -219,83 +231,83 @@ msgstr "%(rate)s%% retention (%(total_users)s)"
 msgid "Subscriptions"
 msgstr "supporter"
 
-#: myapp/templates/myapp/dashboard.html:129
+#: myapp/templates/myapp/dashboard.html:124
 msgid "column.Member(s)"
 msgstr "Member(s)"
 
-#: myapp/templates/myapp/dashboard.html:130
+#: myapp/templates/myapp/dashboard.html:125
 msgid "column.Amount"
 msgstr "Amount"
 
-#: myapp/templates/myapp/dashboard.html:131
+#: myapp/templates/myapp/dashboard.html:126
 msgid "column.Invoices"
 msgstr "Invoices"
 
-#: myapp/templates/myapp/dashboard.html:132
+#: myapp/templates/myapp/dashboard.html:127
 msgid "column.Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:157
+#: myapp/templates/myapp/dashboard.html:151
 #, fuzzy
 #| msgid "Export created invoices"
 msgid "Create invoice"
 msgstr "Export created invoices"
 
-#: myapp/templates/myapp/dashboard.html:226
+#: myapp/templates/myapp/dashboard.html:196
 msgid "Assign members"
 msgstr ""
 
-#: myapp/templates/myapp/dashboard.html:229
+#: myapp/templates/myapp/dashboard.html:199
 msgid "Export anonymous bills"
 msgstr ""
 
-#: myapp/templates/myapp/dashboard.html:236
-#: myapp/templates/myapp/dashboard.html:264
+#: myapp/templates/myapp/dashboard.html:206
+#: myapp/templates/myapp/dashboard.html:234
 msgid "Export list"
 msgstr "Export list"
 
-#: myapp/templates/myapp/dashboard.html:243
+#: myapp/templates/myapp/dashboard.html:213
 #, fuzzy, python-format
 #| msgid "Export created invoices"
 msgid "Export %(status)s invoices"
 msgstr "Export created invoices"
 
-#: myapp/templates/myapp/dashboard.html:251
+#: myapp/templates/myapp/dashboard.html:221
 msgid "Import CAMT file"
 msgstr "Import CAMT file"
 
-#: myapp/templates/myapp/dashboard.html:257
+#: myapp/templates/myapp/dashboard.html:227
 #, fuzzy
 #| msgid "Import CAMT file"
 msgid "Import CSV file"
 msgstr "Import CAMT file"
 
-#: myapp/templates/myapp/dashboard.html:271
+#: myapp/templates/myapp/dashboard.html:241
 msgid "Export list as CSV"
 msgstr "Export list as CSV"
 
-#: myapp/templates/myapp/dashboard.html:272
+#: myapp/templates/myapp/dashboard.html:242
 msgid "Export list as XLSX"
 msgstr "Export list as XLSX"
 
-#: myapp/templates/myapp/dashboard.html:280
-#: myapp/templates/myapp/dashboard.html:281
+#: myapp/templates/myapp/dashboard.html:250
+#: myapp/templates/myapp/dashboard.html:251
 #, fuzzy
 #| msgid "column.Actions"
 msgid "Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:286
+#: myapp/templates/myapp/dashboard.html:256
 #, fuzzy
 #| msgid "Export created invoices"
 msgid "Mark created invoices as pending"
 msgstr "Export created invoices"
 
-#: myapp/templates/myapp/dashboard.html:289
+#: myapp/templates/myapp/dashboard.html:259
 msgid "Create reminder for pending invoice (older than 30 days)"
 msgstr ""
 
-#: myapp/templates/myapp/dashboard.html:292
+#: myapp/templates/myapp/dashboard.html:262
 #, fuzzy
 #| msgid "Export created invoices"
 msgid "Generate first invoices"

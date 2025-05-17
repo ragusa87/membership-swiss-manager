@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 14:49+0000\n"
+"POT-Creation-Date: 2025-05-17 21:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,23 +54,23 @@ msgstr "en attente"
 msgid "InvoiceStatusEnum.UNKNOWN"
 msgstr "inconnu"
 
-#: myapp/models/invoice.py:67
+#: myapp/models/invoice.py:80
 msgid "No reminder"
 msgstr "premier rappel"
 
-#: myapp/models/invoice.py:68
+#: myapp/models/invoice.py:81
 msgid "1st reminder"
 msgstr "premier rappel"
 
-#: myapp/models/invoice.py:69
+#: myapp/models/invoice.py:82
 msgid "2nd reminder"
 msgstr "deuxième rappel"
 
-#: myapp/models/invoice.py:70
+#: myapp/models/invoice.py:83
 msgid "3rd reminder"
 msgstr "troisième rappel"
 
-#: myapp/models/invoice.py:77
+#: myapp/models/invoice.py:90
 #, python-format
 msgid "%dth reminder"
 msgid_plural "%dth reminder"
@@ -85,22 +85,22 @@ msgstr "active"
 msgid "inactive subscription"
 msgstr "inactif"
 
-#: myapp/pdf_generator/pdf_generator.py:125
-#: myapp/pdf_generator/pdf_generator.py:358
+#: myapp/pdf_generator/pdf_generator.py:117
+#: myapp/pdf_generator/pdf_generator.py:351
 msgid "** Cancelled **"
 msgstr "** Annulé **"
 
-#: myapp/pdf_generator/pdf_generator.py:127
-#: myapp/pdf_generator/pdf_generator.py:360
+#: myapp/pdf_generator/pdf_generator.py:119
+#: myapp/pdf_generator/pdf_generator.py:353
 msgid "** Paid **"
 msgstr "** Payé **"
 
-#: myapp/pdf_generator/pdf_generator.py:383
+#: myapp/pdf_generator/pdf_generator.py:376
 msgid "Suggested price"
 msgstr "Prix conseillé"
 
-#: myapp/pdf_generator/pdf_generator.py:387
-#: myapp/pdf_generator/pdf_generator.py:443
+#: myapp/pdf_generator/pdf_generator.py:380
+#: myapp/pdf_generator/pdf_generator.py:436
 msgid "Transmissible"
 msgstr "Transmissible"
 
@@ -115,32 +115,44 @@ msgstr "Assigner des membres à l'abonnement"
 msgid "Back to dashboard"
 msgstr "Retour au tableau de bord"
 
-#: myapp/templates/myapp/assign_user.html:41
+#: myapp/templates/myapp/assign_user.html:50
 msgid "Candidates"
 msgstr "Suggestions"
 
-#: myapp/templates/myapp/assign_user.html:50
+#: myapp/templates/myapp/assign_user.html:64
+msgid "Search..."
+msgstr "Rechercher..."
+
+#: myapp/templates/myapp/assign_user.html:83
 msgid "Are you sure you want to link this user?"
 msgstr "Etes-vous sûr de vouloir lier cet utilisateur?"
 
-#: myapp/templates/myapp/assign_user.html:52
+#: myapp/templates/myapp/assign_user.html:85
 msgid "Link"
 msgstr "Assigner"
 
-#: myapp/templates/myapp/assign_user.html:62
+#: myapp/templates/myapp/assign_user.html:91
+msgid "No search results"
+msgstr "Aucun résultat de recherche"
+
+#: myapp/templates/myapp/assign_user.html:93
+msgid "No suggestion"
+msgstr "Aucune suggestion"
+
+#: myapp/templates/myapp/assign_user.html:101
 msgid "Assigned members"
 msgstr "Membres assignés"
 
-#: myapp/templates/myapp/assign_user.html:102
-#: myapp/templates/myapp/assign_user.html:115
+#: myapp/templates/myapp/assign_user.html:143
+#: myapp/templates/myapp/assign_user.html:156
 msgid "Add a new member"
 msgstr "Ajouter un nouveau membre"
 
-#: myapp/templates/myapp/assign_user.html:122
+#: myapp/templates/myapp/assign_user.html:163
 msgid "Save"
 msgstr "Sauvegarder"
 
-#: myapp/templates/myapp/assign_user.html:126
+#: myapp/templates/myapp/assign_user.html:167
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -213,77 +225,77 @@ msgstr "%(rate)s%% rétention (%(total_users)s)"
 msgid "Subscriptions"
 msgstr "Inscriptions"
 
-#: myapp/templates/myapp/dashboard.html:129
+#: myapp/templates/myapp/dashboard.html:124
 msgid "column.Member(s)"
 msgstr "membre(s)"
 
-#: myapp/templates/myapp/dashboard.html:130
+#: myapp/templates/myapp/dashboard.html:125
 msgid "column.Amount"
 msgstr "Montant"
 
-#: myapp/templates/myapp/dashboard.html:131
+#: myapp/templates/myapp/dashboard.html:126
 msgid "column.Invoices"
 msgstr "Factures"
 
-#: myapp/templates/myapp/dashboard.html:132
+#: myapp/templates/myapp/dashboard.html:127
 msgid "column.Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:157
+#: myapp/templates/myapp/dashboard.html:151
 #, fuzzy
 #| msgid "Create new invoice"
 msgid "Create invoice"
 msgstr "Exporter les factures créées"
 
-#: myapp/templates/myapp/dashboard.html:226
+#: myapp/templates/myapp/dashboard.html:196
 msgid "Assign members"
 msgstr "Assigner des membres"
 
-#: myapp/templates/myapp/dashboard.html:229
+#: myapp/templates/myapp/dashboard.html:199
 msgid "Export anonymous bills"
 msgstr "Exporter les factures anonymes"
 
-#: myapp/templates/myapp/dashboard.html:236
-#: myapp/templates/myapp/dashboard.html:264
+#: myapp/templates/myapp/dashboard.html:206
+#: myapp/templates/myapp/dashboard.html:234
 msgid "Export list"
 msgstr "Exporter la liste"
 
-#: myapp/templates/myapp/dashboard.html:243
+#: myapp/templates/myapp/dashboard.html:213
 #, fuzzy, python-format
 #| msgid "Export %(status)s invoices"
 msgid "Export %(status)s invoices"
 msgstr "Exporter les factures créées"
 
-#: myapp/templates/myapp/dashboard.html:251
+#: myapp/templates/myapp/dashboard.html:221
 msgid "Import CAMT file"
 msgstr "Importer un fichier CAMT"
 
-#: myapp/templates/myapp/dashboard.html:257
+#: myapp/templates/myapp/dashboard.html:227
 msgid "Import CSV file"
 msgstr "Importer un fichier CAMT"
 
-#: myapp/templates/myapp/dashboard.html:271
+#: myapp/templates/myapp/dashboard.html:241
 msgid "Export list as CSV"
 msgstr "Exporter en CSV"
 
-#: myapp/templates/myapp/dashboard.html:272
+#: myapp/templates/myapp/dashboard.html:242
 msgid "Export list as XLSX"
 msgstr "Exporter en XLSX"
 
-#: myapp/templates/myapp/dashboard.html:280
-#: myapp/templates/myapp/dashboard.html:281
+#: myapp/templates/myapp/dashboard.html:250
+#: myapp/templates/myapp/dashboard.html:251
 msgid "Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:286
+#: myapp/templates/myapp/dashboard.html:256
 msgid "Mark created invoices as pending"
 msgstr "Marquer les factures créées comme en attente"
 
-#: myapp/templates/myapp/dashboard.html:289
+#: myapp/templates/myapp/dashboard.html:259
 msgid "Create reminder for pending invoice (older than 30 days)"
 msgstr "Créer un rappel pour les factures en attente (plus de 30 jours)"
 
-#: myapp/templates/myapp/dashboard.html:292
+#: myapp/templates/myapp/dashboard.html:262
 msgid "Generate first invoices"
 msgstr "Créer les factures manquantes"
 
