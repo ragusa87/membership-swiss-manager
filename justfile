@@ -3,6 +3,8 @@ set shell := [ "docker", "compose", "run", "--rm", "web", "bash", "-c" ]
 manage *args="":
     ./manage.py {{args}}
 
+test *args="":
+    ./manage.py test {{args}}
 venv:
     rm -Rf myproject.egg-info
     rm -Rf .venv

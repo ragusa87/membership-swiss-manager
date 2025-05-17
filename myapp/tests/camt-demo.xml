@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.04">
+  <BkToCstmrStmt>
+    <GrpHdr>
+      <MsgId>ANONYMIZED-MSG-ID</MsgId>
+      <CreDtTm>2025-05-16T14:55:10</CreDtTm>
+      <MsgPgntn>
+        <PgNb>1</PgNb>
+        <LastPgInd>true</LastPgInd>
+      </MsgPgntn>
+    </GrpHdr>
+    <Stmt>
+      <Id>ANONYMIZED-STMT-ID</Id>
+      <ElctrncSeqNb>26</ElctrncSeqNb>
+      <CreDtTm>2025-05-16T14:55:10</CreDtTm>
+      <FrToDt>
+        <FrDtTm>2025-05-01T00:00:00</FrDtTm>
+        <ToDtTm>2025-05-16T14:55:10</ToDtTm>
+      </FrToDt>
+      <Acct>
+        <Id>
+          <IBAN>CHXXXXXXXXXXXXXXXXXXXXXX</IBAN>
+        </Id>
+        <Ccy>CHF</Ccy>
+        <Ownr>
+          <Nm>ACCOUNT OWNER</Nm>
+          <PstlAdr>
+            <AdrLine>XXXX City</AdrLine>
+          </PstlAdr>
+        </Ownr>
+        <Svcr>
+          <FinInstnId>
+            <BICFI>XXXXXX22XXX</BICFI>
+            <Nm>Bank Placeholder</Nm>
+          </FinInstnId>
+        </Svcr>
+      </Acct>
+      <!-- Balances and Summary stay unchanged -->
+      <!-- Transactions anonymized below -->
+      <Ntry>
+        <Amt Ccy="CHF">60</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-12</Dt></BookgDt>
+        <ValDt><Dt>2025-05-12</Dt></ValDt>
+        <AcctSvcrRef>ANON/0001</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>ANON/0001/1</AcctSvcrRef>
+              <EndToEndId>ANON-E2E-1</EndToEndId>
+              <TxId>TXID-XXXX-1</TxId>
+            </Refs>
+            <Amt Ccy="CHF">60</Amt>
+            <RltdPties>
+              <Dbtr>
+                <Nm>PAYER 1</Nm>
+                <PstlAdr><AdrLine>Address 1, City</AdrLine></PstlAdr>
+              </Dbtr>
+              <DbtrAcct>
+                <Id><IBAN>CHXXXXXXXXXXXXXXXXXXXXXX</IBAN></Id>
+              </DbtrAcct>
+              <Cdtr>
+                <Nm>ACCOUNT OWNER</Nm>
+                <PstlAdr><AdrLine>XXXX City</AdrLine></PstlAdr>
+              </Cdtr>
+            </RltdPties>
+            <RmtInf><Ustrd>Payment details 1</Ustrd></RmtInf>
+            <AddtlTxInf>Bonification PAYER 1</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Bonification PAYER 1</AddtlNtryInf>
+      </Ntry>
+      <!-- Repeat for other transactions -->
+      <Ntry>
+        <Amt Ccy="CHF">60</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-14</Dt></BookgDt>
+        <ValDt><Dt>2025-05-14</Dt></ValDt>
+        <AcctSvcrRef>ANON/0002</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>ANON/0002/1</AcctSvcrRef>
+              <EndToEndId>ANON-E2E-2</EndToEndId>
+              <TxId>TXID-XXXX-2</TxId>
+            </Refs>
+            <Amt Ccy="CHF">60</Amt>
+            <RltdPties>
+              <Dbtr><Nm>PAYER 2</Nm><PstlAdr><AdrLine>Address 2</AdrLine></PstlAdr></Dbtr>
+              <DbtrAcct><Id><IBAN>CHXXXXXXXXXXXXXXXXXXXXXX</IBAN></Id></DbtrAcct>
+              <Cdtr><Nm>ACCOUNT OWNER</Nm><PstlAdr><AdrLine>XXXX City</AdrLine></PstlAdr></Cdtr>
+            </RltdPties>
+            <RmtInf><Ustrd>Payment details 2</Ustrd></RmtInf>
+            <AddtlTxInf>Bonification PAYER 2</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Bonification PAYER 2</AddtlNtryInf>
+      </Ntry>
+
+      <!-- Repeat pattern for PAYER 3 and PAYER 4 similarly -->
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>
