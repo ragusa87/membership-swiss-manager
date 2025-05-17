@@ -18,7 +18,7 @@ class PdfsTestCase(LoggedInTestCase):
         reader = PdfReader(pdf_file)
         text = "".join(page.extract_text() for page in reader.pages)
 
-        self.assertIn("Prix conseillé: 11.0 CHF", text)
+        self.assertIn("Suggested price: 11.0 CHF", text)
         self.assertIn("CH93 0076 2011 6238 5295 7", text)
 
     def test_invoice_membership(self):
@@ -42,6 +42,6 @@ class PdfsTestCase(LoggedInTestCase):
         reader = PdfReader(pdf_file)
         text = "".join(page.extract_text() for page in reader.pages)
 
-        self.assertIn("Montant\nCHF 11.00", text)
+        self.assertIn("Amount\nCHF 11.00", text)
         self.assertIn("JohnDoe", text)
         self.assertIn("CH93 0076 2011 6238 5295 7", text)
