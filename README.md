@@ -26,7 +26,6 @@ You can group member's registration together, so only one member will be billed 
 ## Limitations
 - Currency is hardcoded as "CHF", the price can be configured in the admin interface for each subscription plan
 - Only one Account is configurable for Billing (the one used to generate the invoices)
-- Test are not implemented (yet)
 - We expect a reverse proxy (traefik, Caddy, nginx, etc) to use HTTPS.
 
 ## Setup
