@@ -135,7 +135,7 @@
                                             {{ "&" }}
                                             {{ child.member.get_fullname  }}
                                         {% endfor %}
-                                        {% with count=member_subscription.parent_count|add:1 %}
+                                        {% with count=member_subscription.group_count %}
                                             ({{ count }})
                                         {% endwith %}
                                     </div>

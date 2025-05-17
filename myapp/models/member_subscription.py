@@ -136,7 +136,7 @@ class MemberSubscription(models.Model):
             )
             .select_related("subscription", "member", "parent")
             .annotate(invoice_count=Count("invoices"))
-            .annotate(parent_count=Count("children", distinct=True))
+            .annotate(group_count=Count("children", distinct=True) + 1)
             .prefetch_related("invoices")
             .prefetch_related("children")
             .prefetch_related("children__member")
