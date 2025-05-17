@@ -8,38 +8,38 @@ asgiref==3.8.1
     # via django
 cairocffi==1.7.1
     # via cairosvg
-cairosvg==2.7.1
+cairosvg==2.8.2
     # via myproject (pyproject.toml)
 cffi==1.17.1
     # via cairocffi
-cssselect2==0.7.0
+cssselect2==0.8.0
     # via cairosvg
 defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==5.1.5
+django==5.2.1
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
     #   myproject (pyproject.toml)
-django-debug-toolbar==5.0.1
+django-debug-toolbar==5.2.0
     # via myproject (pyproject.toml)
 django-phonenumber-field[phonenumberslite]==8.1.0
     # via myproject (pyproject.toml)
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via myproject (pyproject.toml)
 iso3166==2.1.1
     # via qrbill
-numpy==2.2.2
+numpy==2.2.5
     # via pandas
-packaging==24.2
+packaging==25.0
     # via gunicorn
 pandas==2.2.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.4
+phonenumberslite==9.0.5
     # via django-phonenumber-field
-pillow==11.1.0
+pillow==11.2.1
     # via cairosvg
 pycamt==1.0.1
     # via myproject (pyproject.toml)
@@ -49,15 +49,15 @@ pypdf2==3.0.1
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
-python-dotenv==1.0.1
+python-dotenv==1.1.0
     # via myproject (pyproject.toml)
-python-stdnum==1.20
+python-stdnum==2.1
     # via qrbill
-pytz==2025.1
+pytz==2025.2
     # via pandas
 qrbill==1.1.0
     # via myproject (pyproject.toml)
-qrcode==8.0
+qrcode==8.2
     # via qrbill
 six==1.17.0
     # via python-dateutil
@@ -71,11 +71,11 @@ tinycss2==1.4.0
     # via
     #   cairosvg
     #   cssselect2
-tzdata==2025.1
+tzdata==2025.2
     # via pandas
 webencodings==0.5.1
     # via
     #   cssselect2
     #   tinycss2
-xlsxwriter==3.2.2
+xlsxwriter==3.2.3
     # via myproject (pyproject.toml)

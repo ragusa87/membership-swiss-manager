@@ -17,8 +17,8 @@ requirements-install:
 
 requirements-generate:
     set -x
-    pip-compile pyproject.toml -v
-    pip-compile pyproject.toml -v --all-extras -o requirements.dev.txt
+    pip-compile pyproject.toml -v -U
+    pip-compile pyproject.toml -v -U --all-extras -o requirements.dev.txt
 
 init: venv requirements-install
     rm -f db.sqlite3
