@@ -31,7 +31,7 @@ gunicorn==23.0.0
     # via myproject (pyproject.toml)
 iso3166==2.1.1
     # via qrbill
-numpy==2.2.5
+numpy==2.2.6
     # via pandas
 packaging==25.0
     # via gunicorn
