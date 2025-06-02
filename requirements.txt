@@ -37,7 +37,7 @@ packaging==25.0
     # via gunicorn
 pandas==2.2.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.5
+phonenumberslite==9.0.6
     # via django-phonenumber-field
 pillow==11.2.1
     # via cairosvg
@@ -45,7 +45,7 @@ pycamt==1.0.1
     # via myproject (pyproject.toml)
 pycparser==2.22
     # via cffi
-pypdf==5.5.0
+pypdf==5.6.0
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
