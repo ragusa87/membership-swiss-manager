@@ -35,9 +35,9 @@ numpy==2.2.6
     # via pandas
 packaging==25.0
     # via gunicorn
-pandas==2.2.3
+pandas==2.3.0
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.6
+phonenumberslite==9.0.7
     # via django-phonenumber-field
 pillow==11.2.1
     # via cairosvg
