@@ -46,9 +46,9 @@ packaging==25.0
     #   build
     #   gunicorn
     #   pytest
-pandas==2.2.3
+pandas==2.3.0
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.6
+phonenumberslite==9.0.7
     # via django-phonenumber-field
 pillow==11.2.1
     # via cairosvg
@@ -80,7 +80,7 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.11.12
+ruff==0.11.13
     # via myproject (pyproject.toml)
 rust-just==1.40.0
     # via myproject (pyproject.toml)
