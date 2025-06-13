@@ -117,6 +117,15 @@ class Invoice(models.Model):
 
         return invoice
 
+    def can_create_reminder(self) -> bool:
+        if self.reminder is not None and self.reminder >= 3:
+            return False
+
+        if self.status != InvoiceStatusEnum.PENDING:
+            return False
+
+        return True
+
     def create_reminder(self):
         self.status = InvoiceStatusEnum.CANCELED
         self.save()

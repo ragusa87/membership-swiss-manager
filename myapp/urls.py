@@ -29,6 +29,7 @@ from .views_more.invoices import (
     create_first_invoices_by_subscription,
     pdfs_by_subscription_blank,
     create_missing_invoice_by_member_subscription,
+    create_reminder,
 )
 from .views_more.dashboard import DashboardView
 from .views_more.switch_language import switch_language
@@ -62,6 +63,7 @@ urlpatterns = [
         name="assign_user",
     ),
     path("invoice/<int:invoice_id>/pdf/", pdf_by_invoice, name="pdf_by_invoice"),
+    path("invoice/<int:invoice_id>/reminder/", create_reminder, name="create_reminder"),
     path(
         "invoices/<int:subscription_id>/pdf/",
         pdfs_by_subscription,

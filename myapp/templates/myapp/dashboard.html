@@ -30,7 +30,13 @@
             }
         });
     })
-
+    document.querySelectorAll("[data-confirm]").forEach(function (element) {
+        element.addEventListener("click", (event) => {
+            if (!confirm(element.getAttribute("data-confirm"))) {
+                event.preventDefault();
+            }
+        });
+    });
 
 </script>
 
@@ -156,14 +162,30 @@
                                         {% for invoice in member_subscription.invoices.all %}
                                             <div class="block flex">
                                                 <span class="block mt-0.5">{{ invoice.price|format_price }}</span>
-                                                <span class="inline-block items-center px-2 m-1 text-xs leading-5 font-semibold rounded-full {{ invoice.get_status_class}}">
-                                                    {{ invoice.get_status_text }}
-                                                    {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
+                                                <span class="grow">
+                                                    <span class="inline-block items-center px-2 m-1 text-xs leading-5 font-semibold rounded-full {{ invoice.get_status_class}}">
+                                                        {{ invoice.get_status_text }}
+                                                        {% if invoice.reminder > 0 %}({{ invoice.get_reminder_text }}){% endif %}
+                                                    </span>
                                                 </span>
+                                                <span class="flex place-content-end">
 
-                                                <a class="block grow justify-self-end text-right" href="{% url 'admin:myapp_invoice_change' object_id=invoice.pk %}">
-                                                    {% sprite 'lucide-eye' %}
-                                                </a>
+                                                    {% if invoice.can_create_reminder %}
+                                                        <a data-confirm="{% blocktrans %}Do you want to create a reminder?{% endblocktrans %}" title="{% blocktrans %}Create a reminder{% endblocktrans %}" class="block grow justify-self-end text-right" href="{% url 'create_reminder' invoice_id=invoice.pk %}">
+                                                            {% sprite 'lucide-history' %}
+                                                        </a>
+                                                    {% endif %}
+
+                                                    <a title="{% blocktrans %}View{% endblocktrans %}"  class="block grow justify-self-end text-right" href="{% url 'admin:myapp_invoice_change' object_id=invoice.pk %}">
+                                                        {% sprite 'lucide-eye' %}
+                                                    </a>
+
+                                                    <a title="{% blocktrans %}View as PDF{% endblocktrans %}"  class="block grow justify-self-end text-right" href="{% url 'pdf_by_invoice' invoice_id=invoice.pk %}">
+                                                        {% sprite 'lucide-receipt' %}
+                                                    </a>
+
+
+                                                </span>
                                             </div>
                                         {% endfor %}
                                         {% endif %}
