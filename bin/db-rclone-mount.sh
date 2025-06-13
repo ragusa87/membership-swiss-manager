@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -e
-source bin/db-rclone-common.sh
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 cd ..
+
+source bin/db-rclone-common.sh
+
 
 if [ -d $(dirname ${FILENAME}) ]; then
 	echo "Directory$(dirname ${FILENAME}) already exists, remove it first";
