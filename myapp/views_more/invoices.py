@@ -13,7 +13,7 @@ from django.utils import timezone
 
 
 @login_required
-def pdf_by_invoice(self, invoice_id: int) -> HttpResponse:
+def pdf_by_invoice(request, invoice_id: int) -> HttpResponse:
     generator = PDFGenerator()
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
@@ -61,7 +61,9 @@ def pdfs_by_subscription_blank(request, subscription_id: int) -> HttpResponse:
 
 
 @login_required
-def mark_created_as_pending_by_subscription(self, subscription_id: int) -> HttpResponse:
+def mark_created_as_pending_by_subscription(
+    request, subscription_id: int
+) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     invoices = Invoice.objects.filter(
         member_subscription__subscription=subscription,
@@ -80,8 +82,23 @@ def mark_created_as_pending_by_subscription(self, subscription_id: int) -> HttpR
 
 
 @login_required
+def create_reminder(request, invoice_id: int) -> HttpResponse:
+    invoice = get_object_or_404(Invoice, pk=invoice_id)
+    if invoice.can_create_reminder():
+        invoice.create_reminder()
+
+    return HttpResponseRedirect(
+        redirect_to=reverse_lazy(
+            "dashboard",
+            kwargs={"subscription_name": invoice.member_subscription.subscription.name},
+        ),
+        content_type="application/pdf",
+    )
+
+
+@login_required
 def create_reminder_for_pending_by_subscription(
-    self, subscription_id: int
+    request, subscription_id: int
 ) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     thirty_days_ago = timezone.now() - timedelta(days=30)
@@ -102,14 +119,16 @@ def create_reminder_for_pending_by_subscription(
 
 
 @login_required
-def create_first_invoices_by_subscription(self, subscription_id: int) -> HttpResponse:
+def create_first_invoices_by_subscription(
+    request, subscription_id: int
+) -> HttpResponse:
     subscription = get_object_or_404(Subscription, pk=subscription_id)
     member_subscriptions = MemberSubscription.objects.annotate(
         nb_invoices=Count("invoices")
     ).filter(subscription=subscription, parent=None, active=True, nb_invoices=0)
 
     if len(member_subscriptions) == 0:
-        messages.error(self, _("No matching subscription found"))
+        messages.error(request, _("No matching subscription found"))
         return HttpResponseRedirect(
             redirect_to=reverse_lazy(
                 "dashboard", kwargs={"subscription_name": subscription.name}
