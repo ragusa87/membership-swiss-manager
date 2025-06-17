@@ -18,7 +18,7 @@ defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==5.2.2
+django==5.2.3
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
@@ -31,7 +31,7 @@ gunicorn==23.0.0
     # via myproject (pyproject.toml)
 iso3166==2.1.1
     # via qrbill
-numpy==2.2.6
+numpy==2.3.0
     # via pandas
 packaging==25.0
     # via gunicorn
