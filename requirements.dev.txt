@@ -4,7 +4,7 @@
 #
 #    pip-compile --all-extras --output-file=requirements.dev.txt pyproject.toml
 #
-asgiref==3.8.1
+asgiref==3.9.0
     # via django
 beautifulsoup4==4.13.4
     # via myproject (pyproject.toml)
@@ -24,7 +24,7 @@ defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==5.2.3
+django==5.2.4
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
@@ -46,7 +46,7 @@ packaging==25.0
     #   build
     #   gunicorn
     #   pytest
-pandas==2.3.0
+pandas==2.3.1
     # via myproject (pyproject.toml)
 phonenumberslite==9.0.8
     # via django-phonenumber-field
@@ -80,9 +80,9 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.12.1
+ruff==0.12.2
     # via myproject (pyproject.toml)
-rust-just==1.40.0
+rust-just==1.41.0
     # via myproject (pyproject.toml)
 six==1.17.0
     # via python-dateutil
@@ -98,7 +98,7 @@ tinycss2==1.4.0
     # via
     #   cairosvg
     #   cssselect2
-typing-extensions==4.14.0
+typing-extensions==4.14.1
     # via beautifulsoup4
 tzdata==2025.2
     # via pandas
