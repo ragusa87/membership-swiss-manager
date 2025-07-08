@@ -4,7 +4,7 @@
 #
 #    pip-compile pyproject.toml
 #
-asgiref==3.8.1
+asgiref==3.9.0
     # via django
 cairocffi==1.7.1
     # via cairosvg
@@ -18,7 +18,7 @@ defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==5.2.3
+django==5.2.4
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
@@ -35,7 +35,7 @@ numpy==2.3.1
     # via pandas
 packaging==25.0
     # via gunicorn
-pandas==2.3.0
+pandas==2.3.1
     # via myproject (pyproject.toml)
 phonenumberslite==9.0.8
     # via django-phonenumber-field
