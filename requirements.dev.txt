@@ -4,7 +4,7 @@
 #
 #    pip-compile --all-extras --output-file=requirements.dev.txt pyproject.toml
 #
-asgiref==3.9.0
+asgiref==3.9.1
     # via django
 beautifulsoup4==4.13.4
     # via myproject (pyproject.toml)
@@ -48,7 +48,7 @@ packaging==25.0
     #   pytest
 pandas==2.3.1
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.8
+phonenumberslite==9.0.9
     # via django-phonenumber-field
 pillow==11.3.0
     # via cairosvg
@@ -60,7 +60,7 @@ pycamt==1.0.1
     # via myproject (pyproject.toml)
 pycparser==2.22
     # via cffi
-pypdf==5.7.0
+pypdf==5.8.0
     # via myproject (pyproject.toml)
 pyproject-hooks==1.2.0
     # via
@@ -80,9 +80,9 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.12.2
+ruff==0.12.3
     # via myproject (pyproject.toml)
-rust-just==1.41.0
+rust-just==1.42.0
     # via myproject (pyproject.toml)
 six==1.17.0
     # via python-dateutil
