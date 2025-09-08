@@ -18,12 +18,12 @@ defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==5.2.4
+django==5.2.6
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
     #   myproject (pyproject.toml)
-django-debug-toolbar==5.2.0
+django-debug-toolbar==6.0.0
     # via myproject (pyproject.toml)
 django-phonenumber-field[phonenumberslite]==8.1.0
     # via myproject (pyproject.toml)
@@ -31,13 +31,13 @@ gunicorn==23.0.0
     # via myproject (pyproject.toml)
 iso3166==2.1.1
     # via qrbill
-numpy==2.3.1
+numpy==2.3.2
     # via pandas
 packaging==25.0
     # via gunicorn
-pandas==2.3.1
+pandas==2.3.2
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.9
+phonenumberslite==9.0.13
     # via django-phonenumber-field
 pillow==11.3.0
     # via cairosvg
