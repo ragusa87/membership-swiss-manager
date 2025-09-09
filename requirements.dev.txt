@@ -24,7 +24,7 @@ defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==5.2.4
+django==5.2.6
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
