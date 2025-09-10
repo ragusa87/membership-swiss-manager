@@ -6,15 +6,15 @@
 #
 asgiref==3.9.1
     # via django
-beautifulsoup4==4.13.4
+beautifulsoup4==4.13.5
     # via myproject (pyproject.toml)
-build==1.2.2.post1
+build==1.3.0
     # via pip-tools
 cairocffi==1.7.1
     # via cairosvg
 cairosvg==2.8.2
     # via myproject (pyproject.toml)
-cffi==1.17.1
+cffi==2.0.0
     # via cairocffi
 click==8.2.1
     # via pip-tools
@@ -29,7 +29,7 @@ django==5.2.6
     #   django-debug-toolbar
     #   django-phonenumber-field
     #   myproject (pyproject.toml)
-django-debug-toolbar==5.2.0
+django-debug-toolbar==6.0.0
     # via myproject (pyproject.toml)
 django-phonenumber-field[phonenumberslite]==8.1.0
     # via myproject (pyproject.toml)
@@ -39,26 +39,26 @@ iniconfig==2.1.0
     # via pytest
 iso3166==2.1.1
     # via qrbill
-numpy==2.3.1
+numpy==2.3.3
     # via pandas
 packaging==25.0
     # via
     #   build
     #   gunicorn
     #   pytest
-pandas==2.3.1
+pandas==2.3.2
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.9
+phonenumberslite==9.0.13
     # via django-phonenumber-field
 pillow==11.3.0
     # via cairosvg
-pip-tools==7.4.1
+pip-tools==7.5.0
     # via myproject (pyproject.toml)
 pluggy==1.6.0
     # via pytest
 pycamt==1.0.1
     # via myproject (pyproject.toml)
-pycparser==2.22
+pycparser==2.23
     # via cffi
 pypdf==6.0.0
     # via myproject (pyproject.toml)
@@ -66,7 +66,7 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.4.1
+pytest==8.4.2
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
@@ -80,13 +80,13 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.12.3
+ruff==0.13.0
     # via myproject (pyproject.toml)
-rust-just==1.42.0
+rust-just==1.42.4
     # via myproject (pyproject.toml)
 six==1.17.0
     # via python-dateutil
-soupsieve==2.7
+soupsieve==2.8
     # via beautifulsoup4
 sqlparse==0.5.3
     # via
@@ -98,7 +98,7 @@ tinycss2==1.4.0
     # via
     #   cairosvg
     #   cssselect2
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via beautifulsoup4
 tzdata==2025.2
     # via pandas
