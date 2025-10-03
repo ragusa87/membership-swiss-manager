@@ -11,7 +11,7 @@ dependencies = [
   "pypdf>=3.9.0",
   "pandas",
   "xlsxwriter",
-  "django-debug-toolbar",
+  "django-debug-toolbar>=6.0.0",
   "pycamt",
   "django-phonenumber-field[phonenumberslite]",
 ]

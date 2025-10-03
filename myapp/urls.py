@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, re_path
 from . import views
@@ -36,7 +37,6 @@ from .views_more.switch_language import switch_language
 from .views_more.my_ip import my_ip
 from .views_more.export_subscription import export_subscription
 from .settings import DEBUG
-from debug_toolbar.toolbar import debug_toolbar_urls
 from .views_more.csv_upload import CSVUploadView, CsvImport
 from .views_more.camt_import import (
     CamtUploadView,
@@ -122,5 +122,7 @@ urlpatterns = [
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
 ]
 
-if DEBUG:
+if DEBUG and "debug_toolbar" in settings.INSTALLED_APPS:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+
     urlpatterns += debug_toolbar_urls()
