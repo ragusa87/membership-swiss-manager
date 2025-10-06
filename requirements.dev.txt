@@ -4,7 +4,7 @@
 #
 #    pip-compile --all-extras --output-file=requirements.dev.txt pyproject.toml
 #
-asgiref==3.9.2
+asgiref==3.10.0
     # via django
 beautifulsoup4==4.14.2
     # via myproject (pyproject.toml)
@@ -31,7 +31,7 @@ django==5.2.7
     #   myproject (pyproject.toml)
 django-debug-toolbar==6.0.0
     # via myproject (pyproject.toml)
-django-phonenumber-field[phonenumberslite]==8.2.0
+django-phonenumber-field[phonenumberslite]==8.3.0
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
