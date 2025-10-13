@@ -37,7 +37,7 @@ packaging==25.0
     # via gunicorn
 pandas==2.3.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.15
+phonenumberslite==9.0.16
     # via django-phonenumber-field
 pillow==11.3.0
     # via cairosvg
