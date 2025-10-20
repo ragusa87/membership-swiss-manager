@@ -35,11 +35,11 @@ django-phonenumber-field[phonenumberslite]==8.3.0
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
-iniconfig==2.1.0
+iniconfig==2.3.0
     # via pytest
 iso3166==2.1.1
     # via qrbill
-numpy==2.3.3
+numpy==2.3.4
     # via pandas
 packaging==25.0
     # via
@@ -50,7 +50,7 @@ pandas==2.3.3
     # via myproject (pyproject.toml)
 phonenumberslite==9.0.16
     # via django-phonenumber-field
-pillow==11.3.0
+pillow==12.0.0
     # via cairosvg
 pip-tools==7.5.1
     # via myproject (pyproject.toml)
@@ -62,7 +62,7 @@ pycparser==2.23
     # via cffi
 pygments==2.19.2
     # via pytest
-pypdf==6.1.1
+pypdf==6.1.2
     # via myproject (pyproject.toml)
 pyproject-hooks==1.2.0
     # via
@@ -82,7 +82,7 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.14.0
+ruff==0.14.1
     # via myproject (pyproject.toml)
 rust-just==1.43.0
     # via myproject (pyproject.toml)
