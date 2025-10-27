@@ -48,7 +48,7 @@ packaging==25.0
     #   pytest
 pandas==2.3.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.16
+phonenumberslite==9.0.17
     # via django-phonenumber-field
 pillow==12.0.0
     # via cairosvg
@@ -72,7 +72,7 @@ pytest==8.4.2
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
-python-dotenv==1.1.1
+python-dotenv==1.2.1
     # via myproject (pyproject.toml)
 python-stdnum==2.1
     # via qrbill
@@ -82,7 +82,7 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.14.1
+ruff==0.14.2
     # via myproject (pyproject.toml)
 rust-just==1.43.0
     # via myproject (pyproject.toml)
