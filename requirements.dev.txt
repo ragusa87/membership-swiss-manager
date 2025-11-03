@@ -29,7 +29,7 @@ django==5.2.7
     #   django-debug-toolbar
     #   django-phonenumber-field
     #   myproject (pyproject.toml)
-django-debug-toolbar==6.0.0
+django-debug-toolbar==6.1.0
     # via myproject (pyproject.toml)
 django-phonenumber-field[phonenumberslite]==8.3.0
     # via myproject (pyproject.toml)
@@ -82,7 +82,7 @@ qrbill==1.1.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.14.2
+ruff==0.14.3
     # via myproject (pyproject.toml)
 rust-just==1.43.0
     # via myproject (pyproject.toml)
