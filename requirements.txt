@@ -45,7 +45,7 @@ pycamt==1.0.1
     # via myproject (pyproject.toml)
 pycparser==2.23
     # via cffi
-pypdf==6.1.3
+pypdf==6.4.0
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
