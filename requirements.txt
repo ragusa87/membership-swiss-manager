@@ -4,7 +4,7 @@
 #
 #    pip-compile pyproject.toml
 #
-asgiref==3.10.0
+asgiref==3.11.0
     # via django
 cairocffi==1.7.1
     # via cairosvg
@@ -23,21 +23,21 @@ django==5.2.8
     #   django-debug-toolbar
     #   django-phonenumber-field
     #   myproject (pyproject.toml)
-django-debug-toolbar==6.0.0
+django-debug-toolbar==6.1.0
     # via myproject (pyproject.toml)
-django-phonenumber-field[phonenumberslite]==8.3.0
+django-phonenumber-field[phonenumberslite]==8.4.0
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
 iso3166==2.1.1
     # via qrbill
-numpy==2.3.4
+numpy==2.3.5
     # via pandas
 packaging==25.0
     # via gunicorn
 pandas==2.3.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.17
+phonenumberslite==9.0.19
     # via django-phonenumber-field
 pillow==12.0.0
     # via cairosvg
@@ -55,7 +55,7 @@ python-stdnum==2.1
     # via qrbill
 pytz==2025.2
     # via pandas
-qrbill==1.1.0
+qrbill==1.2.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
@@ -67,7 +67,7 @@ sqlparse==0.5.3
     #   django-debug-toolbar
 svgwrite==1.4.3
     # via qrbill
-tinycss2==1.4.0
+tinycss2==1.5.1
     # via
     #   cairosvg
     #   cssselect2
