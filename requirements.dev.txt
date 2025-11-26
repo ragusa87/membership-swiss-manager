@@ -4,7 +4,7 @@
 #
 #    pip-compile --all-extras --output-file=requirements.dev.txt pyproject.toml
 #
-asgiref==3.10.0
+asgiref==3.11.0
     # via django
 beautifulsoup4==4.14.2
     # via myproject (pyproject.toml)
@@ -16,7 +16,7 @@ cairosvg==2.8.2
     # via myproject (pyproject.toml)
 cffi==2.0.0
     # via cairocffi
-click==8.3.0
+click==8.3.1
     # via pip-tools
 cssselect2==0.8.0
     # via cairosvg
@@ -29,9 +29,9 @@ django==5.2.8
     #   django-debug-toolbar
     #   django-phonenumber-field
     #   myproject (pyproject.toml)
-django-debug-toolbar==6.0.0
+django-debug-toolbar==6.1.0
     # via myproject (pyproject.toml)
-django-phonenumber-field[phonenumberslite]==8.3.0
+django-phonenumber-field[phonenumberslite]==8.4.0
     # via myproject (pyproject.toml)
 gunicorn==23.0.0
     # via myproject (pyproject.toml)
@@ -39,7 +39,7 @@ iniconfig==2.3.0
     # via pytest
 iso3166==2.1.1
     # via qrbill
-numpy==2.3.4
+numpy==2.3.5
     # via pandas
 packaging==25.0
     # via
@@ -48,11 +48,11 @@ packaging==25.0
     #   pytest
 pandas==2.3.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.17
+phonenumberslite==9.0.19
     # via django-phonenumber-field
 pillow==12.0.0
     # via cairosvg
-pip-tools==7.5.1
+pip-tools==7.5.2
     # via myproject (pyproject.toml)
 pluggy==1.6.0
     # via pytest
@@ -68,7 +68,7 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.4.2
+pytest==9.0.1
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
@@ -78,13 +78,13 @@ python-stdnum==2.1
     # via qrbill
 pytz==2025.2
     # via pandas
-qrbill==1.1.0
+qrbill==1.2.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.14.2
+ruff==0.14.6
     # via myproject (pyproject.toml)
-rust-just==1.43.0
+rust-just==1.43.1
     # via myproject (pyproject.toml)
 six==1.17.0
     # via python-dateutil
@@ -96,7 +96,7 @@ sqlparse==0.5.3
     #   django-debug-toolbar
 svgwrite==1.4.3
     # via qrbill
-tinycss2==1.4.0
+tinycss2==1.5.1
     # via
     #   cairosvg
     #   cssselect2
