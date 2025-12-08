@@ -18,7 +18,7 @@ defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==5.2.9
+django==6.0
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
@@ -37,7 +37,7 @@ packaging==25.0
     # via gunicorn
 pandas==2.3.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.19
+phonenumberslite==9.0.20
     # via django-phonenumber-field
 pillow==12.0.0
     # via cairosvg
@@ -45,7 +45,7 @@ pycamt==1.0.1
     # via myproject (pyproject.toml)
 pycparser==2.23
     # via cffi
-pypdf==6.4.0
+pypdf==6.4.1
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
@@ -61,7 +61,7 @@ qrcode==8.2
     # via qrbill
 six==1.17.0
     # via python-dateutil
-sqlparse==0.5.3
+sqlparse==0.5.4
     # via
     #   django
     #   django-debug-toolbar
