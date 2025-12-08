@@ -3,7 +3,7 @@ name = "myproject"
 version = "1.0"
 requires-python = ">=3.13"
 dependencies = [
-  "django==5.2.*",
+  "django==6.0.*",
   "gunicorn",
   "python-dotenv",
   "qrbill",
