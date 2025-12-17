@@ -4,6 +4,7 @@ RUN set -x; \
     apt-get update -qq \
     && apt-get install -yq \
         bash-completion \
+        bash \
         gettext \
         postgresql-client \
         sassc \
