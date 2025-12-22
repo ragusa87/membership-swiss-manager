@@ -39,7 +39,7 @@ iniconfig==2.3.0
     # via pytest
 iso3166==2.1.1
     # via qrbill
-numpy==2.3.5
+numpy==2.4.0
     # via pandas
 packaging==25.0
     # via
@@ -48,7 +48,7 @@ packaging==25.0
     #   pytest
 pandas==2.3.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.20
+phonenumberslite==9.0.21
     # via django-phonenumber-field
 pillow==12.0.0
     # via cairosvg
@@ -62,7 +62,7 @@ pycparser==2.23
     # via cffi
 pygments==2.19.2
     # via pytest
-pypdf==6.4.2
+pypdf==6.5.0
     # via myproject (pyproject.toml)
 pyproject-hooks==1.2.0
     # via
@@ -82,15 +82,15 @@ qrbill==1.2.0
     # via myproject (pyproject.toml)
 qrcode==8.2
     # via qrbill
-ruff==0.14.9
+ruff==0.14.10
     # via myproject (pyproject.toml)
 rust-just==1.45.0
     # via myproject (pyproject.toml)
 six==1.17.0
     # via python-dateutil
-soupsieve==2.8
+soupsieve==2.8.1
     # via beautifulsoup4
-sqlparse==0.5.4
+sqlparse==0.5.5
     # via
     #   django
     #   django-debug-toolbar

@@ -31,13 +31,13 @@ gunicorn==23.0.0
     # via myproject (pyproject.toml)
 iso3166==2.1.1
     # via qrbill
-numpy==2.3.5
+numpy==2.4.0
     # via pandas
 packaging==25.0
     # via gunicorn
 pandas==2.3.3
     # via myproject (pyproject.toml)
-phonenumberslite==9.0.20
+phonenumberslite==9.0.21
     # via django-phonenumber-field
 pillow==12.0.0
     # via cairosvg
@@ -45,7 +45,7 @@ pycamt==1.0.1
     # via myproject (pyproject.toml)
 pycparser==2.23
     # via cffi
-pypdf==6.4.2
+pypdf==6.5.0
     # via myproject (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via pandas
@@ -61,7 +61,7 @@ qrcode==8.2
     # via qrbill
 six==1.17.0
     # via python-dateutil
-sqlparse==0.5.4
+sqlparse==0.5.5
     # via
     #   django
     #   django-debug-toolbar
