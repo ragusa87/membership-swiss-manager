@@ -1,4 +1,4 @@
-FROM python:3.13-trixie AS base
+FROM python:3.14-trixie AS base
 
 RUN set -x; \
     apt-get update -qq \
