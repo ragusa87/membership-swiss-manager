@@ -18,7 +18,7 @@ defusedxml==0.7.1
     # via
     #   cairosvg
     #   pycamt
-django==6.0
+django==6.0.1
     # via
     #   django-debug-toolbar
     #   django-phonenumber-field
@@ -39,7 +39,7 @@ pandas==2.3.3
     # via myproject (pyproject.toml)
 phonenumberslite==9.0.21
     # via django-phonenumber-field
-pillow==12.0.0
+pillow==12.1.0
     # via cairosvg
 pycamt==1.0.1
     # via myproject (pyproject.toml)
@@ -51,7 +51,7 @@ python-dateutil==2.9.0.post0
     # via pandas
 python-dotenv==1.2.1
     # via myproject (pyproject.toml)
-python-stdnum==2.1
+python-stdnum==2.2
     # via qrbill
 pytz==2025.2
     # via pandas
