@@ -62,7 +62,7 @@ pycparser==2.23
     # via cffi
 pygments==2.19.2
     # via pytest
-pypdf==6.5.0
+pypdf==6.6.0
     # via myproject (pyproject.toml)
 pyproject-hooks==1.2.0
     # via
