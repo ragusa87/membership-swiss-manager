@@ -108,7 +108,7 @@ webencodings==0.5.1
     # via
     #   cssselect2
     #   tinycss2
-wheel==0.45.1
+wheel==0.46.2
     # via pip-tools
 xlsxwriter==3.2.9
     # via myproject (pyproject.toml)
