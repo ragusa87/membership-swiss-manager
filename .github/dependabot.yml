@@ -4,12 +4,10 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 version: 2
 updates:
-  - package-ecosystem: "pip"
+  - package-ecosystem: "uv"
     directory: "/"
     schedule:
       interval: "weekly"
-    allow:
-      - dependency-type: "all"
     groups:
       python-dependencies:
         patterns:
