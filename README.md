@@ -1,27 +1,20 @@
 # Manage subscriptions / memberships
 
-I switched from Symfony to Django at work, and this project is just a playground to learn Django.
+A Django application to assign members to a subscription plan and manage the billing process.
 
-GOAL: Assign members to a subscription plan and manage the billing process.
+**Tech stack:** Docker, Python 3.14, Django 6, uv (package manager)
 
 > This project is used to manage a community garden where members pay for a plot.
 
-There are currently two types of registration:
-- As a member: You paid the subscription fee
-- Other: You paid a donation (or you are a sponsor)
-
-I create one subscription plan per year, but there is no limitation.
-
-You can group member's registration together, so only one member will be billed for the whole group.
-
-
 ## Features
 
-- Assign users to a subscription plan
-- Generate Swiss invoices as PDFs (you can then send the invoices yourself or print them)
-- Import a CAMT file to update the status of the invoices
-- Overview of the subscription plans (and export)
-- Use sqlite as a database engine (can easily be changed)
+- Assign users to a subscription plan (with family/group support)
+- Generate Swiss invoices as PDFs with QR code
+- Import CAMT files to reconcile bank payments
+- Dashboard with subscription statistics
+- SQLite database (easily changeable)
+
+For technical documentation (models, views, development setup), see [AGENTS.md](AGENTS.md).
 
 ## Limitations
 - Currency is hardcoded as "CHF", the price can be configured in the admin interface for each subscription plan
