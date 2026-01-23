@@ -8,21 +8,15 @@ test *args="":
 venv:
     rm -Rf myproject.egg-info
     rm -Rf .venv
-    mkdir -p .venv
-    python -m venv .venv
-    pip install --upgrade pip
-    pip install pip-tools
+    uv venv .venv
 
-requirements-install:
-    pip install -r requirements.txt
-    pip install -r requirements.dev.txt
+sync:
+    uv sync --all-extras
 
-requirements-generate:
-    set -x
-    pip-compile pyproject.toml -v -U
-    pip-compile pyproject.toml -v -U --all-extras -o requirements.dev.txt
+lock:
+    uv lock --upgrade
 
-init: venv requirements-install
+init: venv sync
     rm -f db.sqlite3
     ./manage.py migrate
     ./manage.py createsuperuser --username $(whoami) --email swing+localsetup@liip.ch --no-input
@@ -56,3 +50,6 @@ translate:
 fixturize:
     ./manage.py fixturize
 fixtures: fixturize
+
+uv *args="":
+    uv {{args}}

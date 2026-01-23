@@ -52,9 +52,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-          cache: 'pip'
-      - name: Install pip dev dependencies
-        run: pip install -r requirements.dev.txt
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install dev dependencies
+        run: uv sync --all-extras
+
+      - name: Add venv to PATH
+        run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
       - name: Ruff format
         run: ruff format --check
@@ -64,5 +69,5 @@ jobs:
 
       - name: Migrations and fixtures
         run: |
-          ./manage.py migrate
-          ./manage.py test
+          python manage.py migrate
+          python manage.py test

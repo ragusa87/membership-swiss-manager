@@ -21,7 +21,6 @@ exclude = ["tests*", "migrations*", "public*"]
 [project.optional-dependencies]
 dev = [
   "ruff",
-  "pip-tools",
   "rust-just",
   "pytest",
   "beautifulsoup4",

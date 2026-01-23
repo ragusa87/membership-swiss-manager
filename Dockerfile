@@ -1,4 +1,5 @@
 FROM python:3.14-trixie AS base
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 RUN set -x; \
     apt-get update -qq \
@@ -17,18 +18,13 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="/app"
 ENV VIRTUAL_ENV="/venv"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV REQUIREMENT_FILE=requirements.txt
+ENV UV_PROJECT_ENVIRONMENT="$VIRTUAL_ENV"
 
 RUN set -x; \
     groupadd -g $GROUP_ID app && \
     useradd --create-home -u $USER_ID -g app -s /bin/bash app && \
-    install -o app -g app -d /app "$VIRTUAL_ENV" \
+    install -o app -g app -d /app "$VIRTUAL_ENV"
 RUN mkdir -p /app/.ruff_cache && chown -R app:app /app/.ruff_cache
-RUN python -m ensurepip --upgrade
-RUN python -m venv "$VIRTUAL_ENV"
-RUN python -m pip install --upgrade pip
-RUN python -m venv $VIRTUAL_ENV && chown -R ${USER_ID}:${GROUP_ID} $VIRTUAL_ENV
-
 
 # Install locales package
 RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/*
@@ -42,14 +38,12 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 
 FROM base AS prod
 USER app
-COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+COPY pyproject.toml uv.lock /app/
+RUN uv sync --frozen --no-dev
 COPY --link --chown=$USER_ID:$GROUP_ID . /app/
 RUN ./manage.py compilemessages
 RUN ./manage.py collectstatic --noinput
 
 FROM prod AS dev
 USER app
-COPY requirements.dev.txt /app/
-ENV REQUIREMENT_FILE=requirements.dev.txt
-RUN pip install -r requirements.dev.txt
+RUN uv sync --frozen --all-extras
