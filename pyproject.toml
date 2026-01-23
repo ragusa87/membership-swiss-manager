@@ -8,10 +8,10 @@ dependencies = [
   "python-dotenv",
   "qrbill",
   "cairosvg",
-  "pypdf>=3.9.0",
+  "pypdf>=6.6.0",
   "pandas",
   "xlsxwriter",
-  "django-debug-toolbar>=6.0.0",
+  "django-debug-toolbar>=6.2.0",
   "pycamt",
   "django-phonenumber-field[phonenumberslite]",
 ]
