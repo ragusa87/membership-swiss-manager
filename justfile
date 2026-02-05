@@ -40,7 +40,7 @@ lint:
     ruff check --fix
 
 sprites:
-    myapp/sprites/all-gen.sh
+    core/sprites/all-gen.sh
     # ./manage collectstatic
 
 translate:

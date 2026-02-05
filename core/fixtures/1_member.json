@@ -1,0 +1,376 @@
+[
+  {
+    "model": "core.member",
+    "pk": 1,
+    "fields": {
+      "firstname": "Linnea ",
+      "lastname": "Krügel",
+      "email": null,
+      "comment": null,
+      "address": "Route du mou",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 2,
+    "fields": {
+      "firstname": "Jara",
+      "lastname": "Schnider",
+      "email": null,
+      "comment": null,
+      "address": "Route de Froideval",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 3,
+    "fields": {
+      "firstname": "Yannick",
+      "lastname": "Humbert-Droz",
+      "email": null,
+      "comment": null,
+      "address": "Avenue du Docteur Schwab",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 4,
+    "fields": {
+      "firstname": "Dion ",
+      "lastname": "Ostervald",
+      "email": null,
+      "comment": null,
+      "address": "Rue de la Douzette",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 5,
+    "fields": {
+      "firstname": "Isaac ",
+      "lastname": "Oppliger",
+      "email": null,
+      "comment": null,
+      "address": "Avenue des Marnins",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 6,
+    "fields": {
+      "firstname": "Mattis",
+      "lastname": "Ducommun",
+      "email": null,
+      "comment": null,
+      "address": "Route de Chuffort",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 7,
+    "fields": {
+      "firstname": "Rodrigo",
+      "lastname": "Scheurer",
+      "email": null,
+      "comment": null,
+      "address": "Avenue des Auges",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 8,
+    "fields": {
+      "firstname": "Klara",
+      "lastname": "Ballouhey",
+      "email": null,
+      "comment": null,
+      "address": "Rue des Ecommunes",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 9,
+    "fields": {
+      "firstname": "Layla",
+      "lastname": "Scheurer",
+      "email": null,
+      "comment": null,
+      "address": "Route des Golats",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 10,
+    "fields": {
+      "firstname": "Selina",
+      "lastname": "Krügel",
+      "email": null,
+      "comment": null,
+      "address": "Route de Froideval",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 11,
+    "fields": {
+      "firstname": "Alia",
+      "lastname": "Hollard",
+      "email": null,
+      "comment": null,
+      "address": "Avenue de Beau-Site",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 12,
+    "fields": {
+      "firstname": "Levin",
+      "lastname": "Fankhauser",
+      "email": null,
+      "comment": null,
+      "address": "Route de Loville",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 13,
+    "fields": {
+      "firstname": "Samira",
+      "lastname": "Henri",
+      "email": null,
+      "comment": null,
+      "address": "Avenue d'Evilard",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 14,
+    "fields": {
+      "firstname": "Marlo",
+      "lastname": "Piguet",
+      "email": null,
+      "comment": null,
+      "address": "Rue de la Condemine",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 15,
+    "fields": {
+      "firstname": "Jamie",
+      "lastname": "Huguenin",
+      "email": null,
+      "comment": null,
+      "address": "Place de Penthaz à Cossonay",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 16,
+    "fields": {
+      "firstname": "Flavia",
+      "lastname": "Küng",
+      "email": null,
+      "comment": null,
+      "address": "Chemin de la Calle",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 17,
+    "fields": {
+      "firstname": "Chloé",
+      "lastname": "Hediger",
+      "email": null,
+      "comment": null,
+      "address": "Avenue des Noyes",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 18,
+    "fields": {
+      "firstname": "Melanie",
+      "lastname": "Blazer",
+      "email": null,
+      "comment": null,
+      "address": "Avenue de Blanchet",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 19,
+    "fields": {
+      "firstname": "Sara",
+      "lastname": "Leutenegger",
+      "email": null,
+      "comment": null,
+      "address": "Rue de l'Eau des Fontaines",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 20,
+    "fields": {
+      "firstname": "Eduardo",
+      "lastname": "Chassot",
+      "email": null,
+      "comment": null,
+      "address": "Avenue des Aubépines",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 21,
+    "fields": {
+      "firstname": "Yaro",
+      "lastname": "Schweitz",
+      "email": null,
+      "comment": null,
+      "address": "Chemin des pommes",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  },
+  {
+    "model": "core.member",
+    "pk": 22,
+    "fields": {
+      "firstname": "Silas",
+      "lastname": "Dutoit",
+      "email": null,
+      "comment": null,
+      "address": "Av des figues",
+      "address_number": "1",
+      "city": "Lausanne",
+      "phone": null,
+      "zip": 1006,
+      "created_at": "2025-02-19T16:11:30Z",
+      "updated_at": "2025-02-19T16:11:30Z"
+    }
+  }
+]

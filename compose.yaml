@@ -10,7 +10,7 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
-    command: gunicorn myapp.wsgi:application -w 2 -b :8000
+    command: gunicorn core.wsgi:application -w 2 -b :8000
     ports:
       - "8000:8000"
     volumes:

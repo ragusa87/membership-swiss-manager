@@ -51,7 +51,7 @@ just translate       # Generate and compile translations
 ## Project Structure
 
 ```
-myapp/           # Main Django application
+core/           # Main Django application
 templates/       # Django templates
 locale/          # Translation files
 assets/          # Static assets
@@ -80,7 +80,7 @@ Dev dependencies:
 
 ## Models
 
-All models are in `myapp/models/`.
+All models are in `core/models/`.
 
 ### Member
 

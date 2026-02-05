@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-17 21:52+0000\n"
+"POT-Creation-Date: 2026-02-05 19:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,326 +18,344 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: myapp/admin.py:98
+#: core/admin.py:98
 msgid "Filter by Id"
 msgstr "Filter par Id"
 
-#: myapp/models/enum.py:6 myapp/models/member_subscription.py:10
+#: core/models/enum.py:6 core/models/member_subscription.py:10
+#: core/tests/test_assign.py:66
 msgid "subscription.member"
 msgstr "membre"
 
-#: myapp/models/enum.py:7 myapp/models/member_subscription.py:11
+#: core/models/enum.py:7 core/models/member_subscription.py:11
 msgid "subscription.other"
 msgstr "sympathisant"
 
-#: myapp/models/enum.py:12 myapp/models/member_subscription.py:16
+#: core/models/enum.py:12 core/models/member_subscription.py:16
 msgid "subscription.unknown"
 msgstr "sympathisant?"
 
-#: myapp/models/invoice.py:54
+#: core/models/invoice.py:54
 msgid "InvoiceStatusEnum.CREATED"
 msgstr "créé"
 
-#: myapp/models/invoice.py:55
+#: core/models/invoice.py:55
 msgid "InvoiceStatusEnum.CANCELED"
 msgstr "annulé"
 
-#: myapp/models/invoice.py:56
+#: core/models/invoice.py:56
 msgid "InvoiceStatusEnum.PAID"
 msgstr "payé"
 
-#: myapp/models/invoice.py:57
+#: core/models/invoice.py:57
 msgid "InvoiceStatusEnum.PENDING"
 msgstr "en attente"
 
-#: myapp/models/invoice.py:60
+#: core/models/invoice.py:60
 msgid "InvoiceStatusEnum.UNKNOWN"
 msgstr "inconnu"
 
-#: myapp/models/invoice.py:80
+#: core/models/invoice.py:80
 msgid "No reminder"
 msgstr "premier rappel"
 
-#: myapp/models/invoice.py:81
+#: core/models/invoice.py:81
 msgid "1st reminder"
 msgstr "premier rappel"
 
-#: myapp/models/invoice.py:82
+#: core/models/invoice.py:82
 msgid "2nd reminder"
 msgstr "deuxième rappel"
 
-#: myapp/models/invoice.py:83
+#: core/models/invoice.py:83
 msgid "3rd reminder"
 msgstr "troisième rappel"
 
-#: myapp/models/invoice.py:90
+#: core/models/invoice.py:90
 #, python-format
 msgid "%dth reminder"
 msgid_plural "%dth reminder"
 msgstr[0] "%d rappel"
 msgstr[1] "%d rappel"
 
-#: myapp/models/member_subscription.py:79
+#: core/models/member_subscription.py:79
 msgid "active subscription"
 msgstr "active"
 
-#: myapp/models/member_subscription.py:79
+#: core/models/member_subscription.py:79
 msgid "inactive subscription"
 msgstr "inactif"
 
-#: myapp/pdf_generator/pdf_generator.py:117
-#: myapp/pdf_generator/pdf_generator.py:351
+#: core/pdf_generator/pdf_generator.py:117
+#: core/pdf_generator/pdf_generator.py:351
 msgid "** Cancelled **"
 msgstr "** Annulé **"
 
-#: myapp/pdf_generator/pdf_generator.py:119
-#: myapp/pdf_generator/pdf_generator.py:353
+#: core/pdf_generator/pdf_generator.py:119
+#: core/pdf_generator/pdf_generator.py:353
 msgid "** Paid **"
 msgstr "** Payé **"
 
-#: myapp/pdf_generator/pdf_generator.py:376
+#: core/pdf_generator/pdf_generator.py:376
 msgid "Suggested price"
 msgstr "Prix conseillé"
 
-#: myapp/pdf_generator/pdf_generator.py:380
-#: myapp/pdf_generator/pdf_generator.py:436
+#: core/pdf_generator/pdf_generator.py:380
+#: core/pdf_generator/pdf_generator.py:436
 msgid "Transmissible"
 msgstr "Transmissible"
 
-#: myapp/templates/myapp/assign_user.html:4
-#: myapp/templates/myapp/assign_user.html:12
+#: core/templates/core/assign_user.html:4
+#: core/templates/core/assign_user.html:12
 msgid "Assign members to subscription"
 msgstr "Assigner des membres à l'abonnement"
 
-#: myapp/templates/myapp/assign_user.html:8
-#: myapp/templates/myapp/camt_process.html:11
-#: myapp/templates/myapp/upload_csv_step_0.html:7
+#: core/templates/core/assign_user.html:8
+#: core/templates/core/camt_process.html:11
+#: core/templates/core/upload_csv_step_0.html:7
 msgid "Back to dashboard"
 msgstr "Retour au tableau de bord"
 
-#: myapp/templates/myapp/assign_user.html:50
+#: core/templates/core/assign_user.html:50
 msgid "Candidates"
 msgstr "Suggestions"
 
-#: myapp/templates/myapp/assign_user.html:64
+#: core/templates/core/assign_user.html:64
 msgid "Search..."
 msgstr "Rechercher..."
 
-#: myapp/templates/myapp/assign_user.html:83
+#: core/templates/core/assign_user.html:83
 msgid "Are you sure you want to link this user?"
 msgstr "Etes-vous sûr de vouloir lier cet utilisateur?"
 
-#: myapp/templates/myapp/assign_user.html:85
+#: core/templates/core/assign_user.html:85
 msgid "Link"
 msgstr "Assigner"
 
-#: myapp/templates/myapp/assign_user.html:91
+#: core/templates/core/assign_user.html:91
 msgid "No search results"
 msgstr "Aucun résultat de recherche"
 
-#: myapp/templates/myapp/assign_user.html:93
+#: core/templates/core/assign_user.html:93
 msgid "No suggestion"
 msgstr "Aucune suggestion"
 
-#: myapp/templates/myapp/assign_user.html:101
+#: core/templates/core/assign_user.html:101
 msgid "Assigned members"
 msgstr "Membres assignés"
 
-#: myapp/templates/myapp/assign_user.html:143
-#: myapp/templates/myapp/assign_user.html:156
+#: core/templates/core/assign_user.html:143
+#: core/templates/core/assign_user.html:156
 msgid "Add a new member"
 msgstr "Ajouter un nouveau membre"
 
-#: myapp/templates/myapp/assign_user.html:163
+#: core/templates/core/assign_user.html:163
 msgid "Save"
 msgstr "Sauvegarder"
 
-#: myapp/templates/myapp/assign_user.html:167
+#: core/templates/core/assign_user.html:167
 msgid "Cancel"
 msgstr "Annuler"
 
-#: myapp/templates/myapp/camt_process.html:3
-#: myapp/templates/myapp/camt_upload.html:3
-#: myapp/templates/myapp/camt_upload.html:9
+#: core/templates/core/camt_process.html:3
+#: core/templates/core/camt_upload.html:3
+#: core/templates/core/camt_upload.html:9
 msgid "Upload a CAMT file"
 msgstr "Téléverser le fichier"
 
-#: myapp/templates/myapp/camt_process.html:6
-#: myapp/templates/myapp/camt_upload.html:6
-#: myapp/templates/myapp/upload_csv_step_0.html:11
+#: core/templates/core/camt_process.html:6
+#: core/templates/core/camt_upload.html:6
+#: core/templates/core/upload_csv_step_0.html:11
 msgid "Back"
 msgstr "Retour"
 
-#: myapp/templates/myapp/camt_process.html:17
+#: core/templates/core/camt_process.html:17
 #, fuzzy, python-format
 #| msgid "Import for subscription %(name)s"
 msgid "Import for subscription %(name)s"
 msgstr "active"
 
-#: myapp/templates/myapp/camt_upload.html:44
-#: myapp/templates/myapp/upload_csv_step_1.html:18
+#: core/templates/core/camt_upload.html:44
+#: core/templates/core/upload_csv_step_1.html:18
 msgid "Drop your file here or click to browse"
 msgstr "Glissez votre fichier ici ou cliquez pour parcourir"
 
-#: myapp/templates/myapp/camt_upload.html:67
-#: myapp/templates/myapp/upload_csv_step_1.html:40
+#: core/templates/core/camt_upload.html:67
+#: core/templates/core/upload_csv_step_1.html:40
 msgid "Upload File"
 msgstr "Téléverser le fichier"
 
-#: myapp/templates/myapp/dashboard.html:61
+#: core/templates/core/dashboard.html:67
 msgid "Total Subscriptions"
 msgstr "Inscriptions totales"
 
-#: myapp/templates/myapp/dashboard.html:67
-#: myapp/templates/myapp/dashboard.html:80
+#: core/templates/core/dashboard.html:73 core/templates/core/dashboard.html:86
 #, python-format
 msgid "(last year %(last)s)"
 msgstr "(l'année dernière %(last)s)"
 
-#: myapp/templates/myapp/dashboard.html:74
+#: core/templates/core/dashboard.html:80
 msgid "Due Amount"
 msgstr "Montant dû"
 
-#: myapp/templates/myapp/dashboard.html:87
+#: core/templates/core/dashboard.html:93
 msgid "Paid Amount"
 msgstr "Montant payé"
 
-#: myapp/templates/myapp/dashboard.html:92
+#: core/templates/core/dashboard.html:98
 #, python-format
 msgid "%(rate)s%% collection rate"
 msgstr "%(rate)s%% collecté"
 
-#: myapp/templates/myapp/dashboard.html:95
+#: core/templates/core/dashboard.html:101
 #, python-format
 msgid "Expected %(due_amount)s"
 msgstr "Attendu %(due_amount)s"
 
-#: myapp/templates/myapp/dashboard.html:102
+#: core/templates/core/dashboard.html:108
 msgid "Active Users"
 msgstr "Utilisateurs actifs"
 
-#: myapp/templates/myapp/dashboard.html:108
+#: core/templates/core/dashboard.html:114
 #, python-format
 msgid "%(rate)s%% retention (%(total_users)s)"
 msgstr "%(rate)s%% rétention (%(total_users)s)"
 
-#: myapp/templates/myapp/dashboard.html:119
+#: core/templates/core/dashboard.html:125
 msgid "Subscriptions"
 msgstr "Inscriptions"
 
-#: myapp/templates/myapp/dashboard.html:124
+#: core/templates/core/dashboard.html:130
 msgid "column.Member(s)"
 msgstr "membre(s)"
 
-#: myapp/templates/myapp/dashboard.html:125
+#: core/templates/core/dashboard.html:131
 msgid "column.Amount"
 msgstr "Montant"
 
-#: myapp/templates/myapp/dashboard.html:126
+#: core/templates/core/dashboard.html:132
 msgid "column.Invoices"
 msgstr "Factures"
 
-#: myapp/templates/myapp/dashboard.html:127
+#: core/templates/core/dashboard.html:133
 msgid "column.Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:151
+#: core/templates/core/dashboard.html:157
 #, fuzzy
 #| msgid "Create new invoice"
 msgid "Create invoice"
 msgstr "Exporter les factures créées"
 
-#: myapp/templates/myapp/dashboard.html:196
+#: core/templates/core/dashboard.html:174
+msgid "Do you want to create a reminder?"
+msgstr ""
+
+#: core/templates/core/dashboard.html:174
+#, fuzzy
+#| msgid "1st reminder"
+msgid "Create a reminder"
+msgstr "premier rappel"
+
+#: core/templates/core/dashboard.html:179
+msgid "View"
+msgstr ""
+
+#: core/templates/core/dashboard.html:183
+msgid "View as PDF"
+msgstr ""
+
+#: core/templates/core/dashboard.html:218
 msgid "Assign members"
 msgstr "Assigner des membres"
 
-#: myapp/templates/myapp/dashboard.html:199
+#: core/templates/core/dashboard.html:221
 msgid "Export anonymous bills"
 msgstr "Exporter les factures anonymes"
 
-#: myapp/templates/myapp/dashboard.html:206
-#: myapp/templates/myapp/dashboard.html:234
+#: core/templates/core/dashboard.html:228
+#: core/templates/core/dashboard.html:256
 msgid "Export list"
 msgstr "Exporter la liste"
 
-#: myapp/templates/myapp/dashboard.html:213
+#: core/templates/core/dashboard.html:235
 #, fuzzy, python-format
 #| msgid "Export %(status)s invoices"
 msgid "Export %(status)s invoices"
 msgstr "Exporter les factures créées"
 
-#: myapp/templates/myapp/dashboard.html:221
+#: core/templates/core/dashboard.html:243
 msgid "Import CAMT file"
 msgstr "Importer un fichier CAMT"
 
-#: myapp/templates/myapp/dashboard.html:227
+#: core/templates/core/dashboard.html:249
 msgid "Import CSV file"
 msgstr "Importer un fichier CAMT"
 
-#: myapp/templates/myapp/dashboard.html:241
+#: core/templates/core/dashboard.html:263
 msgid "Export list as CSV"
 msgstr "Exporter en CSV"
 
-#: myapp/templates/myapp/dashboard.html:242
+#: core/templates/core/dashboard.html:264
 msgid "Export list as XLSX"
 msgstr "Exporter en XLSX"
 
-#: myapp/templates/myapp/dashboard.html:250
-#: myapp/templates/myapp/dashboard.html:251
+#: core/templates/core/dashboard.html:272
+#: core/templates/core/dashboard.html:273
 msgid "Actions"
 msgstr "Actions"
 
-#: myapp/templates/myapp/dashboard.html:256
+#: core/templates/core/dashboard.html:278
 msgid "Mark created invoices as pending"
 msgstr "Marquer les factures créées comme en attente"
 
-#: myapp/templates/myapp/dashboard.html:259
+#: core/templates/core/dashboard.html:281
 msgid "Create reminder for pending invoice (older than 30 days)"
 msgstr "Créer un rappel pour les factures en attente (plus de 30 jours)"
 
-#: myapp/templates/myapp/dashboard.html:262
+#: core/templates/core/dashboard.html:284
 msgid "Generate first invoices"
 msgstr "Créer les factures manquantes"
 
-#: myapp/templates/myapp/partials/authentication_demo.html:4
+#: core/templates/core/partials/authentication_demo.html:4
 msgid "Authentication Demo"
 msgstr "Authentification - Démo"
 
-#: myapp/templates/myapp/partials/authentication_demo.html:7
+#: core/templates/core/partials/authentication_demo.html:7
 msgid "You can log in as \"admin\" and \"admin\"."
 msgstr "Vous pouvez vous connecter en tant que \"admin\" et \"admin\"."
 
-#: myapp/templates/myapp/partials/camt_reconciliation.html:4
+#: core/templates/core/partials/camt_reconciliation.html:4
 msgid "Reconciliate"
 msgstr "Réconcilier"
 
-#: myapp/templates/myapp/partials/camt_reconciliation.html:18
+#: core/templates/core/partials/camt_reconciliation.html:18
 msgid "Assign existing invoice"
 msgstr "Assigner une facture existente"
 
-#: myapp/templates/myapp/partials/camt_reconciliation.html:47
-#: myapp/templates/myapp/partials/camt_reconciliation.html:81
+#: core/templates/core/partials/camt_reconciliation.html:47
+#: core/templates/core/partials/camt_reconciliation.html:81
 msgid "Submit"
 msgstr "Envoyer"
 
-#: myapp/templates/myapp/partials/camt_reconciliation.html:63
+#: core/templates/core/partials/camt_reconciliation.html:63
 msgid "Create new invoice"
 msgstr "Exporter les factures créées"
 
-#: myapp/templates/myapp/partials/upload_csv_cta.html:5
+#: core/templates/core/partials/upload_csv_cta.html:5
 msgid "cta.import"
 msgstr "Importer"
 
-#: myapp/templates/myapp/partials/upload_csv_cta.html:7
+#: core/templates/core/partials/upload_csv_cta.html:7
 msgid "Next"
 msgstr "Suivant"
 
-#: myapp/templates/myapp/partials/upload_csv_cta.html:13
+#: core/templates/core/partials/upload_csv_cta.html:13
 msgid "You can not import this as some user are missing"
 msgstr ""
 "Vous ne pouvez pas faire l'import car certains utilisateurs sont manquants"
 
-#: myapp/templates/myapp/partials/upload_csv_cta.html:15
+#: core/templates/core/partials/upload_csv_cta.html:15
 #, python-format
 msgid ""
 "You can not import this as the subscription %(name)s already has %(count)s "
@@ -346,90 +364,90 @@ msgstr ""
 "Vous ne pouvez par importer %(name)s car l'abonnement contient déjà "
 "%(count)s membres."
 
-#: myapp/templates/myapp/upload_csv_step_0.html:3
-#: myapp/templates/myapp/upload_csv_step_0.html:15
+#: core/templates/core/upload_csv_step_0.html:3
+#: core/templates/core/upload_csv_step_0.html:15
 msgid "Import member's subscription"
 msgstr "active"
 
-#: myapp/views_more/camt_import.py:23
+#: core/views_more/camt_import.py:23
 msgid "File must be in CAMT format"
 msgstr "Le fichier doit être un CSV"
 
-#: myapp/views_more/camt_import.py:33 myapp/views_more/csv_upload.py:41
+#: core/views_more/camt_import.py:33 core/views_more/csv_upload.py:41
 msgid "Select a subscription"
 msgstr "Selectionner un abonnement"
 
-#: myapp/views_more/camt_import.py:61
+#: core/views_more/camt_import.py:61
 msgid "Please upload a XML file"
 msgstr "Merci de téléverser un fichier CSV"
 
-#: myapp/views_more/camt_import.py:65 myapp/views_more/csv_upload.py:97
+#: core/views_more/camt_import.py:65 core/views_more/csv_upload.py:97
 msgid "File too large"
 msgstr "Le fichier est trop volumineux"
 
-#: myapp/views_more/camt_import.py:76 myapp/views_more/csv_upload.py:107
+#: core/views_more/camt_import.py:76 core/views_more/csv_upload.py:107
 msgid "Please upload a valid CSV file"
 msgstr "Merci de téléverser un fichier CSV valide"
 
-#: myapp/views_more/camt_import.py:86
+#: core/views_more/camt_import.py:86
 msgid "CAMT file uploaded successfully!"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: myapp/views_more/camt_import.py:88 myapp/views_more/csv_upload.py:117
-#: myapp/views_more/csv_upload.py:210
+#: core/views_more/camt_import.py:88 core/views_more/csv_upload.py:117
+#: core/views_more/csv_upload.py:210
 #, python-format
 msgid "Error processing file: %s"
 msgstr "Erreur d'import du fichier: %s"
 
-#: myapp/views_more/camt_import.py:214
+#: core/views_more/camt_import.py:214
 msgid "Invoice split and paid successfully"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: myapp/views_more/camt_import.py:220
+#: core/views_more/camt_import.py:220
 msgid "Invoice paid"
 msgstr "Facture payée"
 
-#: myapp/views_more/camt_import.py:223
+#: core/views_more/camt_import.py:223
 msgid "Error while processing reconcilation"
 msgstr "Erreur d'import du fichier: %s"
 
-#: myapp/views_more/camt_import.py:235
+#: core/views_more/camt_import.py:235
 msgid "New invoice created"
 msgstr "Nouvelle facture créée"
 
-#: myapp/views_more/csv_upload.py:24
+#: core/views_more/csv_upload.py:24
 msgid "step.upload_csv"
 msgstr "Téléverser le CVS"
 
-#: myapp/views_more/csv_upload.py:24
+#: core/views_more/csv_upload.py:24
 msgid "step.create_members"
 msgstr "Créer les membres"
 
-#: myapp/views_more/csv_upload.py:24
+#: core/views_more/csv_upload.py:24
 msgid "step.import"
 msgstr "Importer"
 
-#: myapp/views_more/csv_upload.py:31
+#: core/views_more/csv_upload.py:31
 msgid "File must be in CSV format"
 msgstr "Le fichier doit être un CSV"
 
-#: myapp/views_more/csv_upload.py:93
+#: core/views_more/csv_upload.py:93
 msgid "Please upload a CSV file"
 msgstr "Merci de téléverser un fichier CSV"
 
-#: myapp/views_more/csv_upload.py:115
+#: core/views_more/csv_upload.py:115
 msgid "CSV file uploaded successfully!"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: myapp/views_more/csv_upload.py:188
+#: core/views_more/csv_upload.py:188
 msgid "Session expired, try again"
 msgstr "La session a expirée, réessayer"
 
-#: myapp/views_more/invoices.py:44
+#: core/views_more/invoices.py:44
 msgid "No matching invoices found"
 msgstr "Aucune correspondance trouvée"
 
-#: myapp/views_more/invoices.py:112
+#: core/views_more/invoices.py:131
 msgid "No matching subscription found"
 msgstr "Aucune inscription correspondante"
 
