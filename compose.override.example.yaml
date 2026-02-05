@@ -4,7 +4,7 @@ x-environment:
 
 services:
   web:
-    command: gunicorn myapp.wsgi:application -w 2 -b :8000
+    command: gunicorn core.wsgi:application -w 2 -b :8000
     # command: sh -c 'while true; do ./manage.py runserver 0.0.0.0:8000; sleep 1; done'
     #build:
     #  target: dev
