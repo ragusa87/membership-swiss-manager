@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-05 19:09+0000\n"
+"POT-Creation-Date: 2026-06-19 00:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,9 +18,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: core/admin.py:98
+#: core/admin.py:68
 msgid "Filter by Id"
 msgstr "Filter par Id"
+
+#: core/models/camt_import.py:32 core/views_more/camt_import.py:64
+#: core/views_more/csv_upload.py:97
+msgid "File too large"
+msgstr "Le fichier est trop volumineux"
 
 #: core/models/enum.py:6 core/models/member_subscription.py:10
 #: core/tests/test_assign.py:66
@@ -86,22 +91,53 @@ msgstr "active"
 msgid "inactive subscription"
 msgstr "inactif"
 
-#: core/pdf_generator/pdf_generator.py:117
-#: core/pdf_generator/pdf_generator.py:351
+#: core/pdf_generator/pdf_generator.py:127
+#: core/pdf_generator/pdf_generator.py:448
 msgid "** Cancelled **"
 msgstr "** Annulé **"
 
-#: core/pdf_generator/pdf_generator.py:119
-#: core/pdf_generator/pdf_generator.py:353
+#: core/pdf_generator/pdf_generator.py:129
+#: core/pdf_generator/pdf_generator.py:450
 msgid "** Paid **"
 msgstr "** Payé **"
 
-#: core/pdf_generator/pdf_generator.py:376
+#: core/pdf_generator/pdf_generator.py:227
+#: core/pdf_generator/pdf_generator.py:501
+msgid "Invoice"
+msgstr "Facture"
+
+#: core/pdf_generator/pdf_generator.py:414
+msgid "Total amount"
+msgstr "Montant total"
+
+#: core/pdf_generator/pdf_generator.py:435
+msgid "Invoice no."
+msgstr "N° de facture"
+
+#: core/pdf_generator/pdf_generator.py:436
+msgid "Date"
+msgstr "Date"
+
+#: core/pdf_generator/pdf_generator.py:437
+#: core/pdf_generator/pdf_generator.py:504
+msgid "Subscription"
+msgstr "Cotisation"
+
+#: core/pdf_generator/pdf_generator.py:438
+#: core/pdf_generator/pdf_generator.py:506
+msgid "Type"
+msgstr "Type"
+
+#: core/pdf_generator/pdf_generator.py:441
+msgid "Reminder"
+msgstr "Rappel"
+
+#: core/pdf_generator/pdf_generator.py:489
+#: core/pdf_generator/pdf_generator.py:514
 msgid "Suggested price"
 msgstr "Prix conseillé"
 
-#: core/pdf_generator/pdf_generator.py:380
-#: core/pdf_generator/pdf_generator.py:436
+#: core/pdf_generator/pdf_generator.py:518
 msgid "Transmissible"
 msgstr "Transmissible"
 
@@ -154,20 +190,46 @@ msgid "Save"
 msgstr "Sauvegarder"
 
 #: core/templates/core/assign_user.html:167
+#: core/templates/core/camt_import_confirm_delete.html:34
 msgid "Cancel"
 msgstr "Annuler"
+
+#: core/templates/core/camt_import_confirm_delete.html:3
+#: core/templates/core/camt_import_confirm_delete.html:9
+msgid "Delete CAMT import"
+msgstr ""
+
+#: core/templates/core/camt_import_confirm_delete.html:6
+#: core/templates/core/camt_process.html:6
+#: core/templates/core/camt_upload.html:6
+#: core/templates/core/upload_csv_step_0.html:11
+msgid "Back"
+msgstr "Retour"
+
+#: core/templates/core/camt_import_confirm_delete.html:17
+#, python-format
+msgid ""
+"You are about to delete the import <strong>%(name)s</strong> for "
+"subscription <strong>%(subscription)s</strong>."
+msgstr ""
+
+#: core/templates/core/camt_import_confirm_delete.html:23
+msgid ""
+"This action cannot be undone. The uploaded file will also be removed from "
+"storage."
+msgstr ""
+
+#: core/templates/core/camt_import_confirm_delete.html:30
+#: core/templates/core/camt_upload.html:112
+#: core/templates/core/camt_upload.html:113
+msgid "Delete"
+msgstr ""
 
 #: core/templates/core/camt_process.html:3
 #: core/templates/core/camt_upload.html:3
 #: core/templates/core/camt_upload.html:9
 msgid "Upload a CAMT file"
 msgstr "Téléverser le fichier"
-
-#: core/templates/core/camt_process.html:6
-#: core/templates/core/camt_upload.html:6
-#: core/templates/core/upload_csv_step_0.html:11
-msgid "Back"
-msgstr "Retour"
 
 #: core/templates/core/camt_process.html:17
 #, fuzzy, python-format
@@ -180,10 +242,16 @@ msgstr "active"
 msgid "Drop your file here or click to browse"
 msgstr "Glissez votre fichier ici ou cliquez pour parcourir"
 
-#: core/templates/core/camt_upload.html:67
+#: core/templates/core/camt_upload.html:94
 #: core/templates/core/upload_csv_step_1.html:40
 msgid "Upload File"
 msgstr "Téléverser le fichier"
+
+#: core/templates/core/camt_upload.html:100
+#, fuzzy
+#| msgid "cta.import"
+msgid "Recent imports"
+msgstr "Importer"
 
 #: core/templates/core/dashboard.html:67
 msgid "Total Subscriptions"
@@ -369,51 +437,49 @@ msgstr ""
 msgid "Import member's subscription"
 msgstr "active"
 
-#: core/views_more/camt_import.py:23
+#: core/views_more/camt_import.py:27
 msgid "File must be in CAMT format"
 msgstr "Le fichier doit être un CSV"
 
-#: core/views_more/camt_import.py:33 core/views_more/csv_upload.py:41
+#: core/views_more/camt_import.py:37 core/views_more/csv_upload.py:41
 msgid "Select a subscription"
 msgstr "Selectionner un abonnement"
 
-#: core/views_more/camt_import.py:61
+#: core/views_more/camt_import.py:60
 msgid "Please upload a XML file"
 msgstr "Merci de téléverser un fichier CSV"
 
-#: core/views_more/camt_import.py:65 core/views_more/csv_upload.py:97
-msgid "File too large"
-msgstr "Le fichier est trop volumineux"
-
-#: core/views_more/camt_import.py:76 core/views_more/csv_upload.py:107
-msgid "Please upload a valid CSV file"
-msgstr "Merci de téléverser un fichier CSV valide"
-
-#: core/views_more/camt_import.py:86
+#: core/views_more/camt_import.py:81
 msgid "CAMT file uploaded successfully!"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: core/views_more/camt_import.py:88 core/views_more/csv_upload.py:117
+#: core/views_more/camt_import.py:83 core/views_more/csv_upload.py:117
 #: core/views_more/csv_upload.py:210
 #, python-format
 msgid "Error processing file: %s"
 msgstr "Erreur d'import du fichier: %s"
 
-#: core/views_more/camt_import.py:214
+#: core/views_more/camt_import.py:216
 msgid "Invoice split and paid successfully"
 msgstr "Téléversement de fichier CSV effectué"
 
-#: core/views_more/camt_import.py:220
+#: core/views_more/camt_import.py:222
 msgid "Invoice paid"
 msgstr "Facture payée"
 
-#: core/views_more/camt_import.py:223
+#: core/views_more/camt_import.py:225
 msgid "Error while processing reconcilation"
 msgstr "Erreur d'import du fichier: %s"
 
-#: core/views_more/camt_import.py:235
+#: core/views_more/camt_import.py:237
 msgid "New invoice created"
 msgstr "Nouvelle facture créée"
+
+#: core/views_more/camt_import.py:251
+#, fuzzy
+#| msgid "Import CSV file"
+msgid "Import deleted"
+msgstr "Importer un fichier CAMT"
 
 #: core/views_more/csv_upload.py:24
 msgid "step.upload_csv"
@@ -435,6 +501,10 @@ msgstr "Le fichier doit être un CSV"
 msgid "Please upload a CSV file"
 msgstr "Merci de téléverser un fichier CSV"
 
+#: core/views_more/csv_upload.py:107
+msgid "Please upload a valid CSV file"
+msgstr "Merci de téléverser un fichier CSV valide"
+
 #: core/views_more/csv_upload.py:115
 msgid "CSV file uploaded successfully!"
 msgstr "Téléversement de fichier CSV effectué"
@@ -443,11 +513,15 @@ msgstr "Téléversement de fichier CSV effectué"
 msgid "Session expired, try again"
 msgstr "La session a expirée, réessayer"
 
-#: core/views_more/invoices.py:44
+#: core/views_more/invoices.py:21
+msgid "Cannot generate a PDF for an invoice with no positive amount."
+msgstr ""
+
+#: core/views_more/invoices.py:49
 msgid "No matching invoices found"
 msgstr "Aucune correspondance trouvée"
 
-#: core/views_more/invoices.py:131
+#: core/views_more/invoices.py:136
 msgid "No matching subscription found"
 msgstr "Aucune inscription correspondante"
 
