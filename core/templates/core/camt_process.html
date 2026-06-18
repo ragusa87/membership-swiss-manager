@@ -80,7 +80,7 @@
                             </div>
                         {% elif i.invoice is None and i.isBonification %}
                              <div id="tx{{ i.TxId|slugify }}">
-                                <button data-hx-target="#tx{{ i.TxId|slugify }}" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' %}?transaction_id={{ i.TxId }}&invoice_id={{ i.invoice.pk }}&amount={{ i.Amount }}&label={{ i.AdditionalEntryInformation }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
+                                <button data-hx-target="#tx{{ i.TxId|slugify }}" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' import_id=camt_import.pk %}?transaction_id={{ i.TxId }}&invoice_id={{ i.invoice.pk }}&amount={{ i.Amount }}&label={{ i.AdditionalEntryInformation }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
                              </div>
                         {% endif %}
                         {% if i.invoice is not None and i.price_mismatch %}

@@ -43,6 +43,7 @@ from .views_more.camt_import import (
     CamtProcessView,
     CamtReconciliationView,
     CamtLinkInvoice,
+    CamtImportDeleteView,
 )
 from django.contrib.auth import views as auth_views
 
@@ -53,7 +54,12 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("dashboard/", views.index, name="index_dashboards"),
     path("import-camt", CamtUploadView.as_view(), name="camt_upload"),
-    path("process-camt", CamtProcessView.as_view(), name="camt_process"),
+    path("process-camt/<int:pk>/", CamtProcessView.as_view(), name="camt_process"),
+    path(
+        "process-camt/<int:pk>/delete/",
+        CamtImportDeleteView.as_view(),
+        name="camt_import_delete",
+    ),
     path(
         "dashboard/<str:subscription_name>", DashboardView.as_view(), name="dashboard"
     ),
@@ -75,7 +81,7 @@ urlpatterns = [
         name="pdf_by_subscription_blank",
     ),
     path(
-        "process-camt_reconciliation",
+        "process-camt/<int:import_id>/reconciliation/",
         CamtReconciliationView.as_view(),
         name="camt_reconciliation",
     ),
