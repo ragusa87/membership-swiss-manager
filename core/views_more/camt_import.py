@@ -127,9 +127,9 @@ class CamtReconciliationView(LoginRequiredMixin, TemplateView):
     template_name = "core/partials/camt_reconciliation.html"
 
     def _subscription_id(self) -> int:
-        return CamtImport.objects.values_list("subscription_id", flat=True).get(
-            pk=self.kwargs["import_id"]
-        )
+        return get_object_or_404(
+            CamtImport, pk=self.kwargs["import_id"]
+        ).subscription_id
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

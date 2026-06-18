@@ -119,6 +119,14 @@ class CamtReconciliationTestCase(LoggedInTestCase):
         self.assertEqual(200, response.status_code)
         self.assertContains(response, "JohnDoe")
 
+    def test_reconciliation_returns_404_for_unknown_import_id(self):
+        response = self.client.get(
+            "/process-camt/9999/reconciliation/",
+            {"transaction_id": "TX", "amount": "60", "label": "foo"},
+        )
+
+        self.assertEqual(404, response.status_code)
+
     def test_reconciliation_creates_new_invoice(self):
         self.assertEqual(0, Invoice.objects.count())
 
