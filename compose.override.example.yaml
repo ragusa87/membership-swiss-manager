@@ -1,5 +1,6 @@
 services:
   web:
+    command: sh -c './manage.py compilemessages && ./manage.py collectstatic --noinput && while true; do ./manage.py runserver 0.0.0.0:8000; sleep 1; done'
     volumes:
       - .env.local:/app/.env.local
       - .:/app/
