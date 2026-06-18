@@ -107,13 +107,11 @@
                                             {{ ci.subscription.name }} &middot; {{ ci.created_at|date:"Y-m-d H:i" }}
                                         </span>
                                     </a>
-                                    {% if user.is_authenticated %}
-                                        <a href="{% url 'camt_import_delete' pk=ci.pk %}"
-                                           class="text-red-600 hover:text-red-800 text-sm px-2"
-                                           title="{% translate 'Delete' %}">
-                                            {% translate "Delete" %}
-                                        </a>
-                                    {% endif %}
+                                    <a href="{% url 'camt_import_delete' pk=ci.pk %}"
+                                       class="text-red-600 hover:text-red-800 text-sm px-2"
+                                       title="{% translate 'Delete' %}">
+                                        {% translate "Delete" %}
+                                    </a>
                                 </li>
                             {% endfor %}
                         </ul>
