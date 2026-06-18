@@ -76,8 +76,7 @@ class CamtUploadView(LoginRequiredMixin, FormView, TemplateView):
                     MAX_RECENT_IMPORTS:
                 ]
             )
-            for old in CamtImport.objects.filter(pk__in=stale_pks):
-                old.delete()
+            CamtImport.objects.filter(pk__in=stale_pks).delete()
 
             messages.success(self.request, _("CAMT file uploaded successfully!"))
         except Exception as e:
