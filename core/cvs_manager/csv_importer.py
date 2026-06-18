@@ -41,7 +41,7 @@ class Row:
         object.type = self.__as_type__(
             self.row[EXPECTED_HEADERS_LABELS.get("subscription_type")]
         )
-        object.price = int(self.row[EXPECTED_HEADERS_LABELS.get("price")])
+        object.price = int(float(self.row[EXPECTED_HEADERS_LABELS.get("price")]) * 100)
         members = self.members()
         if len(members) > 0:
             object.member = members.pop(0)

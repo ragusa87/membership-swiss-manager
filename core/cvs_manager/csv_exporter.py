@@ -27,8 +27,8 @@ class CsvExporter:
                     ]
                 ),
                 "type d'inscription": subscription.get_type_text(),
-                "prix": int(subscription.price / 100),
-                "Montant Dû": subscription.get_due_amount(),
+                "prix": subscription.price / 100,
+                "Montant Dû": subscription.get_due_amount() / 100,
                 "factures": ", ".join(
                     [
                         f"{i.get_status_text()} {format_price(i.price)}"
