@@ -25,6 +25,16 @@ class AdminChangelistSmokeTest(LoggedInTestCase):
             member_subscription=self.member_subscription, price=4200
         )
 
+        self.other_member = Member.objects.create(
+            firstname="Jane", lastname="Roe", email="jane@example.com"
+        )
+        self.other_member_subscription = MemberSubscription.objects.create(
+            subscription=self.subscription, member=self.other_member, price=4200
+        )
+        self.other_invoice = Invoice.objects.create(
+            member_subscription=self.other_member_subscription, price=4200
+        )
+
     def test_member_changelist(self):
         response = self.client.get("/admin/core/member/")
         self.assertEqual(response.status_code, 200)
@@ -45,3 +55,22 @@ class AdminChangelistSmokeTest(LoggedInTestCase):
     def test_invoice_changelist(self):
         response = self.client.get("/admin/core/invoice/")
         self.assertEqual(response.status_code, 200)
+
+    def test_membersubscription_changelist_filtered_by_member(self):
+        response = self.client.get(
+            f"/admin/core/membersubscription/?member__id__exact={self.member.pk}"
+        )
+        self.assertEqual(response.status_code, 200)
+        # view_member callable renders fullname in the result row
+        self.assertContains(response, "John Doe")
+        self.assertNotContains(response, "Jane Roe")
+
+    def test_invoice_changelist_filtered_by_member_subscription(self):
+        response = self.client.get(
+            "/admin/core/invoice/"
+            f"?member_subscription__id__exact={self.member_subscription.pk}"
+        )
+        self.assertEqual(response.status_code, 200)
+        # view_member callable renders shortname (firstname + .Initial)
+        self.assertContains(response, "John .D")
+        self.assertNotContains(response, "Jane .R")
