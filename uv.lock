@@ -181,6 +181,18 @@ phonenumberslite = [
 ]
 
 [[package]]
+name = "django-unfold"
+version = "0.97.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9c/ec/e44e90b3746b59fe1e31d64d23fd2d4913ffbfc494650679bd7908669ec9/django_unfold-0.97.2.tar.gz", hash = "sha256:99d45049d31bd4f1f7caffbc371a8e175438a305c40672e38c23143212f78689", size = 1126046, upload-time = "2026-06-18T06:51:20.475Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/44/ac/42c5ed367632a0f3824cff902571286a633409b17e74662ae9b338059b9c/django_unfold-0.97.2-py3-none-any.whl", hash = "sha256:ab3c3161ecffb3fa9fe535c4456836b88441e7525663d81ad425259754ab92e9", size = 1253750, upload-time = "2026-06-18T06:51:18.933Z" },
+]
+
+[[package]]
 name = "gunicorn"
 version = "26.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -219,6 +231,7 @@ dependencies = [
     { name = "django" },
     { name = "django-debug-toolbar" },
     { name = "django-phonenumber-field", extra = ["phonenumberslite"] },
+    { name = "django-unfold" },
     { name = "gunicorn" },
     { name = "pandas" },
     { name = "pycamt" },
@@ -243,6 +256,7 @@ requires-dist = [
     { name = "django", specifier = "==6.0.*" },
     { name = "django-debug-toolbar", specifier = ">=6.2.0" },
     { name = "django-phonenumber-field", extras = ["phonenumberslite"] },
+    { name = "django-unfold", specifier = ">=0.97.2" },
     { name = "gunicorn" },
     { name = "pandas" },
     { name = "pycamt" },

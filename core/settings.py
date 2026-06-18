@@ -87,6 +87,10 @@ CREDITOR_CITY = os.environ.get("CREDITOR_CITY", "Lausanne")
 CREDITOR_COUNTRY = os.environ.get("CREDITOR_COUNTRY", "CH")
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.forms",
+    "unfold.contrib.filters",
+    "unfold.contrib.inlines",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

@@ -11,6 +11,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Prefetch
+from unfold.admin import ModelAdmin
 from core.templatetags.custom_filters import format_price
 from .forms.invoice import InvoiceForm
 from .forms.subscription import SubscriptionForm
@@ -110,7 +111,7 @@ class FilterById(SimpleListFilter):
         return queryset
 
 
-class MemberAdmin(admin.ModelAdmin):
+class MemberAdmin(ModelAdmin):
     title = "Member"
     list_filter = [FilterById]
     search_fields = ["firstname", "lastname", "email", "address", "phone"]
@@ -139,7 +140,7 @@ class MemberAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{}</a>', url, name)
 
 
-class SubscriptionAdmin(admin.ModelAdmin):
+class SubscriptionAdmin(ModelAdmin):
     form = SubscriptionForm
     list_display = ("name", "view_dashboard")
 
@@ -189,7 +190,7 @@ def mark_as_paid(modeladmin, request, queryset):
         invoice.save()
 
 
-class InvoiceAdmin(admin.ModelAdmin):
+class InvoiceAdmin(ModelAdmin):
     form = InvoiceForm
     list_filter = [
         FilterInvoiceByStatus,
@@ -289,7 +290,7 @@ class MemberSubscriptionForm(forms.ModelForm):
         return cleaned_data
 
 
-class MemberSubscriptionAdmin(admin.ModelAdmin):
+class MemberSubscriptionAdmin(ModelAdmin):
     form = MemberSubscriptionForm
 
     list_filter = (
