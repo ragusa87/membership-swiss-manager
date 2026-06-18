@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -315,6 +316,18 @@ class CamtImportModelValidationTestCase(TestCase):
             file=ContentFile(b"<x/>", name="ok.xml"),
         )
         camt_import.full_clean()
+
+    def test_delete_succeeds_when_storage_raises(self):
+        camt_import = CamtImport.objects.create(
+            subscription=self.subscription,
+            file=ContentFile(b"<x/>", name="gone.xml"),
+        )
+        pk = camt_import.pk
+
+        with patch.object(default_storage, "delete", side_effect=FileNotFoundError):
+            camt_import.delete()
+
+        self.assertFalse(CamtImport.objects.filter(pk=pk).exists())
 
     def test_full_clean_rejects_oversized_file(self):
         oversized = b"<x/>" + b"a" * FILE_UPLOAD_MAX_MEMORY_SIZE

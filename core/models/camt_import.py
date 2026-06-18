@@ -35,4 +35,7 @@ class CamtImport(models.Model):
 @receiver(pre_delete, sender=CamtImport)
 def _delete_camt_file(sender, instance, **kwargs):
     if instance.file:
-        instance.file.delete(save=False)
+        try:
+            instance.file.delete(save=False)
+        except OSError:
+            pass
