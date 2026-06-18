@@ -8,7 +8,7 @@ Originally built for a community vegetable garden to manage plot participation f
 
 ## Tech Stack
 
-- Python 3.13+
+- Python 3.14+
 - Django 6.0
 - PostgreSQL (via Docker)
 - uv for dependency management

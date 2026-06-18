@@ -68,7 +68,7 @@ try:
     if isinstance(ssl_header, dict) and len(ssl_header.items()) > 0:
         SECURE_PROXY_SSL_HEADER = list(ssl_header.items())[0]
         USE_X_FORWARDED_HOST = True
-except (json.JSONDecodeError, TypeError):
+except json.JSONDecodeError, TypeError:
     pass
 
 INVOICE_IBAN = os.environ.get("IBAN", "")
