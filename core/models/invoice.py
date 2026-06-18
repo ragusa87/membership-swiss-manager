@@ -101,21 +101,45 @@ class Invoice(models.Model):
         )
 
     def split_and_pay(self, price: int, transaction_id: str):
+        """Reconcile a payment that does not match this invoice exactly.
+
+        - If this invoice is already paid (or already linked to a different
+          transaction), the original is left alone and a new PAID invoice
+          records the incoming payment.
+        - Otherwise this invoice is marked PAID for the actual received
+          amount; a sibling invoice carries the leftover: CREATED for an
+          underpayment, PAID for an overpayment.
+        """
+        already_settled = self.status == InvoiceStatusEnum.PAID or (
+            self.transaction_id is not None and self.transaction_id != transaction_id
+        )
+        if already_settled:
+            return Invoice.objects.create(
+                member_subscription=self.member_subscription,
+                reminder=self.reminder,
+                price=price,
+                status=InvoiceStatusEnum.PAID,
+                transaction_id=transaction_id,
+            )
+
+        leftover = self.price - price
+        self.price = price
+        self.transaction_id = transaction_id
         self.status = InvoiceStatusEnum.PAID
         self.save()
 
-        invoice = self
-        invoice.pk = None
-        invoice.reference = None
-        invoice.created_at = None
-        invoice.status = InvoiceStatusEnum.PAID
-        invoice.reminder = self.reminder
-        invoice.transaction_id = transaction_id
-        invoice.price = price - self.price
+        if leftover == 0:
+            return self
 
-        invoice.save()
-
-        return invoice
+        return Invoice.objects.create(
+            member_subscription=self.member_subscription,
+            reminder=self.reminder,
+            price=abs(leftover),
+            status=(
+                InvoiceStatusEnum.CREATED if leftover > 0 else InvoiceStatusEnum.PAID
+            ),
+            transaction_id=None if leftover > 0 else transaction_id,
+        )
 
     def can_create_reminder(self) -> bool:
         if self.reminder is not None and self.reminder >= 3:

@@ -1,21 +1,25 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files.base import ContentFile
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView
 from django.middleware.csrf import get_token
-from ..models import Subscription, Invoice, InvoiceStatusEnum, MemberSubscription
+from ..models import (
+    Subscription,
+    Invoice,
+    InvoiceStatusEnum,
+    MemberSubscription,
+    CamtImport,
+)
 from ..settings import FILE_UPLOAD_MAX_MEMORY_SIZE
+from ..utils import chf_to_centimes
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.urls import reverse
 from django import forms
-from django.core.files.storage import default_storage
 from django.views.generic.edit import FormView
 from ..camt_importer.camt_importer import CamtImporter
 
-SESSION_FILENAME = "camt_import"
-SESSION_SUBSCRIPTION_ID = "camt_import_subscription_pk"
+MAX_RECENT_IMPORTS = 20
 
 
 class CamtUploadForm(forms.Form):
@@ -34,24 +38,19 @@ class CamtUploadForm(forms.Form):
     )
 
 
-class CamtUploadView(FormView, TemplateView):
+class CamtUploadView(LoginRequiredMixin, FormView, TemplateView):
     form_class = CamtUploadForm
-    success_url = reverse_lazy("camt_process")
     template_name = "core/camt_upload.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["data"] = []
-        if SESSION_FILENAME in self.request.session:
-            file_name = (
-                self.request.session[SESSION_FILENAME]
-                if SESSION_FILENAME in self.request.session
-                else None
-            )
-            context["file_name"] = (
-                file_name if default_storage.exists(file_name) else None
-            )
+        context["recent_imports"] = CamtImport.objects.select_related(
+            "subscription"
+        ).order_by("-created_at")[:MAX_RECENT_IMPORTS]
         return context
+
+    def get_success_url(self):
+        return reverse("camt_process", kwargs={"pk": self._created_pk})
 
     def form_valid(self, form):
         camt_file = form.cleaned_data["camt_file"]
@@ -65,33 +64,30 @@ class CamtUploadView(FormView, TemplateView):
             messages.error(self.request, _("File too large"))
             return super().form_invalid(form)
 
-        # Delete previously uploaded file
-        if SESSION_FILENAME in self.request.session:
-            default_storage.delete(self.request.session[SESSION_FILENAME])
-            del self.request.session[SESSION_FILENAME]
-
         try:
-            file = camt_file.read()
-            if file is None:
-                messages.error(self.request, _("Please upload a valid CSV file"))
-            # Save the file
-            file_path = default_storage.save(
-                f"uploads/{camt_file.name}", ContentFile(file)
+            camt_import = CamtImport.objects.create(
+                file=camt_file, subscription=subscription
             )
-            self.request.session[SESSION_FILENAME] = file_path
-            self.request.session[SESSION_SUBSCRIPTION_ID] = subscription.pk
 
-            CamtImporter(default_storage.open(file_path))
+            CamtImporter(camt_import.file)
+
+            stale_pks = list(
+                CamtImport.objects.order_by("-created_at").values_list("pk", flat=True)[
+                    MAX_RECENT_IMPORTS:
+                ]
+            )
+            CamtImport.objects.filter(pk__in=stale_pks).delete()
 
             messages.success(self.request, _("CAMT file uploaded successfully!"))
         except Exception as e:
             messages.error(self.request, str(_("Error processing file: %s")) % str(e))
             return super().form_invalid(form)
 
+        self._created_pk = camt_import.pk
         return super().form_valid(form)
 
 
-class CamtLinkInvoice(TemplateView, LoginRequiredMixin):
+class CamtLinkInvoice(LoginRequiredMixin, TemplateView):
     template_name = "core/partials/camt_link.html"
     invoice_id = None
 
@@ -113,7 +109,7 @@ class CamtLinkInvoice(TemplateView, LoginRequiredMixin):
         context = self.get_context_data(**kwargs)
         invoice = context["invoice"]
 
-        price = int(float(amount) * 100)
+        price = chf_to_centimes(amount)
 
         if invoice.should_split(price, transaction_id):
             invoice.split_and_pay(price, transaction_id)
@@ -126,20 +122,27 @@ class CamtLinkInvoice(TemplateView, LoginRequiredMixin):
         return self.render_to_response(context)
 
 
-class CamtReconciliationView(TemplateView, LoginRequiredMixin):
+class CamtReconciliationView(LoginRequiredMixin, TemplateView):
     route = "camt_reconciliation"
     template_name = "core/partials/camt_reconciliation.html"
+
+    def _subscription_id(self) -> int:
+        return get_object_or_404(
+            CamtImport, pk=self.kwargs["import_id"]
+        ).subscription_id
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["csrf_token"] = get_token(self.request)
+        context["import_id"] = self.kwargs["import_id"]
 
         if self.request.method == "GET":
+            subscription_id = self._subscription_id()
             context.update(
                 {
-                    "invoices": self._invoices(),
+                    "invoices": self._invoices(subscription_id),
                     "member_subscriptions": MemberSubscription.objects.filter(
-                        subscription_id=self.request.session[SESSION_SUBSCRIPTION_ID],
+                        subscription_id=subscription_id,
                         active=True,
                     ).all(),
                     "invoice_id": self.request.GET.get("invoice_id"),
@@ -167,12 +170,11 @@ class CamtReconciliationView(TemplateView, LoginRequiredMixin):
 
         return context
 
-    def _invoices(self):
+    @staticmethod
+    def _invoices(subscription_id: int):
         return (
             Invoice.objects.filter(
-                member_subscription__subscription_id=self.request.session[
-                    SESSION_SUBSCRIPTION_ID
-                ],
+                member_subscription__subscription_id=subscription_id,
                 member_subscription__active=True,
             )
             .order_by(
@@ -207,7 +209,7 @@ class CamtReconciliationView(TemplateView, LoginRequiredMixin):
             and context["transaction_id"] is not None
             and context["transaction_id"] != ""
         ):
-            price = int(float(context["amount"]) * 100)
+            price = chf_to_centimes(context["amount"])
 
             if invoice.should_split(price, context["transaction_id"]):
                 invoice.split_and_pay(price, context["transaction_id"])
@@ -228,39 +230,38 @@ class CamtReconciliationView(TemplateView, LoginRequiredMixin):
             MemberSubscription, pk=context["new_invoice_for_subscription"]
         )
         invoice = member_subscription.generate_new_invoice()
-        price = int(float(context["amount"]) * 100)
+        price = chf_to_centimes(context["amount"])
         invoice.price = price
         invoice.status = InvoiceStatusEnum.PAID
         invoice.save()
         return HttpResponse(_("New invoice created"))
 
 
-class CamtProcessView(TemplateView, LoginRequiredMixin):
+class CamtImportDeleteView(LoginRequiredMixin, TemplateView):
+    template_name = "core/camt_import_confirm_delete.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["camt_import"] = get_object_or_404(CamtImport, pk=self.kwargs["pk"])
+        return context
+
+    def post(self, request, pk):
+        camt_import = get_object_or_404(CamtImport, pk=pk)
+        camt_import.delete()
+        messages.success(request, _("Import deleted"))
+        return redirect("camt_upload")
+
+
+class CamtProcessView(LoginRequiredMixin, TemplateView):
     template_name = "core/camt_process.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        file = default_storage.open(self.request.session[SESSION_FILENAME])
+        camt_import = get_object_or_404(CamtImport, pk=self.kwargs["pk"])
 
-        subscription = (
-            self.request.session[SESSION_SUBSCRIPTION_ID]
-            if SESSION_SUBSCRIPTION_ID in self.request.session
-            else None
-        )
-        subscription = (
-            Subscription.objects.get(pk=subscription) if subscription else None
-        )
-
-        context["subscription"] = subscription
-        context["data"] = CamtImporter(file).transactions()
+        context["subscription"] = camt_import.subscription
+        context["camt_import"] = camt_import
+        context["data"] = CamtImporter(camt_import.file).transactions()
 
         return context
-
-    def get(self, request, *args, **kwargs):
-        if SESSION_FILENAME not in self.request.session or not default_storage.exists(
-            self.request.session[SESSION_FILENAME]
-        ):
-            return HttpResponseRedirect(redirect_to=reverse_lazy("camt_upload"))
-
-        return super().get(request, *args, **kwargs)

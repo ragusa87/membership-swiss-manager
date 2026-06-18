@@ -68,7 +68,7 @@ try:
     if isinstance(ssl_header, dict) and len(ssl_header.items()) > 0:
         SECURE_PROXY_SSL_HEADER = list(ssl_header.items())[0]
         USE_X_FORWARDED_HOST = True
-except (json.JSONDecodeError, TypeError):
+except json.JSONDecodeError, TypeError:
     pass
 
 INVOICE_IBAN = os.environ.get("IBAN", "")
@@ -87,6 +87,10 @@ CREDITOR_CITY = os.environ.get("CREDITOR_CITY", "Lausanne")
 CREDITOR_COUNTRY = os.environ.get("CREDITOR_COUNTRY", "CH")
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.forms",
+    "unfold.contrib.filters",
+    "unfold.contrib.inlines",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -220,6 +224,9 @@ if CUSTOM_AUTHENTICATION_BACKEND == "authcrunch":
         "core.auth.remote_user_backend.AuthcrunchRemoteUserBackend"
     ]
     MIDDLEWARE += ["core.auth.remote_user_backend.AuthcrunchRemoteUserMiddleware"]
+    LOGOUT_REDIRECT_URL = os.environ.get(
+        "AUTHCRUNCH_LOGOUT_URL", "https://auth.example.com/logout"
+    )
 
 PHONENUMBER_DEFAULT_REGION = "CH"
 LOCATIONS_SEARCH_API = "https://api3.geo.admin.ch/rest/services/api/SearchServer"

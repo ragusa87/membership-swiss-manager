@@ -1,18 +1,11 @@
-x-environment:
-  &x-environment
-  INITIAL: "${INITIAL:-0}"
-
 services:
   web:
-    command: gunicorn core.wsgi:application -w 2 -b :8000
-    # command: sh -c 'while true; do ./manage.py runserver 0.0.0.0:8000; sleep 1; done'
-    #build:
-    #  target: dev
-    # ports:
-    #   - "8000:8000"
+    command: sh -c './manage.py compilemessages && ./manage.py collectstatic --noinput && while true; do ./manage.py runserver 0.0.0.0:8000; sleep 1; done'
     volumes:
       - .env.local:/app/.env.local
-      #- .:/app/
+      - .:/app/
+#    build:
+#      target: dev
 #    labels:
 #      - 'traefik.enable=true'
 #      - 'traefik.docker.network=pontsun'
@@ -21,8 +14,9 @@ services:
 #      - 'traefik.http.routers.hello.rule=Host(`membership.docker.test`)'
 #      - 'traefik.http.routers.hello.middlewares=https_redirect'
 #      - 'traefik.http.routers.hello.service=web-django-hello'
+#      - 'traefik.http.services.web-django-hello.loadbalancer.server.port=8000'
 #    networks:
 #      - 'pontsun'
 #      - 'default'
 #networks:
-#    pontsun: {external: true}
+#  pontsun: {external: true}

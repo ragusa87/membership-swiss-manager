@@ -7,6 +7,7 @@ from ..models import (
     Subscription,
     Member,
 )
+from ..utils import chf_to_centimes
 import csv
 from django.db.models import Q
 from django.db.models import F
@@ -41,7 +42,7 @@ class Row:
         object.type = self.__as_type__(
             self.row[EXPECTED_HEADERS_LABELS.get("subscription_type")]
         )
-        object.price = int(self.row[EXPECTED_HEADERS_LABELS.get("price")])
+        object.price = chf_to_centimes(self.row[EXPECTED_HEADERS_LABELS.get("price")])
         members = self.members()
         if len(members) > 0:
             object.member = members.pop(0)

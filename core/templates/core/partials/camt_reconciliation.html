@@ -8,9 +8,9 @@
         data-hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         method="POST"
         data-hx-target="#tx{{ transaction_id|slugify}}"
-        action="{% url 'camt_reconciliation' %}"
+        action="{% url 'camt_reconciliation' import_id=import_id %}"
         data-hx-encoding="multipart/form-data"
-        data-hx-post="{% url 'camt_reconciliation' %}"
+        data-hx-post="{% url 'camt_reconciliation' import_id=import_id %}"
         data-hx-trigger="submit"
         class="space-y-4"
     >
@@ -52,9 +52,9 @@
     <form
         data-hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
         method="POST"
-        action="{% url 'camt_reconciliation' %}"
+        action="{% url 'camt_reconciliation' import_id=import_id %}"
         data-hx-encoding="multipart/form-data"
-        data-hx-post="{% url 'camt_reconciliation' %}"
+        data-hx-post="{% url 'camt_reconciliation' import_id=import_id %}"
         data-hx-trigger="submit"
         data-hx-target="#tx{{ transaction_id|slugify }}"
         class="space-y-4">

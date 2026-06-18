@@ -35,18 +35,45 @@
                             {{ form.camt_file.label }}
                         </label>
                         <div class="flex items-center justify-center w-full">
-                            <label class="flex flex-col w-full h-32 border-4 border-dashed border-gray-200 hover:border-gray-300 rounded-lg">
+                            <label class="flex flex-col w-full h-32 border-4 border-dashed border-gray-200 hover:border-gray-300 rounded-lg cursor-pointer">
                                 <div class="flex flex-col items-center justify-center pt-7">
-                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg id="camt-file-icon" class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                                     </svg>
-                                    <p class="pt-1 text-sm tracking-wider text-gray-400">
+                                    <p id="camt-file-placeholder" class="pt-1 text-sm tracking-wider text-gray-400">
                                         {% translate "Drop your file here or click to browse" %}
                                     </p>
+                                    <p id="camt-file-name" class="pt-1 text-sm font-medium text-blue-700 hidden break-all px-2"></p>
                                 </div>
-                                <input type="file" name="{{ form.camt_file.name }}" class="opacity-0" />
+                                <input id="camt-file-input" type="file" name="{{ form.camt_file.name }}" class="opacity-0" />
                             </label>
                         </div>
+                        <script>
+                            (function () {
+                                var input = document.getElementById('camt-file-input');
+                                var placeholder = document.getElementById('camt-file-placeholder');
+                                var nameEl = document.getElementById('camt-file-name');
+                                var icon = document.getElementById('camt-file-icon');
+                                if (!input) return;
+                                input.addEventListener('change', function () {
+                                    if (input.files && input.files.length > 0) {
+                                        var f = input.files[0];
+                                        var sizeKb = Math.max(1, Math.round(f.size / 1024));
+                                        nameEl.textContent = f.name + ' (' + sizeKb.toLocaleString() + ' KB)';
+                                        nameEl.classList.remove('hidden');
+                                        placeholder.classList.add('hidden');
+                                        icon.classList.remove('text-gray-400');
+                                        icon.classList.add('text-blue-500');
+                                    } else {
+                                        nameEl.textContent = '';
+                                        nameEl.classList.add('hidden');
+                                        placeholder.classList.remove('hidden');
+                                        icon.classList.remove('text-blue-500');
+                                        icon.classList.add('text-gray-400');
+                                    }
+                                });
+                            })();
+                        </script>
                         {% if form.camt_file.help_text %}
                             <p class="text-sm text-gray-500">{{ form.camt_file.help_text }}</p>
                         {% endif %}
@@ -67,6 +94,29 @@
                         {% trans "Upload File" %}
                     </button>
                 </form>
+
+                {% if recent_imports %}
+                    <div class="mt-8">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-3">{% translate "Recent imports" %}</h2>
+                        <ul class="divide-y divide-gray-200 border rounded-lg">
+                            {% for ci in recent_imports %}
+                                <li class="p-3 hover:bg-gray-50 flex items-center justify-between gap-3">
+                                    <a href="{% url 'camt_process' pk=ci.pk %}" class="flex-1 flex items-center justify-between min-w-0">
+                                        <span class="text-sm text-blue-700 hover:underline truncate">{{ ci.file.name }}</span>
+                                        <span class="text-xs text-gray-500 ml-3 whitespace-nowrap">
+                                            {{ ci.subscription.name }} &middot; {{ ci.created_at|date:"Y-m-d H:i" }}
+                                        </span>
+                                    </a>
+                                    <a href="{% url 'camt_import_delete' pk=ci.pk %}"
+                                       class="text-red-600 hover:text-red-800 text-sm px-2"
+                                       title="{% translate 'Delete' %}">
+                                        {% translate "Delete" %}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
             {% endblock %}
 
         </div>

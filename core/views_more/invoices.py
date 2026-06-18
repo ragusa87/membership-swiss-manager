@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from core.models import Invoice, Subscription, InvoiceStatusEnum, MemberSubscription
 from core.pdf_generator import PDFGenerator
 from django.urls import reverse_lazy
@@ -14,9 +14,14 @@ from django.utils import timezone
 
 @login_required
 def pdf_by_invoice(request, invoice_id: int) -> HttpResponse:
-    generator = PDFGenerator()
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
+    if invoice.price is None or invoice.price <= 0:
+        return HttpResponseBadRequest(
+            _("Cannot generate a PDF for an invoice with no positive amount.")
+        )
+
+    generator = PDFGenerator()
     pdf_output = generator.generate_pdf([invoice])
     return HttpResponse(pdf_output.read(), content_type="application/pdf")
 

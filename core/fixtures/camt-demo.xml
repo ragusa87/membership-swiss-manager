@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Demo CAMT.053 statement covering the main reconciliation scenarios against
+  the JSON fixtures (subscription "2024", invoice 1001 Linnea Krügel/pending,
+  invoice 1002 Yannick Humbert-Droz/paid):
+
+    TX-DEMO-001  auto-match by RF reference + name (invoice 1001 → pending)
+    TX-DEMO-002  match by RF reference + name (invoice 1002 → already paid,
+                 click "Link" to exercise the split-and-pay path)
+    TX-DEMO-003  bonification for an existing member (Jara Schnider) with no
+                 invoice → "Resolve?" button (create a new invoice)
+    TX-DEMO-004  bonification for an unknown payer → "Resolve?" button
+    TX-DEMO-005  outgoing debit (bank fee), no match, no action
+    TX-DEMO-006  bonification matching invoice 1001 by reference but with a
+                 price mismatch (55.00 vs 60.00) → "Price mismatch !" warning
+-->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.04">
+  <BkToCstmrStmt>
+    <GrpHdr>
+      <MsgId>DEMO-MSG-ID</MsgId>
+      <CreDtTm>2025-05-16T14:55:10</CreDtTm>
+      <MsgPgntn>
+        <PgNb>1</PgNb>
+        <LastPgInd>true</LastPgInd>
+      </MsgPgntn>
+    </GrpHdr>
+    <Stmt>
+      <Id>DEMO-STMT-ID</Id>
+      <ElctrncSeqNb>1</ElctrncSeqNb>
+      <CreDtTm>2025-05-16T14:55:10</CreDtTm>
+      <FrToDt>
+        <FrDtTm>2025-05-01T00:00:00</FrDtTm>
+        <ToDtTm>2025-05-16T14:55:10</ToDtTm>
+      </FrToDt>
+      <Acct>
+        <Id><IBAN>CH0000000000000000000</IBAN></Id>
+        <Ccy>CHF</Ccy>
+        <Ownr>
+          <Nm>DEMO ASSOCIATION</Nm>
+          <PstlAdr><AdrLine>Lausanne</AdrLine></PstlAdr>
+        </Ownr>
+        <Svcr>
+          <FinInstnId>
+            <BICFI>POFICHBEXXX</BICFI>
+            <Nm>Demo Bank</Nm>
+          </FinInstnId>
+        </Svcr>
+      </Acct>
+
+      <!-- 1) Auto-match by reference + name (pending invoice 1001) -->
+      <Ntry>
+        <Amt Ccy="CHF">60</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-02</Dt></BookgDt>
+        <ValDt><Dt>2025-05-02</Dt></ValDt>
+        <AcctSvcrRef>DEMO/0001</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>DEMO/0001/1</AcctSvcrRef>
+              <EndToEndId>DEMO-E2E-1</EndToEndId>
+              <TxId>TX-DEMO-001</TxId>
+            </Refs>
+            <Amt Ccy="CHF">60</Amt>
+            <RltdPties>
+              <Dbtr>
+                <Nm>Linnea Krügel</Nm>
+                <PstlAdr><AdrLine>Route du mou 1, 1006 Lausanne</AdrLine></PstlAdr>
+              </Dbtr>
+              <DbtrAcct><Id><IBAN>CH0000000000000000001</IBAN></Id></DbtrAcct>
+              <Cdtr>
+                <Nm>DEMO ASSOCIATION</Nm>
+                <PstlAdr><AdrLine>Lausanne</AdrLine></PstlAdr>
+              </Cdtr>
+            </RltdPties>
+            <RmtInf>
+              <Strd>
+                <CdtrRefInf>
+                  <Ref>RF450000000000000001001</Ref>
+                </CdtrRefInf>
+              </Strd>
+              <Ustrd>Cotisation 2024</Ustrd>
+            </RmtInf>
+            <AddtlTxInf>Bonification Linnea Krügel</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Bonification Linnea Krügel</AddtlNtryInf>
+      </Ntry>
+
+      <!-- 2) Reference + name match an ALREADY-PAID invoice (1002) -->
+      <Ntry>
+        <Amt Ccy="CHF">10</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-03</Dt></BookgDt>
+        <ValDt><Dt>2025-05-03</Dt></ValDt>
+        <AcctSvcrRef>DEMO/0002</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>DEMO/0002/1</AcctSvcrRef>
+              <EndToEndId>DEMO-E2E-2</EndToEndId>
+              <TxId>TX-DEMO-002</TxId>
+            </Refs>
+            <Amt Ccy="CHF">10</Amt>
+            <RltdPties>
+              <Dbtr>
+                <Nm>Yannick Humbert-Droz</Nm>
+                <PstlAdr><AdrLine>Avenue du Docteur Schwab 1, 1006 Lausanne</AdrLine></PstlAdr>
+              </Dbtr>
+              <DbtrAcct><Id><IBAN>CH0000000000000000003</IBAN></Id></DbtrAcct>
+              <Cdtr>
+                <Nm>DEMO ASSOCIATION</Nm>
+                <PstlAdr><AdrLine>Lausanne</AdrLine></PstlAdr>
+              </Cdtr>
+            </RltdPties>
+            <RmtInf>
+              <Strd>
+                <CdtrRefInf>
+                  <Ref>RF450000000000000001002</Ref>
+                </CdtrRefInf>
+              </Strd>
+              <Ustrd>Soutien 2024</Ustrd>
+            </RmtInf>
+            <AddtlTxInf>Bonification Yannick Humbert-Droz</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Bonification Yannick Humbert-Droz</AddtlNtryInf>
+      </Ntry>
+
+      <!-- 3) Bonification from existing member without invoice (Jara Schnider) -->
+      <Ntry>
+        <Amt Ccy="CHF">60</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-04</Dt></BookgDt>
+        <ValDt><Dt>2025-05-04</Dt></ValDt>
+        <AcctSvcrRef>DEMO/0003</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>DEMO/0003/1</AcctSvcrRef>
+              <EndToEndId>NOTPROVIDED</EndToEndId>
+              <TxId>TX-DEMO-003</TxId>
+            </Refs>
+            <Amt Ccy="CHF">60</Amt>
+            <RltdPties>
+              <Dbtr>
+                <Nm>Jara Schnider</Nm>
+                <PstlAdr><AdrLine>Route de Froideval 1, 1006 Lausanne</AdrLine></PstlAdr>
+              </Dbtr>
+              <DbtrAcct><Id><IBAN>CH0000000000000000004</IBAN></Id></DbtrAcct>
+              <Cdtr>
+                <Nm>DEMO ASSOCIATION</Nm>
+                <PstlAdr><AdrLine>Lausanne</AdrLine></PstlAdr>
+              </Cdtr>
+            </RltdPties>
+            <RmtInf>
+              <Ustrd>Cotisation 2024 - paiement libre</Ustrd>
+            </RmtInf>
+            <AddtlTxInf>Bonification Jara Schnider</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Bonification Jara Schnider</AddtlNtryInf>
+      </Ntry>
+
+      <!-- 4) Bonification from an unknown payer -->
+      <Ntry>
+        <Amt Ccy="CHF">30</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-05</Dt></BookgDt>
+        <ValDt><Dt>2025-05-05</Dt></ValDt>
+        <AcctSvcrRef>DEMO/0004</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>DEMO/0004/1</AcctSvcrRef>
+              <EndToEndId>NOTPROVIDED</EndToEndId>
+              <TxId>TX-DEMO-004</TxId>
+            </Refs>
+            <Amt Ccy="CHF">30</Amt>
+            <RltdPties>
+              <Dbtr>
+                <Nm>Sami Stranger</Nm>
+                <PstlAdr><AdrLine>Rue inconnue 99, 1000 Lausanne</AdrLine></PstlAdr>
+              </Dbtr>
+              <DbtrAcct><Id><IBAN>CH0000000000000000099</IBAN></Id></DbtrAcct>
+              <Cdtr>
+                <Nm>DEMO ASSOCIATION</Nm>
+                <PstlAdr><AdrLine>Lausanne</AdrLine></PstlAdr>
+              </Cdtr>
+            </RltdPties>
+            <RmtInf>
+              <Ustrd>Don</Ustrd>
+            </RmtInf>
+            <AddtlTxInf>Bonification Sami Stranger</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Bonification Sami Stranger</AddtlNtryInf>
+      </Ntry>
+
+      <!-- 5) Outgoing bank fee (debit) - no reconciliation action -->
+      <Ntry>
+        <Amt Ccy="CHF">5</Amt>
+        <CdtDbtInd>DBIT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-06</Dt></BookgDt>
+        <ValDt><Dt>2025-05-06</Dt></ValDt>
+        <AcctSvcrRef>DEMO/0005</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>DEMO/0005/1</AcctSvcrRef>
+              <EndToEndId>NOTPROVIDED</EndToEndId>
+              <TxId>TX-DEMO-005</TxId>
+            </Refs>
+            <Amt Ccy="CHF">5</Amt>
+            <RltdPties>
+              <Cdtr>
+                <Nm>Demo Bank</Nm>
+                <PstlAdr><AdrLine>Bern</AdrLine></PstlAdr>
+              </Cdtr>
+              <Dbtr>
+                <Nm>DEMO ASSOCIATION</Nm>
+                <PstlAdr><AdrLine>Lausanne</AdrLine></PstlAdr>
+              </Dbtr>
+            </RltdPties>
+            <RmtInf>
+              <Ustrd>Frais bancaires mensuels</Ustrd>
+            </RmtInf>
+            <AddtlTxInf>Frais bancaires</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Frais bancaires</AddtlNtryInf>
+      </Ntry>
+
+      <!-- 6) Bonification matching invoice 1001 with a price mismatch -->
+      <Ntry>
+        <Amt Ccy="CHF">55</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <BookgDt><Dt>2025-05-07</Dt></BookgDt>
+        <ValDt><Dt>2025-05-07</Dt></ValDt>
+        <AcctSvcrRef>DEMO/0006</AcctSvcrRef>
+        <NtryDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>DEMO/0006/1</AcctSvcrRef>
+              <EndToEndId>DEMO-E2E-6</EndToEndId>
+              <TxId>TX-DEMO-006</TxId>
+            </Refs>
+            <Amt Ccy="CHF">55</Amt>
+            <RltdPties>
+              <Dbtr>
+                <Nm>Linnea Krügel</Nm>
+                <PstlAdr><AdrLine>Route du mou 1, 1006 Lausanne</AdrLine></PstlAdr>
+              </Dbtr>
+              <DbtrAcct><Id><IBAN>CH0000000000000000001</IBAN></Id></DbtrAcct>
+              <Cdtr>
+                <Nm>DEMO ASSOCIATION</Nm>
+                <PstlAdr><AdrLine>Lausanne</AdrLine></PstlAdr>
+              </Cdtr>
+            </RltdPties>
+            <RmtInf>
+              <Strd>
+                <CdtrRefInf>
+                  <Ref>RF450000000000000001001</Ref>
+                </CdtrRefInf>
+              </Strd>
+              <Ustrd>Cotisation 2024 - acompte</Ustrd>
+            </RmtInf>
+            <AddtlTxInf>Bonification Linnea Krügel</AddtlTxInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Bonification Linnea Krügel</AddtlNtryInf>
+      </Ntry>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

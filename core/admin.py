@@ -11,6 +11,8 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Prefetch
+from unfold.admin import ModelAdmin
+from unfold.contrib.filters.admin import AutocompleteSelectFilter
 from core.templatetags.custom_filters import format_price
 from .forms.invoice import InvoiceForm
 from .forms.subscription import SubscriptionForm
@@ -30,22 +32,6 @@ class FilterMemberSubscriptionBySubscription(SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(subscription__pk=self.value())
-        return queryset
-
-
-class FilterMemberSubscriptionByMember(SimpleListFilter):
-    title = "member"
-    parameter_name = "member"
-
-    def lookups(self, request, model_admin):
-        members = (
-            Member.objects.all()
-        )  # You can filter which parents you want to show here
-        return [(member.pk, f"{member.get_fullname()}") for member in members]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(member__id=self.value())
         return queryset
 
 
@@ -78,22 +64,6 @@ class FilterInvoiceBySubscription(SimpleListFilter):
         return queryset
 
 
-class FilterInvoiceByMemberSubscription(SimpleListFilter):
-    title = "member subscription"
-    parameter_name = "member_subscription"
-
-    def lookups(self, request, model_admin):
-        return [
-            (subscription.pk, str(subscription))
-            for subscription in MemberSubscription.objects.all()
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(member_subscription=self.value())
-        return queryset
-
-
 class FilterById(SimpleListFilter):
     title = _("Filter by Id")
     parameter_name = "id"
@@ -110,7 +80,7 @@ class FilterById(SimpleListFilter):
         return queryset
 
 
-class MemberAdmin(admin.ModelAdmin):
+class MemberAdmin(ModelAdmin):
     title = "Member"
     list_filter = [FilterById]
     search_fields = ["firstname", "lastname", "email", "address", "phone"]
@@ -127,21 +97,19 @@ class MemberAdmin(admin.ModelAdmin):
     def full_address(self, obj):
         address = [obj.address, obj.address_number, obj.zip, obj.city]
         address = [str(i) for i in address if str(i if i else "").strip() != ""]
-        if address:
-            return format_html(" ".join(address))
-        return ""
+        return " ".join(address)
 
     def view_subscriptions(self, obj):
         name = "View subscriptions"
         url = (
             reverse("admin:core_membersubscription_changelist")
-            + "?member="
+            + "?member__id__exact="
             + str(obj.pk)
         )
         return format_html('<a href="{}">{}</a>', url, name)
 
 
-class SubscriptionAdmin(admin.ModelAdmin):
+class SubscriptionAdmin(ModelAdmin):
     form = SubscriptionForm
     list_display = ("name", "view_dashboard")
 
@@ -191,12 +159,13 @@ def mark_as_paid(modeladmin, request, queryset):
         invoice.save()
 
 
-class InvoiceAdmin(admin.ModelAdmin):
+class InvoiceAdmin(ModelAdmin):
     form = InvoiceForm
+    list_filter_submit = True
     list_filter = [
         FilterInvoiceByStatus,
         FilterInvoiceBySubscription,
-        FilterInvoiceByMemberSubscription,
+        ("member_subscription", AutocompleteSelectFilter),
         FilterById,
     ]
     actions = [
@@ -230,16 +199,16 @@ class InvoiceAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{}</a>', url, name)
 
     def view_subscription(self, obj):
-        return format_html(obj.member_subscription.subscription.name)
+        return obj.member_subscription.subscription.name
 
     def view_status(self, obj):
-        return format_html(obj.get_status_text())
+        return obj.get_status_text()
 
     def view_price(self, obj):
-        return format_html(format_price(obj.price))
+        return format_price(obj.price)
 
     def view_reminder(self, obj):
-        return format_html(obj.get_reminder_text())
+        return obj.get_reminder_text()
 
     def view_created_at(self, obj):
         name = obj.created_at.strftime("%Y-%m-%d")
@@ -291,14 +260,21 @@ class MemberSubscriptionForm(forms.ModelForm):
         return cleaned_data
 
 
-class MemberSubscriptionAdmin(admin.ModelAdmin):
+class MemberSubscriptionAdmin(ModelAdmin):
     form = MemberSubscriptionForm
 
+    list_filter_submit = True
     list_filter = (
         FilterMemberSubscriptionBySubscription,
-        FilterMemberSubscriptionByMember,
+        ("member", AutocompleteSelectFilter),
         FilterById,
     )
+    search_fields = [
+        "member__firstname",
+        "member__lastname",
+        "member__email",
+        "subscription__name",
+    ]
     readonly_fields = ["price"]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -331,7 +307,7 @@ class MemberSubscriptionAdmin(admin.ModelAdmin):
         name = "invoices (%s)" % (str(obj.invoices_count) if obj.invoices_count else 0)
         url = (
             reverse("admin:core_invoice_changelist")
-            + "?member_subscription="
+            + "?member_subscription__id__exact="
             + str(obj.pk)
         )
         return format_html('<a href="{}">{}</a>', url, name)

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static custom_filters i18n %}
+{% block html_title %}{% translate "Delete CAMT import" %}{% endblock %}
+{% block title %}
+    <div class="flex flex-row">
+        <a title="{% translate 'Back' %}" href="{% url 'camt_upload' %}" class="p-1 mr-4 ml-4 hover:bg-blue-600 text-white font-semibold py-4 rounded-lg transition duration-200">
+            {% sprite 'lucide-chevron-left' %}
+        </a>
+        <span class="self-center">{% translate "Delete CAMT import" %}</span>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="flex px-4 py-8">
+        <div class="flex-grow self-center bg-white rounded-lg shadow-md p-6 max-w-xl mx-auto">
+            <p class="mb-2">
+                {% blocktranslate with name=camt_import.file.name subscription=camt_import.subscription.name %}You are about to delete the import <strong>{{ name }}</strong> for subscription <strong>{{ subscription }}</strong>.{% endblocktranslate %}
+            </p>
+            <p class="mb-6 text-sm text-gray-600">
+                {{ camt_import.created_at|date:"Y-m-d H:i" }}
+            </p>
+            <p class="mb-6 text-sm text-red-700">
+                {% translate "This action cannot be undone. The uploaded file will also be removed from storage." %}
+            </p>
+
+            <form method="post" class="flex items-center gap-3">
+                {% csrf_token %}
+                <button type="submit"
+                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    {% translate "Delete" %}
+                </button>
+                <a href="{% url 'camt_upload' %}"
+                   class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    {% translate "Cancel" %}
+                </a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
