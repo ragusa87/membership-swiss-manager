@@ -224,6 +224,9 @@ if CUSTOM_AUTHENTICATION_BACKEND == "authcrunch":
         "core.auth.remote_user_backend.AuthcrunchRemoteUserBackend"
     ]
     MIDDLEWARE += ["core.auth.remote_user_backend.AuthcrunchRemoteUserMiddleware"]
+    LOGOUT_REDIRECT_URL = os.environ.get(
+        "AUTHCRUNCH_LOGOUT_URL", "https://auth.example.com/logout"
+    )
 
 PHONENUMBER_DEFAULT_REGION = "CH"
 LOCATIONS_SEARCH_API = "https://api3.geo.admin.ch/rest/services/api/SearchServer"

@@ -55,6 +55,7 @@ You can configure django to use the reverse proxy for authentication.
 * Configure your reverse proxy to set the `X-TOKEN-USER-NAME` header with the logged user and `HTTP_X_TOKEN_USER_ROLES` for the role.
 * You need a header with the role "authp/admin" to access the admin interface.
 * Set `SECURE_SSL_REDIRECT=0` in your `.env.local` file to disable the redirection to HTTPS (handled by the reverse proxy).
+* Set `AUTHCRUNCH_LOGOUT_URL` to your portal's logout endpoint (e.g. `https://auth.example.com/logout`). Django's logout view only clears its own session — without this redirect the proxy keeps re-injecting the auth header and the user stays logged in. For the cookie to be cleared across the app domain too, configure `cookie domain example.com` in the portal so the auth cookie is shared between the portal and app subdomains.
 
 Configuration example for [authcrunch](https://authcrunch.com/) / [Caddy Security](https://github.com/greenpau/caddy-security):
 ```config
