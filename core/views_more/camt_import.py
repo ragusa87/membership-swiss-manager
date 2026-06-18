@@ -37,7 +37,7 @@ class CamtUploadForm(forms.Form):
     )
 
 
-class CamtUploadView(FormView, TemplateView):
+class CamtUploadView(LoginRequiredMixin, FormView, TemplateView):
     form_class = CamtUploadForm
     template_name = "core/camt_upload.html"
 
@@ -87,7 +87,7 @@ class CamtUploadView(FormView, TemplateView):
         return super().form_valid(form)
 
 
-class CamtLinkInvoice(TemplateView, LoginRequiredMixin):
+class CamtLinkInvoice(LoginRequiredMixin, TemplateView):
     template_name = "core/partials/camt_link.html"
     invoice_id = None
 
@@ -122,7 +122,7 @@ class CamtLinkInvoice(TemplateView, LoginRequiredMixin):
         return self.render_to_response(context)
 
 
-class CamtReconciliationView(TemplateView, LoginRequiredMixin):
+class CamtReconciliationView(LoginRequiredMixin, TemplateView):
     route = "camt_reconciliation"
     template_name = "core/partials/camt_reconciliation.html"
 
@@ -252,7 +252,7 @@ class CamtImportDeleteView(LoginRequiredMixin, TemplateView):
         return redirect("camt_upload")
 
 
-class CamtProcessView(TemplateView, LoginRequiredMixin):
+class CamtProcessView(LoginRequiredMixin, TemplateView):
     template_name = "core/camt_process.html"
 
     def get_context_data(self, **kwargs):

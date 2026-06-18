@@ -201,6 +201,89 @@ class CamtImportDeleteAuthTestCase(TestCase):
         self.assertTrue(CamtImport.objects.filter(pk=self.camt_import.pk).exists())
 
 
+class CamtAnonymousAccessTestCase(TestCase):
+    def setUp(self):
+        self.subscription = Subscription.objects.create(
+            name="2025", price_member=4200, price_supporter=1100
+        )
+        self.member = Member.objects.create(firstname="JohnDoe")
+        self.member_subscription = MemberSubscription.objects.create(
+            subscription=self.subscription, member=self.member, price=4200
+        )
+        self.invoice = Invoice.objects.create(
+            member_subscription=self.member_subscription,
+            price=6000,
+            status=InvoiceStatusEnum.CREATED,
+        )
+        self.camt_import = CamtImport.objects.create(
+            subscription=self.subscription,
+            file=ContentFile(b"<x/>", name="protected.xml"),
+        )
+
+    def test_anonymous_camt_link_does_not_pay_invoice(self):
+        response = self.client.get(f"/camt_link/{self.invoice.pk}/60.00/TX-EVIL/")
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("/admin/login/", response.url)
+
+        self.invoice.refresh_from_db()
+        self.assertEqual(InvoiceStatusEnum.CREATED, self.invoice.status)
+        self.assertIsNone(self.invoice.transaction_id)
+
+    def test_anonymous_camt_reconciliation_redirects_to_login(self):
+        response = self.client.get(
+            f"/process-camt/{self.camt_import.pk}/reconciliation/",
+            {
+                "transaction_id": "TX",
+                "amount": "60",
+                "label": "foo",
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("/admin/login/", response.url)
+
+    def test_anonymous_camt_reconciliation_post_does_not_pay_invoice(self):
+        response = self.client.post(
+            f"/process-camt/{self.camt_import.pk}/reconciliation/",
+            data={
+                "invoice_id": self.invoice.pk,
+                "transaction_id": "TX-EVIL",
+                "amount": "60",
+            },
+        )
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("/admin/login/", response.url)
+
+        self.invoice.refresh_from_db()
+        self.assertEqual(InvoiceStatusEnum.CREATED, self.invoice.status)
+        self.assertIsNone(self.invoice.transaction_id)
+
+    def test_anonymous_camt_process_redirects_to_login(self):
+        response = self.client.get(f"/process-camt/{self.camt_import.pk}/")
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("/admin/login/", response.url)
+
+    def test_anonymous_camt_upload_get_redirects_to_login(self):
+        response = self.client.get("/import-camt")
+
+        self.assertEqual(302, response.status_code)
+        self.assertIn("/admin/login/", response.url)
+
+    def test_anonymous_camt_upload_post_does_not_create_import(self):
+        existing_pks = set(CamtImport.objects.values_list("pk", flat=True))
+
+        response = _upload_fixture(self.client, self.subscription)
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("/admin/login/", response.redirect_chain[-1][0])
+        self.assertEqual(
+            existing_pks, set(CamtImport.objects.values_list("pk", flat=True))
+        )
+
+
 class CamtUploadPruningTestCase(LoggedInTestCase):
     def setUp(self):
         super().setUp()
