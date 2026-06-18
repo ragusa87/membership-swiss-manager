@@ -1,6 +1,7 @@
 from django.db.models import Q
 from pycamt.parser import Camt053Parser
 from core.models import Invoice, Subscription
+from core.utils import chf_to_centimes
 from difflib import SequenceMatcher
 
 
@@ -88,7 +89,7 @@ class Transaction:
             sign = -1 if self.data["CreditDebitIndicator"] == "DBIT" else 1
 
             return (
-                sign * int(float(self.data["Amount"]) * 100)
+                sign * chf_to_centimes(self.data["Amount"])
                 if "Amount" in self.data
                 else 0
             )

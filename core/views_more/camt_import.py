@@ -11,6 +11,7 @@ from ..models import (
     CamtImport,
 )
 from ..settings import FILE_UPLOAD_MAX_MEMORY_SIZE
+from ..utils import chf_to_centimes
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 from django.urls import reverse
@@ -109,7 +110,7 @@ class CamtLinkInvoice(LoginRequiredMixin, TemplateView):
         context = self.get_context_data(**kwargs)
         invoice = context["invoice"]
 
-        price = int(float(amount) * 100)
+        price = chf_to_centimes(amount)
 
         if invoice.should_split(price, transaction_id):
             invoice.split_and_pay(price, transaction_id)
@@ -209,7 +210,7 @@ class CamtReconciliationView(LoginRequiredMixin, TemplateView):
             and context["transaction_id"] is not None
             and context["transaction_id"] != ""
         ):
-            price = int(float(context["amount"]) * 100)
+            price = chf_to_centimes(context["amount"])
 
             if invoice.should_split(price, context["transaction_id"]):
                 invoice.split_and_pay(price, context["transaction_id"])
@@ -230,7 +231,7 @@ class CamtReconciliationView(LoginRequiredMixin, TemplateView):
             MemberSubscription, pk=context["new_invoice_for_subscription"]
         )
         invoice = member_subscription.generate_new_invoice()
-        price = int(float(context["amount"]) * 100)
+        price = chf_to_centimes(context["amount"])
         invoice.price = price
         invoice.status = InvoiceStatusEnum.PAID
         invoice.save()
