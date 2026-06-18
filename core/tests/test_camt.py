@@ -1,5 +1,6 @@
 import os
 
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.test import TestCase
@@ -12,6 +13,7 @@ from core.models import (
     MemberSubscription,
     Subscription,
 )
+from core.settings import FILE_UPLOAD_MAX_MEMORY_SIZE
 from core.tests.test_common import LoggedInTestCase
 from core.views_more.camt_import import MAX_RECENT_IMPORTS
 
@@ -282,6 +284,39 @@ class CamtAnonymousAccessTestCase(TestCase):
         self.assertEqual(
             existing_pks, set(CamtImport.objects.values_list("pk", flat=True))
         )
+
+
+class CamtImportModelValidationTestCase(TestCase):
+    def setUp(self):
+        self.subscription = Subscription.objects.create(
+            name="2025", price_member=4200, price_supporter=1100
+        )
+
+    def test_full_clean_rejects_non_xml_extension(self):
+        camt_import = CamtImport(
+            subscription=self.subscription,
+            file=ContentFile(b"<x/>", name="evil.exe"),
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            camt_import.full_clean()
+        self.assertIn("file", ctx.exception.message_dict)
+
+    def test_full_clean_accepts_xml_extension(self):
+        camt_import = CamtImport(
+            subscription=self.subscription,
+            file=ContentFile(b"<x/>", name="ok.xml"),
+        )
+        camt_import.full_clean()
+
+    def test_full_clean_rejects_oversized_file(self):
+        oversized = b"<x/>" + b"a" * FILE_UPLOAD_MAX_MEMORY_SIZE
+        camt_import = CamtImport(
+            subscription=self.subscription,
+            file=ContentFile(oversized, name="big.xml"),
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            camt_import.full_clean()
+        self.assertIn("file", ctx.exception.message_dict)
 
 
 class CamtUploadPruningTestCase(LoggedInTestCase):
