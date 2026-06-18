@@ -1,6 +1,8 @@
+import base64
 import io
 from collections import OrderedDict
 from io import StringIO
+from pathlib import Path
 import cairosvg
 from pypdf import PdfWriter, PdfReader
 import locale
@@ -81,9 +83,14 @@ class TranslationContext(ContextDecorator):
 
 
 class PDFGenerator:
+    LOGO_PATH = Path(__file__).parent / "logo.svg"
+
     def __init__(self):
-        self.logo_letter = "V"
         pass
+
+    def __get_logo_data_uri__(self) -> str:
+        encoded = base64.b64encode(self.LOGO_PATH.read_bytes()).decode("ascii")
+        return f"data:image/svg+xml;base64,{encoded}"
 
     def __get_debtor__(self, member: Member) -> dict:
         return {
@@ -228,21 +235,12 @@ class PDFGenerator:
     def __draw_invoice_logo__(self, dwg):
         pos = Position(20, 20)
 
-        # Add logo placeholder
         dwg.add(
-            dwg.rect(
-                insert=pos.as_tuple(), size=("80px", "80px"), fill="black", rx=5, ry=5
-            )
-        )
-        pos.move(20, 60)
-        dwg.add(
-            dwg.text(
-                self.logo_letter,
+            dwg.image(
+                href=self.__get_logo_data_uri__(),
                 insert=pos.as_tuple(),
-                fill="white",
-                font_size="58px",
-                font_weight="bold",
-                font_family="Arial",
+                size=("80px", "80px"),
+                preserveAspectRatio="xMidYMid meet",
             )
         )
 
