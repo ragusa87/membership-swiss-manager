@@ -127,9 +127,7 @@ class MemberAdmin(admin.ModelAdmin):
     def full_address(self, obj):
         address = [obj.address, obj.address_number, obj.zip, obj.city]
         address = [str(i) for i in address if str(i if i else "").strip() != ""]
-        if address:
-            return format_html(" ".join(address))
-        return ""
+        return " ".join(address)
 
     def view_subscriptions(self, obj):
         name = "View subscriptions"
@@ -230,16 +228,16 @@ class InvoiceAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{}</a>', url, name)
 
     def view_subscription(self, obj):
-        return format_html(obj.member_subscription.subscription.name)
+        return obj.member_subscription.subscription.name
 
     def view_status(self, obj):
-        return format_html(obj.get_status_text())
+        return obj.get_status_text()
 
     def view_price(self, obj):
-        return format_html(format_price(obj.price))
+        return format_price(obj.price)
 
     def view_reminder(self, obj):
-        return format_html(obj.get_reminder_text())
+        return obj.get_reminder_text()
 
     def view_created_at(self, obj):
         name = obj.created_at.strftime("%Y-%m-%d")
