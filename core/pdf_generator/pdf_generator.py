@@ -84,6 +84,13 @@ class TranslationContext(ContextDecorator):
 
 class PDFGenerator:
     LOGO_PATH = Path(__file__).parent / "logo.svg"
+    BRAND_COLOR = "#036045"
+    MUTED_COLOR = "#555555"
+    PAGE_WIDTH = mm(A4[0])
+    MARGIN = 20
+    HEADER_BOTTOM_Y = 115
+    # Shared left edge for FACTURE title, recipient block, and total amount value.
+    VALUE_COLUMN_X = 560
 
     def __init__(self):
         pass
@@ -221,7 +228,7 @@ class PDFGenerator:
             dwg.add(dwg.rect(insert=(0, 0), size=("100%", "100%"), fill="white"))
 
             # Draw header
-            pos = self.__draw_invoice_logo__(dwg)
+            pos = self.__draw_invoice_logo__(dwg, document_title=str(_("Invoice")))
             self.__draw_invoice_header__(dwg, pos, invoice)
 
             # Draw a bill and make it A4
@@ -232,132 +239,230 @@ class PDFGenerator:
 
             return self.__svg2Pdf__(svg_buffer)
 
-    def __draw_invoice_logo__(self, dwg):
-        pos = Position(20, 20)
-
+    def __draw_invoice_logo__(self, dwg, document_title: str | None = None):
         dwg.add(
             dwg.image(
                 href=self.__get_logo_data_uri__(),
-                insert=pos.as_tuple(),
+                insert=(self.MARGIN, self.MARGIN),
                 size=("80px", "80px"),
                 preserveAspectRatio="xMidYMid meet",
             )
         )
 
-        # Add title
-        pos.set(120, 70)
+        # Creditor block (name + address) to the right of the logo
         dwg.add(
             dwg.text(
                 settings.CREDITOR_NAME,
-                insert=pos.as_tuple(),
+                insert=(120, 48),
                 fill="black",
-                font_size="24px",
+                font_size="20px",
                 font_weight="bold",
                 font_family="Arial",
             )
         )
-
-        return pos
-
-    def __draw_invoice_header__(self, dwg, pos, invoice: Invoice):
-        # Add invoice title (member)
-        pos.set(20, 164)
-
         dwg.add(
             dwg.text(
-                invoice.member_subscription.member.get_fullname(),
-                insert=pos.as_tuple(),
-                fill="black",
-                font_size="24px",
-                font_weight="bold",
+                f"{settings.CREDITOR_ADDRESS} {settings.CREDITOR_ADDRESS_HOUSE_NUMBER}".strip(),
+                insert=(120, 70),
+                fill=self.MUTED_COLOR,
+                font_size="11px",
                 font_family="Arial",
             )
         )
-        pos.move(0, 24)
+        dwg.add(
+            dwg.text(
+                f"{settings.CREDITOR_ZIP} {settings.CREDITOR_CITY}".strip(),
+                insert=(120, 85),
+                fill=self.MUTED_COLOR,
+                font_size="11px",
+                font_family="Arial",
+            )
+        )
 
-        for related_subscription in MemberSubscription.objects.filter(
-            parent=invoice.member_subscription
-        ):
+        # Document title (top-right), aligned with creditor name baseline
+        if document_title:
             dwg.add(
                 dwg.text(
-                    "& " + related_subscription.member.get_fullname(),
-                    insert=pos.as_tuple(),
-                    fill="black",
-                    font_size="24px",
+                    document_title.upper(),
+                    insert=(self.VALUE_COLUMN_X, 56),
+                    fill=self.BRAND_COLOR,
+                    font_size="28px",
                     font_weight="bold",
                     font_family="Arial",
+                    letter_spacing="2",
                 )
             )
-            pos.move(0, 24)
 
-        name = (
-            ""
-            + str(invoice.member_subscription.get_type_text())
-            + " "
-            + str(invoice.member_subscription.subscription.name)
-        )
+        # Accent rule under the header
         dwg.add(
-            dwg.text(
-                name,
-                insert=pos.as_tuple(),
-                fill="black",
-                font_size="14px",
-                font_family="Arial",
+            dwg.line(
+                start=(self.MARGIN, self.HEADER_BOTTOM_Y),
+                end=(self.PAGE_WIDTH - self.MARGIN, self.HEADER_BOTTOM_Y),
+                stroke=self.BRAND_COLOR,
+                stroke_width=1.5,
             )
         )
-        pos.move(0, 24)
 
-        # Add date and invoice number
-        date = invoice.created_at.strftime("%d %B %Y")
-        dwg.add(
-            dwg.text(
-                date,
-                insert=pos.as_tuple(),
-                fill="black",
-                font_size="14px",
-                font_family="Arial",
-            )
-        )
-        pos.move(0, 24)
-        dwg.add(
-            dwg.text(
-                "# " + str(invoice.get_reference()),
-                insert=pos.as_tuple(),
-                fill="black",
-                font_size="14px",
-                font_family="Arial",
-            )
-        )
-        pos.move(0, 14)
+        return Position(self.MARGIN, self.HEADER_BOTTOM_Y)
 
-        if invoice.reminder > 0:
-            dwg.add(
-                dwg.text(
-                    invoice.get_reminder_text(),
-                    insert=pos.as_tuple(),
-                    fill="black",
-                    font_size="14px",
-                    font_family="Arial",
-                )
-            )
-            pos.move(0, 14)
-
-        if invoice.status in [InvoiceStatusEnum.CANCELED, InvoiceStatusEnum.PAID]:
-            pos.move(0, 20)
-            dwg.add(
-                dwg.text(
-                    _("** Cancelled **")
-                    if invoice.status == InvoiceStatusEnum.CANCELED
-                    else _("** Paid **"),
-                    insert=pos.as_tuple(),
-                    fill="red",
-                    font_size="28px",
-                    font_family="Arial",
-                )
-            )
-            pos.move(0, 28)
-
+    def __draw_invoice_header__(self, dwg, pos, invoice: Invoice):
+        self.__draw_recipient_block__(dwg, invoice)
+        self.__draw_invoice_metadata__(dwg, invoice)
+        self.__draw_status_watermark__(dwg, invoice)
         return pos
+
+    def __draw_recipient_block__(self, dwg, invoice: Invoice):
+        """Draws the recipient address block at the envelope-window position.
+
+        The parent member is billed; children are listed under the parent name,
+        but the address shown is always the parent's.
+        """
+        parent_sub = invoice.member_subscription
+        parent = parent_sub.member
+        x = self.VALUE_COLUMN_X
+        y = 175
+        line_h = 16
+
+        dwg.add(
+            dwg.text(
+                parent.get_fullname(),
+                insert=(x, y),
+                fill="black",
+                font_size="13px",
+                font_weight="bold",
+                font_family="Arial",
+            )
+        )
+        y += line_h
+
+        for child_sub in MemberSubscription.objects.filter(parent=parent_sub):
+            dwg.add(
+                dwg.text(
+                    "& " + child_sub.member.get_fullname(),
+                    insert=(x, y),
+                    fill="black",
+                    font_size="13px",
+                    font_family="Arial",
+                )
+            )
+            y += line_h
+
+        y += 6
+
+        for line in (
+            parent.get_full_address_line1(),
+            parent.get_full_address_line2(),
+        ):
+            if not line:
+                continue
+            dwg.add(
+                dwg.text(
+                    line,
+                    insert=(x, y),
+                    fill="black",
+                    font_size="13px",
+                    font_family="Arial",
+                )
+            )
+            y += line_h
+
+    def __draw_metadata_table__(
+        self,
+        dwg,
+        rows: list[tuple[str, str]],
+        amount,
+        amount_label: str | None = None,
+    ):
+        """Draws a label/value table followed by a separator and a total amount line.
+
+        Labels and values are left-aligned in two columns; the total amount
+        value starts at the same x as the row values so the column stays clean.
+        """
+        x_label = self.MARGIN
+        x_value = self.VALUE_COLUMN_X
+        x_right = self.PAGE_WIDTH - self.MARGIN
+        y = 310
+        line_h = 22
+
+        for label, value in rows:
+            text = dwg.text(
+                "",
+                insert=(x_label, y),
+                font_size="12px",
+                font_family="Arial",
+            )
+            text.add(dwg.tspan(f"{label}: ", fill=self.MUTED_COLOR))
+            text.add(dwg.tspan(value, fill="black"))
+            dwg.add(text)
+            y += line_h
+
+        y += 8
+        dwg.add(
+            dwg.line(
+                start=(x_label, y),
+                end=(x_right, y),
+                stroke="#cccccc",
+                stroke_width=0.6,
+            )
+        )
+        y += 26
+
+        dwg.add(
+            dwg.text(
+                amount_label or str(_("Total amount")),
+                insert=(x_label, y),
+                fill=self.MUTED_COLOR,
+                font_size="13px",
+                font_family="Arial",
+            )
+        )
+        dwg.add(
+            dwg.text(
+                f"CHF {amount:.2f}",
+                insert=(x_value, y),
+                fill=self.BRAND_COLOR,
+                font_size="20px",
+                font_weight="bold",
+                font_family="Arial",
+            )
+        )
+
+    def __draw_invoice_metadata__(self, dwg, invoice: Invoice):
+        rows = [
+            (_("Invoice no."), "#" + str(invoice.get_reference())),
+            (_("Date"), invoice.created_at.strftime("%d %B %Y")),
+            (_("Subscription"), invoice.member_subscription.subscription.name),
+            (_("Type"), str(invoice.member_subscription.get_type_text())),
+        ]
+        if invoice.reminder > 0:
+            rows.append((_("Reminder"), str(invoice.get_reminder_text())))
+        self.__draw_metadata_table__(dwg, rows, invoice.price_decimal())
+
+    def __draw_status_watermark__(self, dwg, invoice: Invoice):
+        if invoice.status not in (InvoiceStatusEnum.CANCELED, InvoiceStatusEnum.PAID):
+            return
+        text = (
+            _("** Cancelled **")
+            if invoice.status == InvoiceStatusEnum.CANCELED
+            else _("** Paid **")
+        )
+        self.__draw_watermark__(dwg, str(text), fill="red")
+
+    def __draw_watermark__(self, dwg, text: str, fill: str = "red", cy: int = 580):
+        cx = self.PAGE_WIDTH / 2
+        dwg.add(
+            dwg.text(
+                text,
+                insert=(cx, cy),
+                fill=fill,
+                font_size="72px",
+                font_weight="bold",
+                font_family="Arial",
+                text_anchor="middle",
+                opacity="0.25",
+                transform=f"rotate(-20 {cx} {cy})",
+            )
+        )
 
     def generate_pdf_blank(self, subscription: Subscription):
         writer = PdfWriter()
@@ -367,28 +472,19 @@ class PDFGenerator:
         ):
             svg_buffer = StringIO()
             with TranslationContext(settings.INVOICE_LANGUAGE):
-                price_info = ""
-                amount = str(subscription.get_price_by_type(subscription_type) / 100)
-
-                if subscription_type == SubscriptionTypeEnum.OTHER:
-                    price_info = _("Suggested price") + ": " + amount + " CHF"
-                    amount = None
-
-                infos = (
-                    _("Transmissible")
-                    + ": "
-                    + SubscriptionTypeEnum.get_type(subscription_type)
-                )
-                infos += "\n" + price_info + "\n" + subscription.name
+                price = subscription.get_price_by_type(subscription_type) / 100
+                is_suggested = subscription_type == SubscriptionTypeEnum.OTHER
 
                 bill = QRBill(
                     settings.INVOICE_IBAN,
                     creditor=self.__get_creditor__(),
                     debtor=None,
-                    amount=amount,
+                    amount=None if is_suggested else str(price),
                     language=settings.INVOICE_LANGUAGE,
                     reference_number=None,
-                    additional_information=price_info,
+                    additional_information=(
+                        f"{_('Suggested price')}: {price} CHF" if is_suggested else ""
+                    ),
                 )
                 # A4 page with a white background
                 dwg = svgwrite.Drawing(
@@ -399,44 +495,24 @@ class PDFGenerator:
                 dwg.add(dwg.rect(insert=(0, 0), size=("100%", "100%"), fill="white"))
 
                 # Draw header
-                pos = self.__draw_invoice_logo__(dwg)
+                self.__draw_invoice_logo__(dwg, document_title=str(_("Invoice")))
 
-                # Draw infos
-                # Add subscription infos
-                pos.set(20, 164)
-                dwg.add(
-                    dwg.text(
-                        (
-                            SubscriptionTypeEnum.get_type(subscription_type)
-                            + " "
-                            + subscription.name
-                        ).capitalize(),
-                        insert=pos.as_tuple(),
-                        fill="black",
-                        font_size="24px",
-                        font_weight="bold",
-                        font_family="Arial",
-                    )
+                rows = [
+                    (_("Subscription"), subscription.name),
+                    (
+                        _("Type"),
+                        str(SubscriptionTypeEnum.get_type(subscription_type)),
+                    ),
+                ]
+                self.__draw_metadata_table__(
+                    dwg,
+                    rows,
+                    price,
+                    amount_label=str(_("Suggested price")) if is_suggested else None,
                 )
-                pos.move(0, 24)
-                dwg.add(
-                    dwg.text(
-                        price_info,
-                        insert=pos.as_tuple(),
-                        fill="black",
-                        font_size="14px",
-                        font_family="Arial",
-                    )
-                )
-                pos.move(0, 24)
-                dwg.add(
-                    dwg.text(
-                        _("Transmissible"),
-                        insert=pos.as_tuple(),
-                        fill="black",
-                        font_size="14px",
-                        font_family="Arial",
-                    )
+
+                self.__draw_watermark__(
+                    dwg, str(_("Transmissible")), fill=self.BRAND_COLOR, cy=540
                 )
 
                 # Draw a bill and make it A4
