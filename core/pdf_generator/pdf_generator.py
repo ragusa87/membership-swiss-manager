@@ -279,12 +279,13 @@ class PDFGenerator:
             )
         )
 
-        # Document title (top-right), aligned with creditor name baseline
+        # Document title (top-right), aligned with the creditor address baseline
+        # so a long creditor name cannot overlap horizontally with the title.
         if document_title:
             dwg.add(
                 dwg.text(
                     document_title.upper(),
-                    insert=(self.VALUE_COLUMN_X, 56),
+                    insert=(self.VALUE_COLUMN_X, 85),
                     fill=self.BRAND_COLOR,
                     font_size="28px",
                     font_weight="bold",
