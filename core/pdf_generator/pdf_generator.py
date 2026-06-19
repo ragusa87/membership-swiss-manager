@@ -83,7 +83,7 @@ class TranslationContext(ContextDecorator):
 
 
 class PDFGenerator:
-    LOGO_PATH = Path(__file__).parent / "logo.svg"
+    LOGO_PATH = Path(__file__).resolve().parent.parent / "static" / "logo.svg"
     BRAND_COLOR = "#036045"
     MUTED_COLOR = "#555555"
     PAGE_WIDTH = mm(A4[0])

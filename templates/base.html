@@ -7,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>{% block html_title %}{{ page_title|default:"dashboard" }}{% endblock %}</title>
-{#    <link rel="icon" href="{% static 'images/favicon.ico'%}" type="image/svg" sizes="16x16">#}
+    <link rel="icon" href="{% static 'logo.svg' %}" type="image/svg+xml">
+    <link rel="alternate icon" href="/favicon.ico">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
     {% block stylesheets %}{% endblock stylesheets %}
