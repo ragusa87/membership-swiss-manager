@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Document xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:camt.054.001.08 camt.054.001.08.xsd" xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.08" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <BkToCstmrDbtCdtNtfctn>
+    <GrpHdr>
+      <MsgId>ANONYMIZED-MSG-ID-054</MsgId>
+      <CreDtTm>2026-06-21T07:43:33+02:00</CreDtTm>
+      <MsgPgntn>
+        <PgNb>1</PgNb>
+        <LastPgInd>true</LastPgInd>
+      </MsgPgntn>
+    </GrpHdr>
+    <Ntfctn>
+      <Id>ANONYMIZED-NTFCTN-ID</Id>
+      <ElctrncSeqNb>32</ElctrncSeqNb>
+      <CreDtTm>2026-06-21T07:43:33+02:00</CreDtTm>
+      <FrToDt>
+        <FrDtTm>2026-06-19T00:00:00+02:00</FrDtTm>
+        <ToDtTm>2026-06-21T07:43:33+02:00</ToDtTm>
+      </FrToDt>
+      <Acct>
+        <Id>
+          <IBAN>CHXXXXXXXXXXXXXXXXXXXXXX</IBAN>
+        </Id>
+        <Ccy>CHF</Ccy>
+        <Ownr>
+          <Nm>ACCOUNT OWNER 054</Nm>
+        </Ownr>
+      </Acct>
+      <Ntry>
+        <Amt Ccy="CHF">180</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <RvslInd>false</RvslInd>
+        <Sts><Cd>BOOK</Cd></Sts>
+        <BookgDt><Dt>2026-06-19</Dt></BookgDt>
+        <ValDt><Dt>2026-06-19</Dt></ValDt>
+        <AcctSvcrRef>ANON054/0001</AcctSvcrRef>
+        <BkTxCd>
+          <Domn>
+            <Cd>PMNT</Cd>
+            <Fmly><Cd>RCDT</Cd><SubFmlyCd>OTHR</SubFmlyCd></Fmly>
+          </Domn>
+        </BkTxCd>
+        <NtryDtls>
+          <Btch>
+            <NbOfTxs>3</NbOfTxs>
+            <TtlAmt Ccy="CHF">180</TtlAmt>
+          </Btch>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>ANON054/0001/1</AcctSvcrRef>
+              <InstrId>ANON-INSTR-1</InstrId>
+              <EndToEndId>ANON-E2E-054-1</EndToEndId>
+              <UETR>00000000-0000-0000-0000-000000000001</UETR>
+            </Refs>
+            <Amt Ccy="CHF">60</Amt>
+            <CdtDbtInd>CRDT</CdtDbtInd>
+            <RltdPties>
+              <Dbtr>
+                <Pty>
+                  <Nm>PAYER 054 ONE</Nm>
+                  <PstlAdr><AdrLine>Address One</AdrLine></PstlAdr>
+                </Pty>
+              </Dbtr>
+              <UltmtDbtr>
+                <Pty><Nm>Ultimate Payer One</Nm></Pty>
+              </UltmtDbtr>
+            </RltdPties>
+            <RmtInf>
+              <Strd>
+                <CdtrRefInf>
+                  <Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp>
+                  <Ref>RF85000000000000000000094</Ref>
+                </CdtrRefInf>
+                <AddtlRmtInf>MEMBRE 2026</AddtlRmtInf>
+              </Strd>
+            </RmtInf>
+          </TxDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>ANON054/0001/2</AcctSvcrRef>
+              <InstrId>ANON-INSTR-2</InstrId>
+              <EndToEndId>ANON-E2E-054-2</EndToEndId>
+              <UETR>00000000-0000-0000-0000-000000000002</UETR>
+            </Refs>
+            <Amt Ccy="CHF">60</Amt>
+            <CdtDbtInd>CRDT</CdtDbtInd>
+            <RltdPties>
+              <Dbtr>
+                <Pty>
+                  <Nm>PAYER 054 TWO</Nm>
+                  <PstlAdr><AdrLine>Address Two</AdrLine></PstlAdr>
+                </Pty>
+              </Dbtr>
+              <UltmtDbtr>
+                <Pty><Nm>Ultimate Payer Two</Nm></Pty>
+              </UltmtDbtr>
+            </RltdPties>
+            <RmtInf>
+              <Strd>
+                <CdtrRefInf>
+                  <Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp>
+                  <Ref>RF47000000000000000000099</Ref>
+                </CdtrRefInf>
+                <AddtlRmtInf>membre 2026</AddtlRmtInf>
+              </Strd>
+            </RmtInf>
+          </TxDtls>
+          <TxDtls>
+            <Refs>
+              <AcctSvcrRef>ANON054/0001/3</AcctSvcrRef>
+              <InstrId>ANON-INSTR-3</InstrId>
+              <EndToEndId>ANON-E2E-054-3</EndToEndId>
+              <UETR>00000000-0000-0000-0000-000000000003</UETR>
+            </Refs>
+            <Amt Ccy="CHF">60</Amt>
+            <CdtDbtInd>CRDT</CdtDbtInd>
+            <RltdPties>
+              <Dbtr>
+                <Pty>
+                  <Nm>PAYER 054 THREE</Nm>
+                  <PstlAdr><AdrLine>Address Three</AdrLine></PstlAdr>
+                </Pty>
+              </Dbtr>
+              <UltmtDbtr>
+                <Pty><Nm>Ultimate Payer Three</Nm></Pty>
+              </UltmtDbtr>
+            </RltdPties>
+            <RmtInf>
+              <Strd>
+                <CdtrRefInf>
+                  <Tp><CdOrPrtry><Cd>SCOR</Cd></CdOrPrtry></Tp>
+                  <Ref>RF31000000000000000000096</Ref>
+                </CdtrRefInf>
+                <AddtlRmtInf>membre 2026</AddtlRmtInf>
+              </Strd>
+            </RmtInf>
+          </TxDtls>
+        </NtryDtls>
+        <AddtlNtryInf>Gutschrift</AddtlNtryInf>
+      </Ntry>
+    </Ntfctn>
+  </BkToCstmrDbtCdtNtfctn>
+</Document>
