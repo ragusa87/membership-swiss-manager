@@ -39,6 +39,10 @@ for filename in [".env", ".env.local"]:
         load_dotenv(dotenv_path=absoluteFile, override=True)
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
 DEBUG = str(os.environ.get("APP_DEBUG", "0")).strip().lower() in ["true", "1"]
+SHOW_DEBUG_TOOLBAR = str(os.environ.get("SHOW_DEBUG_TOOLBAR", "0")).strip().lower() in [
+    "true",
+    "1",
+]
 ALLOWED_HOSTS = json.loads(os.environ.get("ALLOWED_HOSTS", "[]"))
 STATIC_ROOT = os.path.join(BASE_DIR, "assets")
 STATICFILES_DIRS = [
@@ -105,6 +109,13 @@ if DEBUG:
     INSTALLED_APPS += [
         "debug_toolbar",
     ]
+    DEBUG_TOOLBAR_CONFIG = {
+        # REMOTE_ADDR is the reverse proxy IP behind Traefik, so the default
+        # INTERNAL_IPS check never matches. Gate on DEBUG plus an explicit
+        # opt-in env var so the toolbar never leaks into CI or other
+        # environments.
+        "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG and SHOW_DEBUG_TOOLBAR,
+    }
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
