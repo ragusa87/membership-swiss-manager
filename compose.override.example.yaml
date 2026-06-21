@@ -1,6 +1,10 @@
 services:
   web:
     command: sh -c './manage.py compilemessages && ./manage.py collectstatic --noinput && while true; do ./manage.py runserver 0.0.0.0:8000; sleep 1; done'
+    environment:
+      # Show the Django debug toolbar (requires APP_DEBUG=1). Opt-in only so it
+      # never leaks into CI or other environments.
+      - SHOW_DEBUG_TOOLBAR=1
     volumes:
       - .env.local:/app/.env.local
       - .:/app/
