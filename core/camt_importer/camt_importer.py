@@ -6,20 +6,25 @@ from difflib import SequenceMatcher
 
 
 class MyCamt053Parser(Camt053Parser):
+    def _find_text(self, element, path):
+        if element is None:
+            return None
+        node = element.find(path, self.namespaces)
+        return node.text if node is not None else None
+
     def _extract_common_entry_data(self, entry):
         data = super()._extract_common_entry_data(entry)
-
-        reference = entry.find(".//RmtInf/Strd/CdtrRefInf/Ref", self.namespaces)
-        data["Reference"] = reference.text if reference is not None else None
-
+        data["Reference"] = self._find_text(entry, ".//RmtInf/Strd/CdtrRefInf/Ref")
         return data
 
     def _extract_transaction_details(self, tx_detail):
         detail = super()._extract_transaction_details(tx_detail)
+
         detail["TxId"] = (
-            tx_detail.find(".//Refs//TxId", self.namespaces).text
-            if tx_detail.find(".//Refs//TxId", self.namespaces) is not None
-            else None
+            self._find_text(tx_detail, ".//Refs//TxId")
+            or self._find_text(tx_detail, ".//Refs//InstrId")
+            or self._find_text(tx_detail, ".//Refs//EndToEndId")
+            or self._find_text(tx_detail, ".//Refs//UETR")
         )
 
         detail["UltmtDbtr"] = (
@@ -35,11 +40,45 @@ class MyCamt053Parser(Camt053Parser):
             }
         detail["DbtrPstlAdr"] = debtor_address
 
+        detail["Reference"] = self._find_text(
+            tx_detail, ".//RmtInf/Strd/CdtrRefInf/Ref"
+        )
+
+        if not detail.get("RemittanceInformation"):
+            detail["RemittanceInformation"] = self._find_text(
+                tx_detail, ".//RmtInf/Strd/AddtlRmtInf"
+            )
+
+        if not detail.get("CreditorName"):
+            detail["CreditorName"] = self._find_text(self.tree, ".//Acct/Ownr/Nm")
+
         return detail
 
 
+BONIFICATION_PREFIXES = ("bonification", "gutschrift")
+
+
 def is_bonification(additionalEntryInformation: str) -> bool:
-    return additionalEntryInformation.lower().startswith("bonification")
+    info = additionalEntryInformation.lower()
+    return any(info.startswith(prefix) for prefix in BONIFICATION_PREFIXES)
+
+
+def name_matches_invoice(invoice: Invoice | None, name: str | None) -> bool:
+    if invoice is None or not name:
+        return False
+    invoice_member = invoice.member_subscription.member
+    if invoice_member is None:
+        return False
+
+    name_lower = name.lower().strip()
+    similarity1 = SequenceMatcher(
+        None, name_lower, invoice_member.get_fullname().lower()
+    ).ratio()
+    similarity2 = SequenceMatcher(
+        None, name_lower, invoice_member.get_fullname_inverted().lower()
+    ).ratio()
+
+    return max(similarity1, similarity2) >= 0.9
 
 
 def is_same_user(invoice: Invoice | None, additionalEntryInformation: str) -> bool:
@@ -48,21 +87,10 @@ def is_same_user(invoice: Invoice | None, additionalEntryInformation: str) -> bo
     if not is_bonification(additionalEntryInformation):
         return False
 
-    name = (
-        additionalEntryInformation.lower().replace("bonification", "").strip().lower()
-    )
-    invoice_member = invoice.member_subscription.member
-    if invoice_member is None:
-        return False
-
-    similarity1 = SequenceMatcher(
-        None, name, invoice_member.get_fullname().lower()
-    ).ratio()
-    similarity2 = SequenceMatcher(
-        None, name, invoice_member.get_fullname_inverted().lower()
-    ).ratio()
-
-    return max(similarity1, similarity2) >= 0.9
+    name = additionalEntryInformation.lower()
+    for prefix in BONIFICATION_PREFIXES:
+        name = name.replace(prefix, "")
+    return name_matches_invoice(invoice, name.strip())
 
 
 def get_reference_as_int(value: str | None) -> int | None:
@@ -111,7 +139,13 @@ class Transaction:
         if self.invoice is None:
             return False
 
-        return is_same_user(self.invoice, str(self.data["AdditionalEntryInformation"]))
+        if is_same_user(self.invoice, str(self.data["AdditionalEntryInformation"])):
+            return True
+        if name_matches_invoice(self.invoice, self.data.get("DebtorName")):
+            return True
+        if name_matches_invoice(self.invoice, self.data.get("UltmtDbtr")):
+            return True
+        return False
 
     def isBonification(self):
         return is_bonification(str(self.data["AdditionalEntryInformation"]))
@@ -140,6 +174,8 @@ class CamtImporter:
                         transaction["TxId"],
                         transaction["Reference"],
                         transaction["AdditionalEntryInformation"],
+                        transaction.get("DebtorName"),
+                        transaction.get("UltmtDbtr"),
                     ),
                 )
             )
@@ -175,6 +211,8 @@ class CamtImporter:
         transaction_id: str | None,
         score_reference: str | None,
         additionalEntryInformation: None | str,
+        debtor_name: str | None = None,
+        ultimate_debtor: str | None = None,
     ):
         for invoice in self.invoices:
             if transaction_id is not None and invoice.transaction_id == transaction_id:
@@ -183,11 +221,15 @@ class CamtImporter:
 
         for invoice in self.invoices:
             int_value = get_reference_as_int(score_reference)
-            if (
-                int_value is not None
-                and invoice.get_reference() == int_value
-                and additionalEntryInformation is not None
-                and is_same_user(invoice, additionalEntryInformation)
+            if int_value is None or invoice.get_reference() != int_value:
+                continue
+            if additionalEntryInformation is not None and is_same_user(
+                invoice, additionalEntryInformation
+            ):
+                invoice.reason = "reference_id"
+                return invoice
+            if name_matches_invoice(invoice, debtor_name) or name_matches_invoice(
+                invoice, ultimate_debtor
             ):
                 invoice.reason = "reference_id"
                 return invoice
