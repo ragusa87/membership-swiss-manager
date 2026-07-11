@@ -14,7 +14,7 @@ dependencies = [
   "django-debug-toolbar>=7.0.0",
   "pycamt",
   "django-phonenumber-field[phonenumberslite]",
-  "django-unfold>=0.99.1",
+  "django-unfold>=0.100.0",
 ]
 [tool.setuptools.packages.find]
 exclude = ["tests*", "migrations*", "public*"]
