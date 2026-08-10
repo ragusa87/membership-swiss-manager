@@ -1,8 +1,9 @@
 from django.db import models
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
-from .member import Member
+
 from .invoice import Invoice, InvoiceStatusEnum
+from .member import Member
 from .subscription import Subscription
 
 
@@ -55,9 +56,10 @@ class MemberSubscription(models.Model):
     def get_price_by_type(self, subscription_type: str) -> int | None:
         if subscription_type.lower() == SubscriptionTypeEnum.MEMBER.lower():
             return self.subscription.price_member
-        elif subscription_type.lower() == "supporter":
-            return self.subscription.price_supporter
-        elif subscription_type.lower() == SubscriptionTypeEnum.OTHER.lower():
+        elif (
+            subscription_type.lower() == "supporter"
+            or subscription_type.lower() == SubscriptionTypeEnum.OTHER.lower()
+        ):
             return self.subscription.price_supporter
         return None
 

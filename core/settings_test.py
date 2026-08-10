@@ -1,5 +1,6 @@
-from . import settings
 import tempfile
+
+from . import settings
 
 globals().update({k: v for k, v in vars(settings).items() if k.isupper()})
 

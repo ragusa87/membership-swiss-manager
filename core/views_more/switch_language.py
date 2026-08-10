@@ -1,6 +1,7 @@
-from ..settings import LANGUAGES
-from django.utils import translation
 from django.http import HttpResponseRedirect
+from django.utils import translation
+
+from ..settings import LANGUAGES
 
 
 def switch_language(request):

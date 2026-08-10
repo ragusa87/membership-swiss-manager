@@ -39,6 +39,10 @@ exclude = '''
     |migrations/
 )
 '''
+[tool.ruff]
+# Generated migrations are excluded from linting, matching black/flake8 above.
+extend-exclude = ["*/migrations/*"]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

@@ -1,10 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404
-from core.models import Invoice, MemberSubscription, Subscription, InvoiceStatusEnum
-from django.views.generic import TemplateView
-from datetime import datetime
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.views.generic import TemplateView
 
+from core.models import Invoice, InvoiceStatusEnum, MemberSubscription, Subscription
 from core.settings import DB_ENV
 
 
@@ -12,7 +12,7 @@ class DashboardView(TemplateView, LoginRequiredMixin):
     template_name = "core/dashboard.html"
 
     def get_context_data(self, **kwargs):
-        subscription_name = str(datetime.now().year)
+        subscription_name = str(timezone.now().year)
         if "subscription_name" in kwargs and kwargs["subscription_name"] != "":
             subscription_name = kwargs["subscription_name"]
 

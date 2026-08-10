@@ -1,28 +1,29 @@
 import base64
 import io
+import locale
 from collections import OrderedDict
+from contextlib import ContextDecorator
 from io import StringIO
 from pathlib import Path
+
 import cairosvg
-from pypdf import PdfWriter, PdfReader
-import locale
+import svgwrite
+from django.conf import settings
+from django.utils import translation
+from django.utils.translation import gettext_lazy as _
+from pypdf import PdfReader, PdfWriter
+from qrbill import QRBill
+from qrbill.bill import A4, QR_IID, mm
+from stdnum.iso11649 import is_valid
+
 from ..models import (
     Invoice,
+    InvoiceStatusEnum,
     Member,
     MemberSubscription,
     Subscription,
     SubscriptionTypeEnum,
-    InvoiceStatusEnum,
 )
-from django.utils import translation
-from contextlib import ContextDecorator
-from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from qrbill import QRBill
-from stdnum.iso11649 import is_valid
-from qrbill.bill import QR_IID
-import svgwrite
-from qrbill.bill import A4, mm
 
 
 class Position:
@@ -54,18 +55,13 @@ def get_locale(language_code):
 
 
 class TranslationContext(ContextDecorator):
-    locale_map = {
-        "FR": "fr_CH.utf8",  # French (Switzerland)
-        "EN": "en_US.utf8",  # English (United States)
-    }
-
     def __init__(self, language_code):
+        self.locale_map = {
+            "FR": "fr_CH.utf8",  # French (Switzerland)
+            "EN": "en_US.utf8",  # English (United States)
+        }
         self.language_code = language_code
-        self.locale_time = (
-            self.locale_map[language_code.upper()]
-            if language_code.upper() in self.locale_map
-            else None
-        )
+        self.locale_time = self.locale_map.get(language_code.upper(), None)
         self.backup_locale_time = locale.getlocale(category=locale.LC_TIME)
 
     def __enter__(self):
@@ -222,7 +218,7 @@ class PDFGenerator:
             # A4 page with a white background
             dwg = svgwrite.Drawing(
                 size=A4,
-                viewBox=("0 0 %f %f" % (mm(A4[0]), mm(A4[1]))),
+                viewBox=(f"0 0 {mm(A4[0]):f} {mm(A4[1]):f}"),
                 debug=False,
             )
             dwg.add(dwg.rect(insert=(0, 0), size=("100%", "100%"), fill="white"))
@@ -490,7 +486,7 @@ class PDFGenerator:
                 # A4 page with a white background
                 dwg = svgwrite.Drawing(
                     size=A4,
-                    viewBox=("0 0 %f %f" % (mm(A4[0]), mm(A4[1]))),
+                    viewBox=(f"0 0 {mm(A4[0]):f} {mm(A4[1]):f}"),
                     debug=False,
                 )
                 dwg.add(dwg.rect(insert=(0, 0), size=("100%", "100%"), fill="white"))

@@ -10,11 +10,11 @@ register = template.Library()
 @register.filter
 def format_price(value, currency="CHF"):
     if value == 0 or value is None:
-        return "0.00 %s" % currency
+        return f"0.00 {currency}"
     try:
         return f"{int(value) / 100:.2f} {currency}"
     except ValueError, TypeError:
-        return "Invalid price %s" % str(value)
+        return f"Invalid price {value!s}"
 
 
 @register.simple_tag

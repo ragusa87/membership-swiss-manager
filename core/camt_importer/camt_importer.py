@@ -1,8 +1,10 @@
+from difflib import SequenceMatcher
+
 from django.db.models import Q
 from pycamt.parser import Camt053Parser
+
 from core.models import Invoice, Subscription
 from core.utils import chf_to_centimes
-from difflib import SequenceMatcher
 
 
 class MyCamt053Parser(Camt053Parser):
@@ -143,9 +145,7 @@ class Transaction:
             return True
         if name_matches_invoice(self.invoice, self.data.get("DebtorName")):
             return True
-        if name_matches_invoice(self.invoice, self.data.get("UltmtDbtr")):
-            return True
-        return False
+        return bool(name_matches_invoice(self.invoice, self.data.get("UltmtDbtr")))
 
     def isBonification(self):
         return is_bonification(str(self.data["AdditionalEntryInformation"]))

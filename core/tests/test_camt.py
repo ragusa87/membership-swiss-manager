@@ -277,11 +277,11 @@ class CamtLinkInvoiceTestCase(LoggedInTestCase):
         )
 
     def _make_invoice(self, **overrides):
-        defaults = dict(
-            member_subscription=self.member_subscription,
-            price=6000,
-            status=InvoiceStatusEnum.CREATED,
-        )
+        defaults = {
+            "member_subscription": self.member_subscription,
+            "price": 6000,
+            "status": InvoiceStatusEnum.CREATED,
+        }
         defaults.update(overrides)
         return Invoice.objects.create(**defaults)
 

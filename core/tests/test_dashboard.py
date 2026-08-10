@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+
 from core.models import Subscription
 from core.tests.test_common import LoggedInTestCase
 

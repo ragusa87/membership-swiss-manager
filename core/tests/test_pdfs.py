@@ -1,14 +1,15 @@
 import io
 
+from pypdf import PdfReader
+
 from core.models import (
-    Subscription,
     Invoice,
     InvoiceStatusEnum,
     Member,
     MemberSubscription,
+    Subscription,
 )
 from core.tests.test_common import LoggedInTestCase
-from pypdf import PdfReader
 
 
 class PdfsTestCase(LoggedInTestCase):

@@ -1,10 +1,11 @@
 import io
+from io import BytesIO
 
 import pandas as pd
-from io import BytesIO
-from .format import EXPECTED_HEADERS
+
 from ..models import MemberSubscription, Subscription
 from ..templatetags.custom_filters import format_price
+from .format import EXPECTED_HEADERS
 
 
 class CsvExporter:

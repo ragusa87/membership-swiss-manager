@@ -1,20 +1,18 @@
+import csv
 import io
 
 from django.core.files import File
-from .format import EXPECTED_HEADERS, EXPECTED_HEADERS_LABELS
+from django.db.models import F, Q, Value
+from django.db.models.functions import Coalesce, Concat, Lower, Trim
+
 from ..models import (
+    Member,
     MemberSubscription,
     Subscription,
-    Member,
 )
-from ..utils import chf_to_centimes
-import csv
-from django.db.models import Q
-from django.db.models import F
-from django.db.models import Value
-from django.db.models.functions import Concat, Lower, Coalesce, Trim
-
 from ..models.enum import SubscriptionTypeEnum
+from ..utils import chf_to_centimes
+from .format import EXPECTED_HEADERS, EXPECTED_HEADERS_LABELS
 
 
 class Row:
@@ -156,4 +154,4 @@ class CsvImporter:
         missing_headers = set(EXPECTED_HEADERS) - set(csv_headers)
 
         if missing_headers:
-            raise RuntimeError("Missing headers: {}".format(missing_headers))
+            raise RuntimeError(f"Missing headers: {missing_headers}")

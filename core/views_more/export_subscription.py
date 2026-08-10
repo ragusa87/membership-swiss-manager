@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
-from ..models import Subscription
+from django.shortcuts import get_object_or_404
+
 from ..cvs_manager.csv_exporter import CsvExporter
+from ..models import Subscription
 
 
 def get_mime_type(file_extension: str) -> str:

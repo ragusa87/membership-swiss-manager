@@ -1,6 +1,7 @@
-from core.models import Subscription, Member, MemberSubscription
-from core.tests.test_common import LoggedInTestCase
 from django.utils.translation import gettext_lazy as _
+
+from core.models import Member, MemberSubscription, Subscription
+from core.tests.test_common import LoggedInTestCase
 
 
 class PdfsTestCase(LoggedInTestCase):
@@ -34,17 +35,17 @@ class PdfsTestCase(LoggedInTestCase):
         )
 
     def test_create_member(self):
-        data = dict(
-            form="create",
-            firstname="new user",
-            lastname="",
-            email="",
-            phone="",
-            address="",
-            address_number="",
-            city="",
-            zip="",
-        )
+        data = {
+            "form": "create",
+            "firstname": "new user",
+            "lastname": "",
+            "email": "",
+            "phone": "",
+            "address": "",
+            "address_number": "",
+            "city": "",
+            "zip": "",
+        }
         response = self.client.post(f"/assign/{self.subscription.name}", data=data)
         self.assertEqual(302, response.status_code)
         self.assertTrue(Member.objects.filter(firstname="new user").exists())
