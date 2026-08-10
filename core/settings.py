@@ -43,6 +43,16 @@ SHOW_DEBUG_TOOLBAR = str(os.environ.get("SHOW_DEBUG_TOOLBAR", "0")).strip().lowe
     "true",
     "1",
 ]
+# Whether the Debug Toolbar app is installed at all. Only has an effect when
+# APP_DEBUG=1 (DEBUG). Set ENABLE_DEBUG_TOOLBAR=0 to keep the toolbar out of a
+# debug environment, e.g. so the test runner can start (debug_toolbar refuses
+# to run under tests). Defaults to enabled to preserve the dev experience.
+ENABLE_DEBUG_TOOLBAR = str(
+    os.environ.get("ENABLE_DEBUG_TOOLBAR", "1")
+).strip().lower() in [
+    "true",
+    "1",
+]
 ALLOWED_HOSTS = json.loads(os.environ.get("ALLOWED_HOSTS", "[]"))
 STATIC_ROOT = os.path.join(BASE_DIR, "assets")
 STATICFILES_DIRS = [
@@ -105,7 +115,7 @@ INSTALLED_APPS = [
     "core",
 ]
 
-if DEBUG:
+if DEBUG and ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS += [
         "debug_toolbar",
     ]
@@ -127,7 +137,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-if DEBUG:
+if DEBUG and ENABLE_DEBUG_TOOLBAR:
     MIDDLEWARE += [
         "debug_toolbar.middleware.DebugToolbarMiddleware",
     ]
