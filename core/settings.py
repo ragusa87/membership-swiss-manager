@@ -10,12 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import json
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-import json
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +39,16 @@ for filename in [".env", ".env.local"]:
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
 DEBUG = str(os.environ.get("APP_DEBUG", "0")).strip().lower() in ["true", "1"]
 SHOW_DEBUG_TOOLBAR = str(os.environ.get("SHOW_DEBUG_TOOLBAR", "0")).strip().lower() in [
+    "true",
+    "1",
+]
+# Whether the Debug Toolbar app is installed at all. Only has an effect when
+# APP_DEBUG=1 (DEBUG). Set ENABLE_DEBUG_TOOLBAR=0 to keep the toolbar out of a
+# debug environment, e.g. so the test runner can start (debug_toolbar refuses
+# to run under tests). Defaults to enabled to preserve the dev experience.
+ENABLE_DEBUG_TOOLBAR = str(
+    os.environ.get("ENABLE_DEBUG_TOOLBAR", "1")
+).strip().lower() in [
     "true",
     "1",
 ]
@@ -70,7 +79,7 @@ if secure:
 try:
     ssl_header = json.loads(os.environ.get("SECURE_PROXY_SSL_HEADER", "{}"))
     if isinstance(ssl_header, dict) and len(ssl_header.items()) > 0:
-        SECURE_PROXY_SSL_HEADER = list(ssl_header.items())[0]
+        SECURE_PROXY_SSL_HEADER = next(iter(ssl_header.items()))
         USE_X_FORWARDED_HOST = True
 except json.JSONDecodeError, TypeError:
     pass
@@ -105,7 +114,7 @@ INSTALLED_APPS = [
     "core",
 ]
 
-if DEBUG:
+if DEBUG and ENABLE_DEBUG_TOOLBAR:
     INSTALLED_APPS += [
         "debug_toolbar",
     ]
@@ -127,7 +136,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-if DEBUG:
+if DEBUG and ENABLE_DEBUG_TOOLBAR:
     MIDDLEWARE += [
         "debug_toolbar.middleware.DebugToolbarMiddleware",
     ]

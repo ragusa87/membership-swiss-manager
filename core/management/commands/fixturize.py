@@ -1,12 +1,11 @@
 from contextlib import contextmanager
 from pathlib import Path
 
-from django.core.management import call_command
-from django.db import connection
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.core.management.base import BaseCommand
-
+from django.db import connection
 
 User = get_user_model()
 
@@ -80,11 +79,10 @@ class Command(BaseCommand):
             self.override_database_name(options["db_env"])
 
         db_name = connection.settings_dict["NAME"]
-        if not options["force_yes"]:
-            if not self.confirm(
-                f"This will REMOVE ALL EXISTING DATA from the database {db_name}."
-            ):
-                return
+        if not options["force_yes"] and not self.confirm(
+            f"This will REMOVE ALL EXISTING DATA from the database {db_name}."
+        ):
+            return
 
         with self.print_step(f"Resetting the database {db_name}..."):
             self.reset_db()

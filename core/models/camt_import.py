@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -21,7 +23,7 @@ class CamtImport(models.Model):
 
     class Meta:
         db_table = "camt_import"
-        ordering = ["-created_at"]
+        ordering: ClassVar = ["-created_at"]
 
     def __str__(self):
         return f"{self.file.name} ({self.subscription.name})"

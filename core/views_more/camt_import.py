@@ -1,23 +1,24 @@
+from django import forms
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import TemplateView
 from django.middleware.csrf import get_token
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
+
+from ..camt_importer.camt_importer import CamtImporter
 from ..models import (
-    Subscription,
+    CamtImport,
     Invoice,
     InvoiceStatusEnum,
     MemberSubscription,
-    CamtImport,
+    Subscription,
 )
 from ..settings import FILE_UPLOAD_MAX_MEMORY_SIZE
 from ..utils import chf_to_centimes
-from django.utils.translation import gettext_lazy as _
-from django.contrib import messages
-from django.urls import reverse
-from django import forms
-from django.views.generic.edit import FormView
-from ..camt_importer.camt_importer import CamtImporter
 
 MAX_RECENT_IMPORTS = 20
 
@@ -79,7 +80,7 @@ class CamtUploadView(LoginRequiredMixin, FormView, TemplateView):
             CamtImport.objects.filter(pk__in=stale_pks).delete()
 
             messages.success(self.request, _("CAMT file uploaded successfully!"))
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - surface any processing error to the user
             messages.error(self.request, str(_("Error processing file: %s")) % str(e))
             return super().form_invalid(form)
 

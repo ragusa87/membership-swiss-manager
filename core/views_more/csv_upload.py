@@ -1,19 +1,18 @@
+from django import forms
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.forms.utils import RenderableMixin
 from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 
 from ..cvs_manager.csv_importer import CsvImporter, Export
 from ..models import Subscription
 from ..settings import FILE_UPLOAD_MAX_MEMORY_SIZE
-from django.utils.translation import gettext_lazy as _
-from django.contrib import messages
-from django.views.generic.edit import FormView
-from django.urls import reverse_lazy
-from django import forms
-from django.core.files.storage import default_storage
-
 
 SESSION_FILENAME = "csv_upload_file"
 SESSION_SUBSCRIPTION_ID = "csv_subscription_id"
@@ -21,9 +20,16 @@ SESSION_SUBSCRIPTION_ID = "csv_subscription_id"
 
 class StepAwareMixin(RenderableMixin):
     step = 1
-    steps = [_("step.upload_csv"), _("step.create_members"), _("step.import")]
-    max_step = len(steps)
     template_name_model = "core/upload_csv_step_%d.html"
+
+    def __init__(self, *args, **kwargs):
+        self.steps = [
+            _("step.upload_csv"),
+            _("step.create_members"),
+            _("step.import"),
+        ]
+        self.max_step = len(self.steps)
+        super().__init__(*args, **kwargs)
 
 
 class CSVUploadForm(StepAwareMixin, forms.Form, LoginRequiredMixin):
@@ -48,11 +54,11 @@ class CSVUploadView(StepAwareMixin, FormView, LoginRequiredMixin):
     success_url = reverse_lazy("csv_import_step", kwargs={"step": 2})
 
     def post(self, request, *args, **kwargs):
-        self.step = self.kwargs["step"] if "step" in self.kwargs else 1
+        self.step = self.kwargs.get("step", 1)
         return super().post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self.step = self.kwargs["step"] if "step" in self.kwargs else 1
+        self.step = self.kwargs.get("step", 1)
 
         return super().post(request, *args, **kwargs)
 
@@ -113,7 +119,7 @@ class CSVUploadView(StepAwareMixin, FormView, LoginRequiredMixin):
             self.request.session[SESSION_SUBSCRIPTION_ID] = form.data["subscription"]
 
             messages.success(self.request, _("CSV file uploaded successfully!"))
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - surface any processing error to the user
             messages.error(self.request, _("Error processing file: %s") % str(e))
             return super().form_invalid(form)
 
@@ -129,9 +135,7 @@ class CsvImport(TemplateView, StepAwareMixin, LoginRequiredMixin):
             or SESSION_SUBSCRIPTION_ID not in self.request.session
         ):
             return False
-        if not default_storage.exists(self.request.session[SESSION_FILENAME]):
-            return False
-        return True
+        return default_storage.exists(self.request.session[SESSION_FILENAME])
 
     def get_subscription(self) -> Subscription | None:
         if SESSION_SUBSCRIPTION_ID not in self.request.session:
@@ -181,7 +185,7 @@ class CsvImport(TemplateView, StepAwareMixin, LoginRequiredMixin):
                 child.save()
 
     def get(self, request, *args, **kwargs):
-        self.step = self.kwargs["step"] if "step" in self.kwargs else 1
+        self.step = self.kwargs.get("step", 1)
         self.template_name = self.template_name_model % self.step
 
         if not self.__session_valid__():

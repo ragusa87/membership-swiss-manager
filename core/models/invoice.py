@@ -1,6 +1,7 @@
-from django.db import models
 from decimal import Decimal
+from typing import ClassVar
 
+from django.db import models
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -12,7 +13,7 @@ class InvoiceStatusEnum(models.TextChoices):
     CANCELED = "canceled"
 
     @staticmethod
-    def from_string(value: str | None) -> "InvoiceStatusEnum|None":
+    def from_string(value: str | None) -> InvoiceStatusEnum | None:
         if value is None:
             return None
         try:
@@ -145,10 +146,7 @@ class Invoice(models.Model):
         if self.reminder is not None and self.reminder >= 3:
             return False
 
-        if self.status != InvoiceStatusEnum.PENDING:
-            return False
-
-        return True
+        return self.status == InvoiceStatusEnum.PENDING
 
     def create_reminder(self):
         self.status = InvoiceStatusEnum.CANCELED
@@ -165,7 +163,7 @@ class Invoice(models.Model):
 
     class Meta:
         db_table = "invoice"
-        constraints = [
+        constraints: ClassVar = [
             models.UniqueConstraint(
                 fields=["reference"],
                 name="unique_reference",

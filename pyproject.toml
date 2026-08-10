@@ -12,7 +12,10 @@ dependencies = [
   "pandas",
   "xlsxwriter",
   "django-debug-toolbar>=7.0.0",
-  "pycamt",
+  # Pinned: pycamt 1.1.x rewrote Camt053Parser (requires bytes, uses lxml, and
+  # dropped camt.054 support), breaking CAMT import. Unpin only after migrating
+  # MyCamt053Parser. See core/camt_importer/camt_importer.py.
+  "pycamt==1.0.1",
   "django-phonenumber-field[phonenumberslite]",
   "django-unfold>=0.102.0",
 ]
@@ -39,6 +42,10 @@ exclude = '''
     |migrations/
 )
 '''
+[tool.ruff]
+# Generated migrations are excluded from linting, matching black/flake8 above.
+extend-exclude = ["*/migrations/*"]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

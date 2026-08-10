@@ -1,19 +1,21 @@
 from django import forms
-from django.db.models.aggregates import Count
 from django.contrib import admin
-from django.http import HttpResponse
-from django.utils.translation import gettext_lazy as _
-from core.models.member import Member
-from core.models.member_subscription import MemberSubscription
-from core.models.invoice import Invoice, InvoiceStatusEnum
-from core.models.subscription import Subscription
 from django.contrib.admin import SimpleListFilter
-from django.utils.html import format_html
-from django.urls import reverse
 from django.db.models import Prefetch
+from django.db.models.aggregates import Count
+from django.http import HttpResponse
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from unfold.admin import ModelAdmin
 from unfold.contrib.filters.admin import AutocompleteSelectFilter
+
+from core.models.invoice import Invoice, InvoiceStatusEnum
+from core.models.member import Member
+from core.models.member_subscription import MemberSubscription
+from core.models.subscription import Subscription
 from core.templatetags.custom_filters import format_price
+
 from .forms.invoice import InvoiceForm
 from .forms.subscription import SubscriptionForm
 from .pdf_generator.pdf_generator import PDFGenerator
@@ -82,8 +84,11 @@ class FilterById(SimpleListFilter):
 
 class MemberAdmin(ModelAdmin):
     title = "Member"
-    list_filter = [FilterById]
-    search_fields = ["firstname", "lastname", "email", "address", "phone"]
+
+    def __init__(self, *args, **kwargs):
+        self.list_filter = [FilterById]
+        self.search_fields = ["firstname", "lastname", "email", "address", "phone"]
+        super().__init__(*args, **kwargs)
 
     def get_list_display(self, request):
         default_list_display = super().get_list_display(request)
@@ -162,20 +167,23 @@ def mark_as_paid(modeladmin, request, queryset):
 class InvoiceAdmin(ModelAdmin):
     form = InvoiceForm
     list_filter_submit = True
-    list_filter = [
-        FilterInvoiceByStatus,
-        FilterInvoiceBySubscription,
-        ("member_subscription", AutocompleteSelectFilter),
-        FilterById,
-    ]
-    actions = [
-        export_invoices_pdf,
-        mark_as_canceled,
-        create_reminder,
-        mark_as_pending,
-        mark_as_paid,
-    ]
-    ordering = ["-created_at"]
+
+    def __init__(self, *args, **kwargs):
+        self.list_filter = [
+            FilterInvoiceByStatus,
+            FilterInvoiceBySubscription,
+            ("member_subscription", AutocompleteSelectFilter),
+            FilterById,
+        ]
+        self.actions = [
+            export_invoices_pdf,
+            mark_as_canceled,
+            create_reminder,
+            mark_as_pending,
+            mark_as_paid,
+        ]
+        self.ordering = ["-created_at"]
+        super().__init__(*args, **kwargs)
 
     def get_list_display(self, request):
         default_list_display = super().get_list_display(request)
@@ -251,11 +259,10 @@ class MemberSubscriptionForm(forms.ModelForm):
         subscription = cleaned_data.get("subscription")
 
         # Check if parent and subscription are aligned
-        if parent and subscription:
-            if parent.subscription != subscription:
-                raise forms.ValidationError(
-                    "The parent and subscription fields must be aligned."
-                )
+        if parent and subscription and parent.subscription != subscription:
+            raise forms.ValidationError(
+                "The parent and subscription fields must be aligned."
+            )
 
         return cleaned_data
 
@@ -269,13 +276,16 @@ class MemberSubscriptionAdmin(ModelAdmin):
         ("member", AutocompleteSelectFilter),
         FilterById,
     )
-    search_fields = [
-        "member__firstname",
-        "member__lastname",
-        "member__email",
-        "subscription__name",
-    ]
-    readonly_fields = ["price"]
+
+    def __init__(self, *args, **kwargs):
+        self.search_fields = [
+            "member__firstname",
+            "member__lastname",
+            "member__email",
+            "subscription__name",
+        ]
+        self.readonly_fields = ["price"]
+        super().__init__(*args, **kwargs)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "parent":

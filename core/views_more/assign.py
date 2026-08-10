@@ -1,12 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.views.generic.edit import FormView
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
 
-from core.forms.subscription_user_form import MemberSubscriptionUserForm, MemberForm
-from core.models import Subscription, MemberSubscription, Member
+from core.forms.subscription_user_form import MemberForm, MemberSubscriptionUserForm
+from core.models import Member, MemberSubscription, Subscription
 
 
 class AssignUserFormView(FormView, LoginRequiredMixin):
@@ -76,7 +76,7 @@ class AssignUserFormView(FormView, LoginRequiredMixin):
         return [
             MemberSubscriptionUserForm(
                 data=self.request.POST if bound else None,
-                prefix="link_member_%s" % m.pk,
+                prefix=f"link_member_{m.pk}",
                 initial={"subscription": self.subscription, "member": m},
                 instance=MemberSubscription(subscription=self.subscription, member=m),
             )

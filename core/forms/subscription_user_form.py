@@ -1,9 +1,11 @@
 from collections import OrderedDict
+from typing import ClassVar
 
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
+
 from core.forms.autocomplete import AddressWidget
-from core.models import MemberSubscription, Member
+from core.models import Member, MemberSubscription
 
 
 class MemberForm(forms.ModelForm):
@@ -15,7 +17,7 @@ class MemberForm(forms.ModelForm):
 
     class Meta:
         model = Member
-        fields = [
+        fields: ClassVar = [
             "firstname",
             "lastname",
             "email",
@@ -25,12 +27,12 @@ class MemberForm(forms.ModelForm):
             "city",
             "zip",
         ]
-        exclude = ["created_at", "updated_at"]
-        widgets = {
+        exclude: ClassVar = ["created_at", "updated_at"]
+        widgets: ClassVar = {
             "firstname": forms.TextInput(attrs={"placeholder": "Frederic"}),
             "lastname": forms.TextInput(attrs={"placeholder": "Dupont"}),
             "email": forms.TextInput(attrs={"placeholder": "me@example.com"}),
-            "address": AddressWidget(attrs=dict(placeholder="Chemin du Vanil")),
+            "address": AddressWidget(attrs={"placeholder": "Chemin du Vanil"}),
             "address_number": forms.TextInput(attrs={"placeholder": "10"}),
             "city": forms.TextInput(attrs={"placeholder": "Lausanne"}),
             "zip": forms.TextInput(attrs={"placeholder": "1006"}),
@@ -68,4 +70,4 @@ class MemberSubscriptionUserForm(forms.ModelForm):
 
     class Meta:
         model = MemberSubscription
-        fields = ["type", "parent"]
+        fields: ClassVar = ["type", "parent"]

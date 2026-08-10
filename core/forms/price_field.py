@@ -1,4 +1,4 @@
-from django.forms import fields, NumberInput
+from django.forms import NumberInput, fields
 
 
 class PriceInput(NumberInput):

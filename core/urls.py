@@ -17,35 +17,35 @@ Including another URLconf
 
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, re_path
-from . import views
 from django.views.generic.base import RedirectView
 
-from .views_more.assign import AssignUserFormView
-from .views_more.invoices import (
-    pdf_by_invoice,
-    pdfs_by_subscription,
-    create_reminder_for_pending_by_subscription,
-    mark_created_as_pending_by_subscription,
-    create_first_invoices_by_subscription,
-    pdfs_by_subscription_blank,
-    create_missing_invoice_by_member_subscription,
-    create_reminder,
-)
-from .views_more.dashboard import DashboardView
-from .views_more.switch_language import switch_language
-from .views_more.my_ip import my_ip
-from .views_more.export_subscription import export_subscription
+from . import views
 from .settings import DEBUG
-from .views_more.csv_upload import CSVUploadView, CsvImport
+from .views_more.assign import AssignUserFormView
 from .views_more.camt_import import (
-    CamtUploadView,
+    CamtImportDeleteView,
+    CamtLinkInvoice,
     CamtProcessView,
     CamtReconciliationView,
-    CamtLinkInvoice,
-    CamtImportDeleteView,
+    CamtUploadView,
 )
-from django.contrib.auth import views as auth_views
+from .views_more.csv_upload import CsvImport, CSVUploadView
+from .views_more.dashboard import DashboardView
+from .views_more.export_subscription import export_subscription
+from .views_more.invoices import (
+    create_first_invoices_by_subscription,
+    create_missing_invoice_by_member_subscription,
+    create_reminder,
+    create_reminder_for_pending_by_subscription,
+    mark_created_as_pending_by_subscription,
+    pdf_by_invoice,
+    pdfs_by_subscription,
+    pdfs_by_subscription_blank,
+)
+from .views_more.my_ip import my_ip
+from .views_more.switch_language import switch_language
 
 favicon_view = RedirectView.as_view(url="/assets/favicon.ico", permanent=True)
 urlpatterns = [

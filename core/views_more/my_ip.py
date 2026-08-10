@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpRequest, HttpResponse
 
 
 def my_ip(request: HttpRequest) -> HttpResponse:
