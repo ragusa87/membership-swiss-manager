@@ -8,16 +8,16 @@ dependencies = [
   "python-dotenv",
   "qrbill",
   "cairosvg",
-  "pypdf>=6.15.0",
+  "pypdf>=6.16.1",
   "pandas",
   "xlsxwriter",
-  "django-debug-toolbar>=7.0.0",
+  "django-debug-toolbar>=7.1.1",
   # Pinned: pycamt 1.1.x rewrote Camt053Parser (requires bytes, uses lxml, and
   # dropped camt.054 support), breaking CAMT import. Unpin only after migrating
   # MyCamt053Parser. See core/camt_importer/camt_importer.py.
   "pycamt==1.0.1",
   "django-phonenumber-field[phonenumberslite]",
-  "django-unfold>=0.102.0",
+  "django-unfold>=0.104.1",
 ]
 [tool.setuptools.packages.find]
 exclude = ["tests*", "migrations*", "public*"]
