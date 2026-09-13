@@ -13,7 +13,7 @@ dependencies = [
   "xlsxwriter",
   "django-debug-toolbar>=7.1.1",
   # pycamt 1.1.x rewrote Camt053Parser (requires bytes, uses lxml). Our
-  # MyCamt053Parser subclass adapts to it: see core/camt_importer/camt_importer.py.
+  # CamtParser subclass adapts to it: see core/camt_importer/camt_importer.py.
   "pycamt==1.1.1",
   "django-phonenumber-field[phonenumberslite]",
   "django-unfold>=0.104.1",

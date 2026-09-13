@@ -1002,6 +1002,34 @@ class CamtTransactionValidTestCase(TestCase):
         tx = self.Transaction({"TxId": "TX-1", "TransactionID": "ZV2026/123"}, None)
         self.assertEqual(tx.tx_id, "TX-1")
 
+    def test_candidate_tx_ids_lists_all_identifiers(self):
+        tx = self.Transaction(
+            {
+                "TxId": "TX-1",
+                "EndToEndId": "E2E-1",
+                "TransactionID": "ZV2026/123",
+            },
+            None,
+        )
+        self.assertEqual(tx.candidate_tx_ids, ["TX-1", "E2E-1", "ZV2026/123"])
+
+    def test_valid_when_invoice_stored_a_non_primary_identifier(self):
+        """An invoice reconciled against a batch id (an older parser's tx_id)
+        stays valid even though tx_id now resolves to the per-transaction TxId."""
+        invoice = self._invoice(transaction_id="ZV2026/123")
+        tx = self.Transaction(
+            {
+                "Amount": 60,
+                "Currency": "CHF",
+                "CreditDebitIndicator": "CRDT",
+                "TxId": "TX-1",
+                "TransactionID": "ZV2026/123",
+            },
+            invoice,
+        )
+        self.assertEqual(tx.tx_id, "TX-1")
+        self.assertTrue(tx.valid())
+
 
 class CamtReconcileFallbackTestCase(TestCase):
     """A bonification only carries a TransactionID (no TxId). After reconciling,
@@ -1059,3 +1087,141 @@ class CamtReconcileFallbackTestCase(TestCase):
         tx = importer.transactions()[0]
         self.assertEqual(tx.invoice.id, invoice.id)
         self.assertTrue(tx.valid())
+
+
+class CamtEntityUnescapingTestCase(TestCase):
+    """Some banks double-encode entities, so the XML carries "&amp;amp;".
+    The parser must expose a single, decoded "&" for display and name matching."""
+
+    XML = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.04">'
+        "<BkToCstmrStmt><Stmt><Id>S1</Id>"
+        "<Acct><Ccy>CHF</Ccy><Ownr><Nm>OWNER</Nm></Ownr></Acct>"
+        '<Ntry><Amt Ccy="CHF">60</Amt><CdtDbtInd>CRDT</CdtDbtInd>'
+        "<AddtlNtryInf>Bonification ANNA &amp;amp; BEN SAMPLE</AddtlNtryInf>"
+        "<NtryDtls><TxDtls>"
+        "<Refs><TxId>TXID-1</TxId></Refs>"
+        '<Amt Ccy="CHF">60</Amt>'
+        "<RltdPties><Dbtr><Nm>ANNA &amp;amp; BEN</Nm></Dbtr></RltdPties>"
+        "<RmtInf><Ustrd>Cotisation Anna &amp;amp; Ben</Ustrd></RmtInf>"
+        "</TxDtls></NtryDtls></Ntry>"
+        "</Stmt></BkToCstmrStmt></Document>"
+    )
+
+    def _transaction(self):
+        from core.camt_importer.camt_importer import CamtParser
+
+        return CamtParser(self.XML).get_transactions()[0]
+
+    def test_remittance_information_is_unescaped(self):
+        self.assertEqual(
+            self._transaction()["RemittanceInformation"], "Cotisation Anna & Ben"
+        )
+
+    def test_additional_entry_information_is_unescaped(self):
+        self.assertEqual(
+            self._transaction()["AdditionalEntryInformation"],
+            "Bonification ANNA & BEN SAMPLE",
+        )
+
+    def test_debtor_name_is_unescaped(self):
+        self.assertEqual(self._transaction()["DebtorName"], "ANNA & BEN")
+
+
+class CamtCandidateTxIdMatchingTestCase(TestCase):
+    """A payment carries several identifiers. An invoice reconciled against any of
+    them must re-match, batch-level ids must not bind unrelated transactions, and
+    re-importing already-paid invoices must be idempotent (no duplicate invoices)."""
+
+    def setUp(self):
+        self.subscription = Subscription.objects.create(
+            name="2025", price_member=6000, price_supporter=1000
+        )
+
+    def _member_subscription(self, firstname="John", lastname="Doe"):
+        member = Member.objects.create(firstname=firstname, lastname=lastname)
+        return MemberSubscription.objects.create(
+            subscription=self.subscription, member=member, price=6000
+        )
+
+    def _importer(self, transactions):
+        from io import BytesIO
+
+        from core.camt_importer.camt_importer import CamtImporter
+
+        with patch("core.camt_importer.camt_importer.CamtParser") as MockParser:
+            MockParser.return_value.get_transactions.return_value = transactions
+            return CamtImporter(BytesIO(b"<xml/>"), self.subscription)
+
+    def _tx(self, **overrides):
+        data = {
+            "Amount": 60,
+            "Currency": "CHF",
+            "CreditDebitIndicator": "CRDT",
+        }
+        data.update(overrides)
+        return data
+
+    def test_invoice_stored_with_batch_id_matches_strong_id_transaction(self):
+        """Invoice reconciled with the batch id (AcctSvcrRef); a refreshed import
+        now resolves tx_id to the per-transaction TxId. It must still match."""
+        invoice = Invoice.objects.create(
+            member_subscription=self._member_subscription(),
+            price=6000,
+            status=InvoiceStatusEnum.PAID,
+            transaction_id="ZV2026/360658",
+        )
+        importer = self._importer(
+            [self._tx(TxId="951594203426170E", TransactionID="ZV2026/360658")]
+        )
+        tx = importer.transactions()[0]
+        self.assertEqual(tx.invoice.id, invoice.id)
+        self.assertEqual(tx.invoice.reason, "transaction_id")
+        self.assertTrue(tx.valid())
+
+    def test_shared_batch_id_does_not_bind_unrelated_transactions(self):
+        """Two transactions share the same batch id but carry distinct TxIds.
+        An invoice stored with that shared batch id must not match either."""
+        Invoice.objects.create(
+            member_subscription=self._member_subscription(),
+            price=6000,
+            status=InvoiceStatusEnum.PAID,
+            transaction_id="ZV2026/336601",
+        )
+        importer = self._importer(
+            [
+                self._tx(TxId="TX-A", TransactionID="ZV2026/336601"),
+                self._tx(TxId="TX-B", TransactionID="ZV2026/336601"),
+            ]
+        )
+        matched = [tx for tx in importer.transactions() if tx.invoice is not None]
+        self.assertEqual(matched, [])
+        self.assertIn("ZV2026/336601", importer._ambiguous_weak_ids)
+
+    def test_reimport_of_paid_invoices_is_idempotent(self):
+        """Re-importing a file whose invoices are already paid yields all-valid
+        rows and creates no new invoices (no accidental split)."""
+        first = Invoice.objects.create(
+            member_subscription=self._member_subscription("Jane", "Roe"),
+            price=6000,
+            status=InvoiceStatusEnum.PAID,
+            transaction_id="ZV2026/360658",
+        )
+        second = Invoice.objects.create(
+            member_subscription=self._member_subscription("Max", "Fee"),
+            price=6000,
+            status=InvoiceStatusEnum.PAID,
+            transaction_id="260701CH0EWG3EIY",
+        )
+        before = Invoice.objects.count()
+        importer = self._importer(
+            [
+                self._tx(TxId="951594203426170E", TransactionID="ZV2026/360658"),
+                self._tx(TxId="260701CH0EWG3EIY", TransactionID="ZV2026/767096"),
+            ]
+        )
+        txs = importer.transactions()
+        self.assertTrue(all(tx.valid() for tx in txs))
+        self.assertEqual({tx.invoice.id for tx in txs}, {first.id, second.id})
+        self.assertEqual(Invoice.objects.count(), before)
