@@ -1,3 +1,4 @@
+import html
 import re
 from difflib import SequenceMatcher
 
@@ -42,6 +43,20 @@ class CamtParser(Camt053Parser):
         super().__init__(xml_data)
         strip_namespaces(self.tree)
         self.namespaces = {}
+
+    def get_transactions(self):
+        # Some banks double-encode entities in free-text fields, so the XML
+        # carries "&amp;amp;". lxml decodes it once to "&amp;"; unescape once more
+        # to get "&", otherwise it renders as "&amp;" and breaks name matching
+        # (which splits joint payers on "&"). Ids/references carry no entities,
+        # so this is a no-op for them.
+        return [
+            {
+                key: html.unescape(value) if isinstance(value, str) else value
+                for key, value in transaction.items()
+            }
+            for transaction in super().get_transactions()
+        ]
 
     def _find_statements_or_reports(self):
         # camt.053 uses Stmt, camt.052 uses Rpt, camt.054 uses Ntfctn.

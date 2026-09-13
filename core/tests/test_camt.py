@@ -1059,3 +1059,42 @@ class CamtReconcileFallbackTestCase(TestCase):
         tx = importer.transactions()[0]
         self.assertEqual(tx.invoice.id, invoice.id)
         self.assertTrue(tx.valid())
+
+class CamtEntityUnescapingTestCase(TestCase):
+    """Some banks double-encode entities, so the XML carries "&amp;amp;".
+    The parser must expose a single, decoded "&" for display and name matching."""
+
+    XML = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.04">'
+        "<BkToCstmrStmt><Stmt><Id>S1</Id>"
+        "<Acct><Ccy>CHF</Ccy><Ownr><Nm>OWNER</Nm></Ownr></Acct>"
+        '<Ntry><Amt Ccy="CHF">60</Amt><CdtDbtInd>CRDT</CdtDbtInd>'
+        "<AddtlNtryInf>Bonification ANNA &amp;amp; BEN SAMPLE</AddtlNtryInf>"
+        "<NtryDtls><TxDtls>"
+        "<Refs><TxId>TXID-1</TxId></Refs>"
+        '<Amt Ccy="CHF">60</Amt>'
+        "<RltdPties><Dbtr><Nm>ANNA &amp;amp; BEN</Nm></Dbtr></RltdPties>"
+        "<RmtInf><Ustrd>Cotisation Anna &amp;amp; Ben</Ustrd></RmtInf>"
+        "</TxDtls></NtryDtls></Ntry>"
+        "</Stmt></BkToCstmrStmt></Document>"
+    )
+
+    def _transaction(self):
+        from core.camt_importer.camt_importer import CamtParser
+
+        return CamtParser(self.XML).get_transactions()[0]
+
+    def test_remittance_information_is_unescaped(self):
+        self.assertEqual(
+            self._transaction()["RemittanceInformation"], "Cotisation Anna & Ben"
+        )
+
+    def test_additional_entry_information_is_unescaped(self):
+        self.assertEqual(
+            self._transaction()["AdditionalEntryInformation"],
+            "Bonification ANNA & BEN SAMPLE",
+        )
+
+    def test_debtor_name_is_unescaped(self):
+        self.assertEqual(self._transaction()["DebtorName"], "ANNA & BEN")
