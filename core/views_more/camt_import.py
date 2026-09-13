@@ -263,6 +263,8 @@ class CamtProcessView(LoginRequiredMixin, TemplateView):
 
         context["subscription"] = camt_import.subscription
         context["camt_import"] = camt_import
-        context["data"] = CamtImporter(camt_import.file).transactions()
+        context["data"] = CamtImporter(
+            camt_import.file, camt_import.subscription
+        ).transactions()
 
         return context
