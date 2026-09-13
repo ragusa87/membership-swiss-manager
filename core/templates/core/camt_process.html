@@ -66,6 +66,7 @@
                             <p class="font-thin">{{ i.TxId|default:"" }} {% if i.EndToEndId != 'NOTPROVIDED' %}{{ " ( & " }}{{ i.EndToEndId }}{{ ")" }}{% endif %}</p>
                         {% endif %}
 
+                        {% if i.price > 0 %}
                         {% if i.invoice is not None and not i.valid %}
                             <div id="tx{{ forloop.counter }}">
                                 <a data-hx-target="#tx{{ forloop.counter }}"
@@ -82,6 +83,7 @@
                              <div id="tx{{ forloop.counter }}">
                                 <button data-hx-target="#tx{{ forloop.counter }}" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' import_id=camt_import.pk %}?transaction_id={{ i.tx_id|urlencode }}&amount={{ i.Amount|urlencode }}&label={{ i.AdditionalEntryInformation|urlencode }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
                              </div>
+                        {% endif %}
                         {% endif %}
                         {% if i.invoice is not None and i.price_mismatch %}
                             <span class="text-red-800">Price mismatch ! {{ i.invoice.price|format_price}}</span>
