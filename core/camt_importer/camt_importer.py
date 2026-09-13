@@ -1,21 +1,57 @@
+import re
 from difflib import SequenceMatcher
 
 from django.db.models import Q
-from pycamt.parser import Camt053Parser
+from pycamt.parser import Camt053ParseError, Camt053Parser
 
-from core.models import Invoice, Subscription
+from core.models import Invoice, InvoiceStatusEnum, Subscription
 from core.utils import chf_to_centimes
 
 
+def strip_namespaces(root) -> None:
+    """Rewrite every element tag in-place to drop its XML namespace.
+
+    pycamt >= 1.1 queries the tree with unprefixed XPaths (``.//Stmt``)
+    while exposing ``self.namespaces`` as lxml's ``nsmap`` (which maps the
+    default namespace to ``None``). lxml's ``findall`` cannot use a ``None``
+    prefix, so those queries silently match nothing on namespaced CAMT
+    documents. Stripping the namespaces lets both pycamt's and our own
+    unprefixed XPaths resolve.
+    """
+    for element in root.iter():
+        tag = element.tag
+        if isinstance(tag, str) and "}" in tag:
+            element.tag = tag.split("}", 1)[1]
+
+
 class MyCamt053Parser(Camt053Parser):
+    def __init__(self, xml_data: str | bytes):
+        # lxml rejects a decoded str that still carries an encoding
+        # declaration, so always hand it bytes.
+        if isinstance(xml_data, str):
+            xml_data = xml_data.encode("utf-8")
+        # The parent parses and detects the version while namespaces are
+        # still present; strip them afterwards so all XPaths resolve.
+        super().__init__(xml_data)
+        strip_namespaces(self.tree)
+        self.namespaces = {}
+
+    def _find_statements_or_reports(self):
+        # camt.053 uses Stmt, camt.052 uses Rpt, camt.054 uses Ntfctn.
+        for xmlpath in (".//Stmt", ".//Rpt", ".//Ntfctn"):
+            found = self.tree.findall(xmlpath, self.namespaces)
+            if found:
+                return found
+        raise Camt053ParseError()
+
     def _find_text(self, element, path):
         if element is None:
             return None
         node = element.find(path, self.namespaces)
         return node.text if node is not None else None
 
-    def _extract_common_entry_data(self, entry):
-        data = super()._extract_common_entry_data(entry)
+    def _extract_common_entry_data(self, entry, statement):
+        data = super()._extract_common_entry_data(entry, statement)
         data["Reference"] = self._find_text(entry, ".//RmtInf/Strd/CdtrRefInf/Ref")
         return data
 
@@ -38,7 +74,7 @@ class MyCamt053Parser(Camt053Parser):
         debtor_address = tx_detail.find(".//RltdPties/Dbtr/PstlAdr", self.namespaces)
         if debtor_address is not None:
             debtor_address = {
-                child.tag.split("}")[1]: child.text for child in debtor_address
+                child.tag.split("}")[-1]: child.text for child in debtor_address
             }
         detail["DbtrPstlAdr"] = debtor_address
 
@@ -46,10 +82,14 @@ class MyCamt053Parser(Camt053Parser):
             tx_detail, ".//RmtInf/Strd/CdtrRefInf/Ref"
         )
 
-        if not detail.get("RemittanceInformation"):
-            detail["RemittanceInformation"] = self._find_text(
-                tx_detail, ".//RmtInf/Strd/AddtlRmtInf"
-            )
+        # pycamt >= 1.1 overwrites RemittanceInformation with the structured
+        # creditor reference whenever Strd is present. We expose that reference
+        # separately (see Reference above), so keep RemittanceInformation as the
+        # human-readable message: unstructured Ustrd, else the additional Strd
+        # remittance info.
+        detail["RemittanceInformation"] = self._find_text(
+            tx_detail, ".//RmtInf/Ustrd"
+        ) or self._find_text(tx_detail, ".//RmtInf/Strd/AddtlRmtInf")
 
         if not detail.get("CreditorName"):
             detail["CreditorName"] = self._find_text(self.tree, ".//Acct/Ownr/Nm")
@@ -65,6 +105,10 @@ def is_bonification(additionalEntryInformation: str) -> bool:
     return any(info.startswith(prefix) for prefix in BONIFICATION_PREFIXES)
 
 
+def _name_tokens(name: str) -> set[str]:
+    return {token for token in name.lower().replace("&", " ").split() if token}
+
+
 def name_matches_invoice(invoice: Invoice | None, name: str | None) -> bool:
     if invoice is None or not name:
         return False
@@ -73,14 +117,21 @@ def name_matches_invoice(invoice: Invoice | None, name: str | None) -> bool:
         return False
 
     name_lower = name.lower().strip()
-    similarity1 = SequenceMatcher(
-        None, name_lower, invoice_member.get_fullname().lower()
-    ).ratio()
-    similarity2 = SequenceMatcher(
-        None, name_lower, invoice_member.get_fullname_inverted().lower()
-    ).ratio()
+    fullname = invoice_member.get_fullname().lower()
+    fullname_inverted = invoice_member.get_fullname_inverted().lower()
 
-    return max(similarity1, similarity2) >= 0.9
+    # Signal 1: overall sequence similarity (handles typos / small differences)
+    similarity1 = SequenceMatcher(None, name_lower, fullname).ratio()
+    similarity2 = SequenceMatcher(None, name_lower, fullname_inverted).ratio()
+    if max(similarity1, similarity2) >= 0.9:
+        return True
+
+    # Signal 2: token subset — every part of the member name appears in the
+    # transaction name (handles married / middle names in bank statements,
+    # e.g. member "Jane Doe" vs statement "JANE DOE VAN SMITH").
+    # Requires at least two member tokens to avoid single-common-name matches.
+    member_tokens = _name_tokens(fullname)
+    return len(member_tokens) >= 2 and member_tokens.issubset(_name_tokens(name_lower))
 
 
 def is_same_user(invoice: Invoice | None, additionalEntryInformation: str) -> bool:
@@ -92,7 +143,18 @@ def is_same_user(invoice: Invoice | None, additionalEntryInformation: str) -> bo
     name = additionalEntryInformation.lower()
     for prefix in BONIFICATION_PREFIXES:
         name = name.replace(prefix, "")
-    return name_matches_invoice(invoice, name.strip())
+    name = name.strip()
+
+    # Split on common separators ("&", " et ", " and ") and try each name
+    # individually. Word separators are matched on whole-word boundaries so
+    # names that merely contain the letters "et"/"and" are not shredded.
+    for single_name in re.split(r"\s+(?:et|and)\s+|&", name):
+        single_name = single_name.strip()
+        if single_name and name_matches_invoice(invoice, single_name):
+            return True
+
+    # Also try the full name in case there's no separator
+    return name_matches_invoice(invoice, name)
 
 
 def get_reference_as_int(value: str | None) -> int | None:
@@ -135,63 +197,91 @@ class Transaction:
         if self.invoice is None:
             return False
 
-        return self.__getattr__("price") != self.invoice.price
+        return self.price != self.invoice.price
+
+    @property
+    def additional_info(self) -> str:
+        return str(
+            self.data.get("AdditionalEntryInformation")
+            or self.data.get("RemittanceInformation")
+            or ""
+        )
+
+    @property
+    def tx_id(self) -> str | None:
+        return (
+            self.data.get("TxId")
+            or self.data.get("EndToEndId")
+            or self.data.get("InstrId")
+            or self.data.get("AcctSvcrRef")
+            or self.data.get("TransactionID")
+        )
+
+    @property
+    def reference(self) -> str | None:
+        return self.data.get("Reference") or self.data.get("AcctSvcrRef")
 
     def is_same_user(self) -> bool:
         if self.invoice is None:
             return False
 
-        if is_same_user(self.invoice, str(self.data["AdditionalEntryInformation"])):
+        if is_same_user(self.invoice, self.additional_info):
             return True
         if name_matches_invoice(self.invoice, self.data.get("DebtorName")):
             return True
         return bool(name_matches_invoice(self.invoice, self.data.get("UltmtDbtr")))
 
     def isBonification(self):
-        return is_bonification(str(self.data["AdditionalEntryInformation"]))
+        return is_bonification(self.additional_info)
 
     def valid(self) -> bool:
         return (
             self.invoice is not None
-            and self.invoice.price == self.__getattr__("price")
-            and self.data["Currency"] == "CHF"
-            and self.invoice.transaction_id == self.data["TxId"]
+            and self.invoice.price == self.price
+            and self.data.get("Currency") == "CHF"
+            and self.invoice.transaction_id is not None
+            and self.invoice.transaction_id == self.tx_id
         )
 
 
 class CamtImporter:
     def __init__(self, file, subscription: Subscription | None = None):
-        self.parser = MyCamt053Parser(file.read().decode("utf-8"))
+        self.parser = MyCamt053Parser(file.read())
+        # Parse once and reuse: get_transactions() re-parses the XML on each call.
+        self.raw_transactions = list(self.parser.get_transactions())
         self.invoices = self.__import_invoices__(subscription)
 
     def transactions(self) -> list[Transaction]:
         result = []
-        for transaction in self.parser.get_transactions():
-            result.append(
-                Transaction(
-                    transaction,
-                    self.__find_invoice__(
-                        transaction["TxId"],
-                        transaction["Reference"],
-                        transaction["AdditionalEntryInformation"],
-                        transaction.get("DebtorName"),
-                        transaction.get("UltmtDbtr"),
-                    ),
-                )
+        for data in self.raw_transactions:
+            tx = Transaction(data, None)
+            tx.invoice = self.__find_invoice__(
+                tx.tx_id,
+                tx.reference,
+                tx.additional_info,
+                data.get("DebtorName"),
+                data.get("UltmtDbtr"),
             )
+            result.append(tx)
         return result
 
     def __import_invoices__(self, subscription: Subscription | None) -> list[Invoice]:
         transactions = []
         references = []
-        for t in self.parser.get_transactions():
-            if "TxId" in t and t["TxId"] is not None:
-                transactions.append(t["TxId"])
-            if "Reference" in t and t["Reference"] is not None:
+        for t in self.raw_transactions:
+            # Use the same tx_id fallback chain as matching, so invoices
+            # reconciled with a fallback id (e.g. TransactionID) are re-loaded.
+            tx_id = Transaction(t, None).tx_id
+            if tx_id is not None:
+                transactions.append(tx_id)
+            if t.get("Reference") is not None:
                 int_value = get_reference_as_int(t["Reference"])
                 if int_value is not None:
                     references.append(int_value)
 
+        # Build base query with transaction ID and reference matches.
+        # Not scoped to the subscription on purpose: matching across all
+        # subscriptions lets the UI warn about subscription mismatches.
         query = (
             Invoice.objects.filter(
                 Q(transaction_id__in=transactions)
@@ -201,10 +291,30 @@ class CamtImporter:
             .select_related("member_subscription")
             .prefetch_related("member_subscription__member")
         )
-        if subscription is not None:
-            query = query.filter(member_subscription_subscription=subscription)
 
-        return [i for i in query.all()]
+        invoices = list(query.all())
+
+        # Also add unpaid invoices from the subscription for name-based matching
+        # (handles cases where reference/transaction_id are not yet set)
+        # Only include invoices for members with no parent (main account holders)
+        if subscription is not None:
+            unpaid_query = (
+                Invoice.objects.filter(
+                    member_subscription__subscription=subscription,
+                    member_subscription__parent__isnull=True,
+                    status__in=[InvoiceStatusEnum.CREATED, InvoiceStatusEnum.PENDING],
+                )
+                .select_related("member_subscription")
+                .prefetch_related("member_subscription__member")
+            )
+            # Avoid duplicates by checking which ones are already in the list
+            existing_ids = {inv.id for inv in invoices}
+            unpaid_invoices = [
+                inv for inv in unpaid_query.all() if inv.id not in existing_ids
+            ]
+            invoices.extend(unpaid_invoices)
+
+        return invoices
 
     def __find_invoice__(
         self,
@@ -232,6 +342,19 @@ class CamtImporter:
                 invoice, ultimate_debtor
             ):
                 invoice.reason = "reference_id"
+                return invoice
+
+        # Stage 3: Match by bonification name without reference.
+        # A "A & B" bonification is assumed to be a single household paying one
+        # invoice, so the first name-matching invoice is returned without an
+        # amount check. If independent members ever combine one payment for
+        # separate invoices, add amount-based disambiguation / ambiguity
+        # handling here.
+        for invoice in self.invoices:
+            if additionalEntryInformation and is_same_user(
+                invoice, additionalEntryInformation
+            ):
+                invoice.reason = "bonification_name"
                 return invoice
 
         return None

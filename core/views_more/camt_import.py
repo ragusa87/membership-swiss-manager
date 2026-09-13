@@ -72,10 +72,12 @@ class CamtUploadView(LoginRequiredMixin, FormView, TemplateView):
 
             CamtImporter(camt_import.file)
 
+            # Order by -pk as a tiebreaker: imports created in the same instant
+            # share a created_at, so a secondary key keeps pruning deterministic.
             stale_pks = list(
-                CamtImport.objects.order_by("-created_at").values_list("pk", flat=True)[
-                    MAX_RECENT_IMPORTS:
-                ]
+                CamtImport.objects.order_by("-created_at", "-pk").values_list(
+                    "pk", flat=True
+                )[MAX_RECENT_IMPORTS:]
             )
             CamtImport.objects.filter(pk__in=stale_pks).delete()
 
@@ -263,6 +265,8 @@ class CamtProcessView(LoginRequiredMixin, TemplateView):
 
         context["subscription"] = camt_import.subscription
         context["camt_import"] = camt_import
-        context["data"] = CamtImporter(camt_import.file).transactions()
+        context["data"] = CamtImporter(
+            camt_import.file, camt_import.subscription
+        ).transactions()
 
         return context

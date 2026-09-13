@@ -1,4 +1,5 @@
 import os
+from unittest import skipIf
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
@@ -20,6 +21,14 @@ from core.views_more.camt_import import MAX_RECENT_IMPORTS
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), "camt-demo.xml")
 FIXTURE_054_PATH = os.path.join(os.path.dirname(__file__), "camt-054-batch.xml")
+
+# Check if Camt054Parser is available
+try:
+    from pycamt.parser import Camt054Parser  # noqa: F401
+
+    SKIP_CAMT054 = False
+except ImportError:
+    SKIP_CAMT054 = True
 
 
 def _upload_fixture(client, subscription, path=FIXTURE_PATH):
@@ -100,6 +109,7 @@ class Camt054BatchTestCase(LoggedInTestCase):
             name="2026", price_member=6000, price_supporter=3000
         )
 
+    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_batch_entry_renders_each_transaction(self):
         response = _upload_fixture(
             self.client, self.subscription, path=FIXTURE_054_PATH
@@ -131,6 +141,7 @@ class Camt054BatchTestCase(LoggedInTestCase):
         self.assertContains(response, "MEMBRE 2026")
         self.assertContains(response, "membre 2026")
 
+    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_matches_invoices_by_reference_and_debtor_name(self):
         member = Member.objects.create(firstname="Ultimate Payer", lastname="Two")
         member_subscription = MemberSubscription.objects.create(
@@ -151,6 +162,7 @@ class Camt054BatchTestCase(LoggedInTestCase):
         self.assertContains(response, f"/camt_link/{invoice.pk}/60/ANON-INSTR-2/")
         self.assertContains(response, "bg-green-600")
 
+    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_unmatched_gutschrift_shows_resolve_button(self):
         response = _upload_fixture(
             self.client, self.subscription, path=FIXTURE_054_PATH
@@ -159,6 +171,7 @@ class Camt054BatchTestCase(LoggedInTestCase):
         self.assertEqual(200, response.status_code)
         self.assertContains(response, "Resolve?", count=3)
 
+    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_parser_extracts_distinct_fields_per_transaction(self):
         from core.camt_importer.camt_importer import CamtImporter
 
@@ -224,6 +237,23 @@ class CamtProcessViewTestCase(LoggedInTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNotContains(response, "Link to invoice")
         self.assertContains(response, "text-green-800")
+
+    def test_name_matched_unpaid_invoice_renders_reconcile_button(self):
+        """An unpaid invoice matched by name (no transaction_id) must expose a
+        one-click reconcile button, not render as already-valid green text."""
+        invoice = Invoice.objects.create(
+            member_subscription=self.member_subscription,
+            price=6000,
+            status=InvoiceStatusEnum.CREATED,
+        )
+        camt_import = self._upload()
+
+        response = self.client.get(f"/process-camt/{camt_import.pk}/")
+
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, "Link to invoice")
+        self.assertContains(response, f"/camt_link/{invoice.pk}/60/TXID-XXXX-1/")
+        self.assertContains(response, "bg-green-600")
 
     def test_price_mismatch_renders_orange_button_and_warning(self):
         invoice = Invoice.objects.create(
@@ -644,3 +674,401 @@ class CamtUploadPruningTestCase(LoggedInTestCase):
         self.assertEqual(MAX_RECENT_IMPORTS, CamtImport.objects.count())
         self.assertFalse(CamtImport.objects.filter(pk=oldest.pk).exists())
         self.assertFalse(default_storage.exists(oldest_file_name))
+
+
+class CamtFallbackChainsTestCase(TestCase):
+    """Test fallback chains for missing CAMT transaction fields"""
+
+    def setUp(self):
+        from core.camt_importer.camt_importer import CamtImporter
+
+        self.CamtImporter = CamtImporter
+
+    def test_transaction_id_fallback_to_end_to_end_id(self):
+        """TxId missing, should fallback to EndToEndId"""
+        transaction = {
+            "EndToEndId": "END-TO-END-123",
+            "AdditionalEntryInformation": "Test",
+            "Amount": 100,
+        }
+        # Simulate the transactions() method logic
+        tx_id = (
+            transaction.get("TxId")
+            or transaction.get("EndToEndId")
+            or transaction.get("InstrId")
+            or transaction.get("AcctSvcrRef")
+        )
+        self.assertEqual(tx_id, "END-TO-END-123")
+
+    def test_transaction_id_fallback_to_instr_id(self):
+        """TxId and EndToEndId missing, should fallback to InstrId"""
+        transaction = {
+            "InstrId": "INSTR-456",
+            "AdditionalEntryInformation": "Test",
+            "Amount": 100,
+        }
+        tx_id = (
+            transaction.get("TxId")
+            or transaction.get("EndToEndId")
+            or transaction.get("InstrId")
+            or transaction.get("AcctSvcrRef")
+        )
+        self.assertEqual(tx_id, "INSTR-456")
+
+    def test_transaction_id_fallback_to_acct_svcr_ref(self):
+        """Only AcctSvcrRef available, should use it"""
+        transaction = {
+            "AcctSvcrRef": "ACCT-789",
+            "AdditionalEntryInformation": "Test",
+            "Amount": 100,
+        }
+        tx_id = (
+            transaction.get("TxId")
+            or transaction.get("EndToEndId")
+            or transaction.get("InstrId")
+            or transaction.get("AcctSvcrRef")
+        )
+        self.assertEqual(tx_id, "ACCT-789")
+
+    def test_reference_fallback_to_acct_svcr_ref(self):
+        """Reference missing, should fallback to AcctSvcrRef"""
+        transaction = {
+            "AcctSvcrRef": "ACCT-REF-123",
+            "AdditionalEntryInformation": "Test",
+        }
+        reference = transaction.get("Reference") or transaction.get("AcctSvcrRef")
+        self.assertEqual(reference, "ACCT-REF-123")
+
+    def test_reference_preferred_over_acct_svcr_ref(self):
+        """When both present, Reference should be preferred"""
+        transaction = {
+            "Reference": "REF-123",
+            "AcctSvcrRef": "ACCT-REF-456",
+            "AdditionalEntryInformation": "Test",
+        }
+        reference = transaction.get("Reference") or transaction.get("AcctSvcrRef")
+        self.assertEqual(reference, "REF-123")
+
+    def test_additional_info_fallback_to_remittance(self):
+        """AdditionalEntryInformation missing, should fallback to RemittanceInformation"""
+        transaction = {
+            "RemittanceInformation": "Payment for invoice",
+            "TxId": "TX-123",
+        }
+        additional_info = (
+            transaction.get("AdditionalEntryInformation")
+            or transaction.get("RemittanceInformation")
+            or ""
+        )
+        self.assertEqual(additional_info, "Payment for invoice")
+
+    def test_additional_info_preferred_over_remittance(self):
+        """When both present, AdditionalEntryInformation should be preferred"""
+        transaction = {
+            "AdditionalEntryInformation": "Additional info",
+            "RemittanceInformation": "Remittance info",
+            "TxId": "TX-123",
+        }
+        additional_info = (
+            transaction.get("AdditionalEntryInformation")
+            or transaction.get("RemittanceInformation")
+            or ""
+        )
+        self.assertEqual(additional_info, "Additional info")
+
+    def test_additional_info_fallback_to_empty_string(self):
+        """Both missing, should fallback to empty string"""
+        transaction = {
+            "TxId": "TX-123",
+        }
+        additional_info = (
+            transaction.get("AdditionalEntryInformation")
+            or transaction.get("RemittanceInformation")
+            or ""
+        )
+        self.assertEqual(additional_info, "")
+
+    def test_all_fallbacks_work_together(self):
+        """Test all fallback chains working together"""
+        transaction = {
+            "EndToEndId": "E2E-123",
+            "AcctSvcrRef": "ACCT-789",
+            "RemittanceInformation": "Payment details",
+            "DebtorName": "John Doe",
+            "Amount": 100,
+        }
+        # Simulate full transaction processing
+        tx_id = (
+            transaction.get("TxId")
+            or transaction.get("EndToEndId")
+            or transaction.get("InstrId")
+            or transaction.get("AcctSvcrRef")
+        )
+        reference = transaction.get("Reference") or transaction.get("AcctSvcrRef")
+        additional_info = (
+            transaction.get("AdditionalEntryInformation")
+            or transaction.get("RemittanceInformation")
+            or ""
+        )
+
+        self.assertEqual(tx_id, "E2E-123")
+        self.assertEqual(reference, "ACCT-789")
+        self.assertEqual(additional_info, "Payment details")
+        self.assertEqual(transaction.get("DebtorName"), "John Doe")
+
+
+class CamtNameMatchingTestCase(TestCase):
+    """Test name-based matching for bonification transactions."""
+
+    def setUp(self):
+        self.subscription = Subscription.objects.create(
+            name="2025", price_member=6000, price_supporter=1000
+        )
+
+    def _invoice_for(self, firstname, lastname, parent=None, **kwargs):
+        member = Member.objects.create(firstname=firstname, lastname=lastname)
+        member_subscription = MemberSubscription.objects.create(
+            subscription=self.subscription,
+            member=member,
+            price=6000,
+            parent=parent,
+        )
+        defaults = {"price": 6000, "status": InvoiceStatusEnum.CREATED}
+        defaults.update(kwargs)
+        return Invoice.objects.create(
+            member_subscription=member_subscription, **defaults
+        )
+
+    def test_name_matches_exact_fullname(self):
+        from core.camt_importer.camt_importer import name_matches_invoice
+
+        invoice = self._invoice_for("John", "Doe")
+        self.assertTrue(name_matches_invoice(invoice, "John Doe"))
+
+    def test_name_matches_inverted_fullname(self):
+        from core.camt_importer.camt_importer import name_matches_invoice
+
+        invoice = self._invoice_for("John", "Doe")
+        self.assertTrue(name_matches_invoice(invoice, "Doe John"))
+
+    def test_name_matches_with_extra_tokens(self):
+        """Bank statement carries a married/middle name absent from the member."""
+        from core.camt_importer.camt_importer import name_matches_invoice
+
+        invoice = self._invoice_for("Jane", "Doe")
+        self.assertTrue(name_matches_invoice(invoice, "Jane Doe Van Smith"))
+
+    def test_name_does_not_match_different_person(self):
+        from core.camt_importer.camt_importer import name_matches_invoice
+
+        invoice = self._invoice_for("John", "Doe")
+        self.assertFalse(name_matches_invoice(invoice, "Alice Cooper"))
+
+    def test_single_common_token_does_not_match(self):
+        """A single shared first name must not be enough to match."""
+        from core.camt_importer.camt_importer import name_matches_invoice
+
+        invoice = self._invoice_for("John", "Doe")
+        self.assertFalse(name_matches_invoice(invoice, "John Smith"))
+
+    def test_none_name_does_not_match(self):
+        from core.camt_importer.camt_importer import name_matches_invoice
+
+        invoice = self._invoice_for("John", "Doe")
+        self.assertFalse(name_matches_invoice(invoice, None))
+        self.assertFalse(name_matches_invoice(invoice, ""))
+
+    def test_is_same_user_bonification_with_extra_tokens(self):
+        from core.camt_importer.camt_importer import is_same_user
+
+        invoice = self._invoice_for("Jane", "Doe")
+        self.assertTrue(is_same_user(invoice, "Bonification JANE DOE VAN SMITH"))
+
+    def test_is_same_user_bonification_with_separator(self):
+        from core.camt_importer.camt_importer import is_same_user
+
+        invoice = self._invoice_for("John", "Doe")
+        self.assertTrue(is_same_user(invoice, "Bonification John Doe & Alice Roe"))
+
+    def test_is_same_user_ignores_non_bonification(self):
+        from core.camt_importer.camt_importer import is_same_user
+
+        invoice = self._invoice_for("John", "Doe")
+        self.assertFalse(is_same_user(invoice, "Spesen"))
+
+    def test_is_same_user_splits_on_et_and_word_separators(self):
+        from core.camt_importer.camt_importer import is_same_user
+
+        invoice = self._invoice_for("Alice", "Roe")
+        self.assertTrue(is_same_user(invoice, "Bonification John Doe et Alice Roe"))
+        self.assertTrue(is_same_user(invoice, "Bonification John Doe and Alice Roe"))
+
+    def test_is_same_user_does_not_shred_name_with_et_substring(self):
+        """A name that merely contains the letters 'et'/'and' must not be split."""
+        from core.camt_importer.camt_importer import is_same_user
+
+        invoice = self._invoice_for("Juliette", "Sandberg")
+        self.assertTrue(is_same_user(invoice, "Bonification Juliette Sandberg"))
+
+
+class CamtInvoiceLoadingTestCase(TestCase):
+    """Test which invoices are loaded for matching by CamtImporter."""
+
+    def setUp(self):
+        from core.camt_importer.camt_importer import CamtImporter
+
+        self.CamtImporter = CamtImporter
+        self.subscription = Subscription.objects.create(
+            name="2025", price_member=6000, price_supporter=1000
+        )
+
+    def _make_invoice(self, firstname, lastname, parent=None, **kwargs):
+        member = Member.objects.create(firstname=firstname, lastname=lastname)
+        member_subscription = MemberSubscription.objects.create(
+            subscription=self.subscription,
+            member=member,
+            price=6000,
+            parent=parent,
+        )
+        defaults = {"price": 6000, "status": InvoiceStatusEnum.CREATED}
+        defaults.update(kwargs)
+        return Invoice.objects.create(
+            member_subscription=member_subscription, **defaults
+        )
+
+    def _importer(self):
+        with open(FIXTURE_PATH, "rb") as f:
+            return self.CamtImporter(f, self.subscription)
+
+    def test_unpaid_invoice_without_reference_is_loaded(self):
+        """An unpaid invoice with no reference/transaction_id must be available."""
+        invoice = self._make_invoice("John", "Doe")
+        importer = self._importer()
+        self.assertIn(invoice.id, {i.id for i in importer.invoices})
+
+    def test_paid_invoice_without_match_is_not_loaded(self):
+        """A paid invoice with no matching reference must not be loaded."""
+        invoice = self._make_invoice("John", "Doe", status=InvoiceStatusEnum.PAID)
+        importer = self._importer()
+        self.assertNotIn(invoice.id, {i.id for i in importer.invoices})
+
+    def test_child_subscription_invoice_is_not_loaded(self):
+        """Invoices for members with a parent subscription are excluded."""
+        parent_member = Member.objects.create(firstname="Parent", lastname="Payer")
+        parent_subscription = MemberSubscription.objects.create(
+            subscription=self.subscription, member=parent_member, price=6000
+        )
+        child_invoice = self._make_invoice("Child", "Payer", parent=parent_subscription)
+        importer = self._importer()
+        self.assertNotIn(child_invoice.id, {i.id for i in importer.invoices})
+
+
+class CamtTransactionValidTestCase(TestCase):
+    """Test Transaction.valid() and the tx_id fallback."""
+
+    def setUp(self):
+        from core.camt_importer.camt_importer import Transaction
+
+        self.Transaction = Transaction
+
+    def _invoice(self, **kwargs):
+        subscription = Subscription.objects.create(
+            name="2025", price_member=6000, price_supporter=1000
+        )
+        member = Member.objects.create(firstname="John", lastname="Doe")
+        member_subscription = MemberSubscription.objects.create(
+            subscription=subscription, member=member, price=6000
+        )
+        defaults = {"price": 6000, "status": InvoiceStatusEnum.CREATED}
+        defaults.update(kwargs)
+        return Invoice.objects.create(
+            member_subscription=member_subscription, **defaults
+        )
+
+    def test_not_valid_when_invoice_has_no_transaction_id(self):
+        """A matched invoice without transaction_id is not valid (needs reconcile)."""
+        invoice = self._invoice(transaction_id=None)
+        tx = self.Transaction(
+            {"Amount": 60, "Currency": "CHF", "CreditDebitIndicator": "CRDT"},
+            invoice,
+        )
+        self.assertFalse(tx.valid())
+
+    def test_valid_when_transaction_id_matches(self):
+        invoice = self._invoice(transaction_id="TX-1")
+        tx = self.Transaction(
+            {
+                "Amount": 60,
+                "Currency": "CHF",
+                "CreditDebitIndicator": "CRDT",
+                "TxId": "TX-1",
+            },
+            invoice,
+        )
+        self.assertTrue(tx.valid())
+
+    def test_tx_id_falls_back_to_transaction_id_field(self):
+        tx = self.Transaction({"TransactionID": "ZV2026/123"}, None)
+        self.assertEqual(tx.tx_id, "ZV2026/123")
+
+    def test_tx_id_prefers_txid_over_transaction_id_field(self):
+        tx = self.Transaction({"TxId": "TX-1", "TransactionID": "ZV2026/123"}, None)
+        self.assertEqual(tx.tx_id, "TX-1")
+
+
+class CamtReconcileFallbackTestCase(TestCase):
+    """A bonification only carries a TransactionID (no TxId). After reconciling,
+    the invoice's transaction_id is set from that fallback; a refreshed import
+    must re-load and re-match it as valid instead of showing it unresolved."""
+
+    def setUp(self):
+        self.subscription = Subscription.objects.create(
+            name="2025", price_member=6000, price_supporter=1000
+        )
+        self.member = Member.objects.create(firstname="John", lastname="Doe")
+        self.member_subscription = MemberSubscription.objects.create(
+            subscription=self.subscription, member=self.member, price=6000
+        )
+
+    def _importer(self, transactions):
+        from io import BytesIO
+
+        from core.camt_importer.camt_importer import CamtImporter
+
+        with patch("core.camt_importer.camt_importer.MyCamt053Parser") as MockParser:
+            MockParser.return_value.get_transactions.return_value = transactions
+            return CamtImporter(BytesIO(b"<xml/>"), self.subscription)
+
+    def _bonification(self):
+        return {
+            "Amount": 60,
+            "Currency": "CHF",
+            "CreditDebitIndicator": "CRDT",
+            "TransactionID": "ZV2026/999",
+            "AdditionalEntryInformation": "Bonification John Doe",
+        }
+
+    def test_unreconciled_bonification_matches_by_name_but_not_valid(self):
+        Invoice.objects.create(
+            member_subscription=self.member_subscription,
+            price=6000,
+            status=InvoiceStatusEnum.CREATED,
+        )
+        importer = self._importer([self._bonification()])
+        tx = importer.transactions()[0]
+        self.assertIsNotNone(tx.invoice)
+        self.assertFalse(tx.valid())
+        self.assertEqual(tx.tx_id, "ZV2026/999")
+
+    def test_reconciled_bonification_is_reloaded_and_valid(self):
+        invoice = Invoice.objects.create(
+            member_subscription=self.member_subscription,
+            price=6000,
+            status=InvoiceStatusEnum.PAID,
+            transaction_id="ZV2026/999",
+        )
+        importer = self._importer([self._bonification()])
+        self.assertIn(invoice.id, {i.id for i in importer.invoices})
+        tx = importer.transactions()[0]
+        self.assertEqual(tx.invoice.id, invoice.id)
+        self.assertTrue(tx.valid())

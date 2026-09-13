@@ -67,20 +67,20 @@
                         {% endif %}
 
                         {% if i.invoice is not None and not i.valid %}
-                            <div id="tx{{ i.TxId|slugify }}">
-                                <a data-hx-target="#tx{{ i.TxId|slugify }}"
-                                   data-hx-get="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.TxId %}"
-                                   href="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.TxId %}"
+                            <div id="tx{{ forloop.counter }}">
+                                <a data-hx-target="#tx{{ forloop.counter }}"
+                                   data-hx-get="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.tx_id %}"
+                                   href="{% url 'camt_link' invoice_id=i.invoice.pk amount=i.Amount transaction_id=i.tx_id %}"
                                    class="inline-block p-3 {% if i.invoice.transaction_id%}bg-orange-600 text-orange-800{% elif i.is_same_user %}bg-green-600 text-green-800{% else %}bg-yellow-600 text-yellow-800{% endif %}">
-                                    Link to invoice  {{ i.invoice.get_reference }} {{ i.TxId|default:"" }}</a>
+                                    Link to invoice  {{ i.invoice.get_reference }} {{ i.tx_id|default:"" }}</a>
 
                                 {% with invoice=i.invoice %}
                                     {% include 'core/partials/camt_link.html' %}
                                 {% endwith %}
                             </div>
-                        {% elif i.invoice is None and i.isBonification %}
-                             <div id="tx{{ i.TxId|slugify }}">
-                                <button data-hx-target="#tx{{ i.TxId|slugify }}" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' import_id=camt_import.pk %}?transaction_id={{ i.TxId }}&invoice_id={{ i.invoice.pk }}&amount={{ i.Amount }}&label={{ i.AdditionalEntryInformation }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
+                        {% elif i.invoice is None %}
+                             <div id="tx{{ forloop.counter }}">
+                                <button data-hx-target="#tx{{ forloop.counter }}" data-hx-trigger="click" data-hx-get="{% url 'camt_reconciliation' import_id=camt_import.pk %}?transaction_id={{ i.tx_id|urlencode }}&amount={{ i.Amount|urlencode }}&label={{ i.AdditionalEntryInformation|urlencode }}" href="#" class="inline-block p-3 bg-red-600 text-red-800">Resolve? {{ i.price|format_price }} {{ i.AdditionalEntryInformation }}</button>
                              </div>
                         {% endif %}
                         {% if i.invoice is not None and i.price_mismatch %}
