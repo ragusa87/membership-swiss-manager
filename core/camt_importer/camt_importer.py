@@ -229,15 +229,47 @@ class Transaction:
             or ""
         )
 
+    # Per-transaction identifiers, stable across imports. The one we store when
+    # reconciling (see tx_id) comes from this group.
+    STRONG_ID_FIELDS = ("TxId", "EndToEndId", "InstrId", "UETR")
+    # Batch-level bank references (pycamt exposes AcctSvcrRef as TransactionID).
+    # These are shared by every transaction of the same booking, so they are not
+    # a reliable per-transaction identity — kept only as a weak fallback.
+    WEAK_ID_FIELDS = ("AcctSvcrRef", "TransactionID")
+
     @property
     def tx_id(self) -> str | None:
-        return (
-            self.data.get("TxId")
-            or self.data.get("EndToEndId")
-            or self.data.get("InstrId")
-            or self.data.get("AcctSvcrRef")
-            or self.data.get("TransactionID")
-        )
+        for field in (*self.STRONG_ID_FIELDS, *self.WEAK_ID_FIELDS):
+            value = self.data.get(field)
+            if value:
+                return value
+        return None
+
+    @property
+    def strong_tx_ids(self) -> list[str]:
+        return self._collect_ids(self.STRONG_ID_FIELDS)
+
+    @property
+    def weak_tx_ids(self) -> list[str]:
+        return self._collect_ids(self.WEAK_ID_FIELDS)
+
+    @property
+    def candidate_tx_ids(self) -> list[str]:
+        """All identifiers this transaction legitimately carries.
+
+        An invoice reconciled against any of them (possibly an older parser's
+        resolution) should still match. Strong per-transaction ids come first,
+        batch-level ones last.
+        """
+        return self._collect_ids((*self.STRONG_ID_FIELDS, *self.WEAK_ID_FIELDS))
+
+    def _collect_ids(self, fields) -> list[str]:
+        result = []
+        for field in fields:
+            value = self.data.get(field)
+            if value and value not in result:
+                result.append(value)
+        return result
 
     @property
     def reference(self) -> str | None:
@@ -262,7 +294,7 @@ class Transaction:
             and self.invoice.price == self.price
             and self.data.get("Currency") == "CHF"
             and self.invoice.transaction_id is not None
-            and self.invoice.transaction_id == self.tx_id
+            and self.invoice.transaction_id in self.candidate_tx_ids
         )
 
 
@@ -271,14 +303,37 @@ class CamtImporter:
         self.parser = CamtParser(file.read())
         # Parse once and reuse: get_transactions() re-parses the XML on each call.
         self.raw_transactions = list(self.parser.get_transactions())
+        # Batch-level references shared by several transactions cannot identify a
+        # single one, so they are excluded from transaction_id matching.
+        self._ambiguous_weak_ids = self.__compute_ambiguous_weak_ids__()
         self.invoices = self.__import_invoices__(subscription)
+
+    def __compute_ambiguous_weak_ids__(self) -> set[str]:
+        counts: dict[str, int] = {}
+        for data in self.raw_transactions:
+            for weak_id in Transaction(data, None).weak_tx_ids:
+                counts[weak_id] = counts.get(weak_id, 0) + 1
+        return {weak_id for weak_id, count in counts.items() if count > 1}
+
+    def _match_tx_ids(self, tx: Transaction) -> list[str]:
+        """Identifiers usable to match this transaction to an invoice.
+
+        Strong per-transaction ids are always usable; batch-level ids only when
+        they are unique in the file (a shared batch ref would bind unrelated
+        transactions to the same invoice).
+        """
+        ids = list(tx.strong_tx_ids)
+        for weak_id in tx.weak_tx_ids:
+            if weak_id not in self._ambiguous_weak_ids and weak_id not in ids:
+                ids.append(weak_id)
+        return ids
 
     def transactions(self) -> list[Transaction]:
         result = []
         for data in self.raw_transactions:
             tx = Transaction(data, None)
             tx.invoice = self.__find_invoice__(
-                tx.tx_id,
+                self._match_tx_ids(tx),
                 tx.reference,
                 tx.additional_info,
                 data.get("DebtorName"),
@@ -291,11 +346,10 @@ class CamtImporter:
         transactions = []
         references = []
         for t in self.raw_transactions:
-            # Use the same tx_id fallback chain as matching, so invoices
-            # reconciled with a fallback id (e.g. TransactionID) are re-loaded.
-            tx_id = Transaction(t, None).tx_id
-            if tx_id is not None:
-                transactions.append(tx_id)
+            # Load invoices reconciled against any matchable id (an older parser
+            # may have stored a batch-level id such as AcctSvcrRef), so they can
+            # still be re-matched.
+            transactions.extend(self._match_tx_ids(Transaction(t, None)))
             if t.get("Reference") is not None:
                 int_value = get_reference_as_int(t["Reference"])
                 if int_value is not None:
@@ -340,14 +394,17 @@ class CamtImporter:
 
     def __find_invoice__(
         self,
-        transaction_id: str | None,
+        transaction_ids: list[str],
         score_reference: str | None,
         additionalEntryInformation: None | str,
         debtor_name: str | None = None,
         ultimate_debtor: str | None = None,
     ):
         for invoice in self.invoices:
-            if transaction_id is not None and invoice.transaction_id == transaction_id:
+            if (
+                invoice.transaction_id is not None
+                and invoice.transaction_id in transaction_ids
+            ):
                 invoice.reason = "transaction_id"
                 return invoice
 
