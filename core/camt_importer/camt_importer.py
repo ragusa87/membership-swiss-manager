@@ -2,13 +2,48 @@ import re
 from difflib import SequenceMatcher
 
 from django.db.models import Q
-from pycamt.parser import Camt053Parser
+from pycamt.parser import Camt053ParseError, Camt053Parser
 
 from core.models import Invoice, InvoiceStatusEnum, Subscription
 from core.utils import chf_to_centimes
 
 
+def strip_namespaces(root) -> None:
+    """Rewrite every element tag in-place to drop its XML namespace.
+
+    pycamt >= 1.1 queries the tree with unprefixed XPaths (``.//Stmt``)
+    while exposing ``self.namespaces`` as lxml's ``nsmap`` (which maps the
+    default namespace to ``None``). lxml's ``findall`` cannot use a ``None``
+    prefix, so those queries silently match nothing on namespaced CAMT
+    documents. Stripping the namespaces lets both pycamt's and our own
+    unprefixed XPaths resolve.
+    """
+    for element in root.iter():
+        tag = element.tag
+        if isinstance(tag, str) and "}" in tag:
+            element.tag = tag.split("}", 1)[1]
+
+
 class MyCamt053Parser(Camt053Parser):
+    def __init__(self, xml_data: str | bytes):
+        # lxml rejects a decoded str that still carries an encoding
+        # declaration, so always hand it bytes.
+        if isinstance(xml_data, str):
+            xml_data = xml_data.encode("utf-8")
+        # The parent parses and detects the version while namespaces are
+        # still present; strip them afterwards so all XPaths resolve.
+        super().__init__(xml_data)
+        strip_namespaces(self.tree)
+        self.namespaces = {}
+
+    def _find_statements_or_reports(self):
+        # camt.053 uses Stmt, camt.052 uses Rpt, camt.054 uses Ntfctn.
+        for xmlpath in (".//Stmt", ".//Rpt", ".//Ntfctn"):
+            found = self.tree.findall(xmlpath, self.namespaces)
+            if found:
+                return found
+        raise Camt053ParseError()
+
     def _find_text(self, element, path):
         if element is None:
             return None
@@ -39,7 +74,7 @@ class MyCamt053Parser(Camt053Parser):
         debtor_address = tx_detail.find(".//RltdPties/Dbtr/PstlAdr", self.namespaces)
         if debtor_address is not None:
             debtor_address = {
-                child.tag.split("}")[1]: child.text for child in debtor_address
+                child.tag.split("}")[-1]: child.text for child in debtor_address
             }
         detail["DbtrPstlAdr"] = debtor_address
 
@@ -47,10 +82,14 @@ class MyCamt053Parser(Camt053Parser):
             tx_detail, ".//RmtInf/Strd/CdtrRefInf/Ref"
         )
 
-        if not detail.get("RemittanceInformation"):
-            detail["RemittanceInformation"] = self._find_text(
-                tx_detail, ".//RmtInf/Strd/AddtlRmtInf"
-            )
+        # pycamt >= 1.1 overwrites RemittanceInformation with the structured
+        # creditor reference whenever Strd is present. We expose that reference
+        # separately (see Reference above), so keep RemittanceInformation as the
+        # human-readable message: unstructured Ustrd, else the additional Strd
+        # remittance info.
+        detail["RemittanceInformation"] = self._find_text(
+            tx_detail, ".//RmtInf/Ustrd"
+        ) or self._find_text(tx_detail, ".//RmtInf/Strd/AddtlRmtInf")
 
         if not detail.get("CreditorName"):
             detail["CreditorName"] = self._find_text(self.tree, ".//Acct/Ownr/Nm")

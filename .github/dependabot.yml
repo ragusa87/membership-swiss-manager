@@ -12,11 +12,6 @@ updates:
       python-dependencies:
         patterns:
           - "*"
-    ignore:
-      # pycamt 1.1.x rewrote Camt053Parser (requires bytes, uses lxml,
-      # dropped camt.054 support), breaking CAMT import. Pinned to 1.0.1 in
-      # pyproject.toml. Remove once MyCamt053Parser is migrated to the new API.
-      - dependency-name: "pycamt"
 
   - package-ecosystem: "docker"
     directory: "/"
