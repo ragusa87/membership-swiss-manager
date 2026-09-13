@@ -24,7 +24,14 @@ def strip_namespaces(root) -> None:
             element.tag = tag.split("}", 1)[1]
 
 
-class MyCamt053Parser(Camt053Parser):
+class CamtParser(Camt053Parser):
+    """CAMT parser handling camt.052 (Rpt), camt.053 (Stmt) and camt.054 (Ntfctn).
+
+    pycamt only ships a camt.053 parser, but the three message types share the
+    same entry/transaction structure, so we extend it and teach
+    ``_find_statements_or_reports`` about the extra top-level containers.
+    """
+
     def __init__(self, xml_data: str | bytes):
         # lxml rejects a decoded str that still carries an encoding
         # declaration, so always hand it bytes.
@@ -246,7 +253,7 @@ class Transaction:
 
 class CamtImporter:
     def __init__(self, file, subscription: Subscription | None = None):
-        self.parser = MyCamt053Parser(file.read())
+        self.parser = CamtParser(file.read())
         # Parse once and reuse: get_transactions() re-parses the XML on each call.
         self.raw_transactions = list(self.parser.get_transactions())
         self.invoices = self.__import_invoices__(subscription)

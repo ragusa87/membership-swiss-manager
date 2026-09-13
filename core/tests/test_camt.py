@@ -1,5 +1,4 @@
 import os
-from unittest import skipIf
 from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
@@ -21,14 +20,6 @@ from core.views_more.camt_import import MAX_RECENT_IMPORTS
 
 FIXTURE_PATH = os.path.join(os.path.dirname(__file__), "camt-demo.xml")
 FIXTURE_054_PATH = os.path.join(os.path.dirname(__file__), "camt-054-batch.xml")
-
-# Check if Camt054Parser is available
-try:
-    from pycamt.parser import Camt054Parser  # noqa: F401
-
-    SKIP_CAMT054 = False
-except ImportError:
-    SKIP_CAMT054 = True
 
 
 def _upload_fixture(client, subscription, path=FIXTURE_PATH):
@@ -109,7 +100,6 @@ class Camt054BatchTestCase(LoggedInTestCase):
             name="2026", price_member=6000, price_supporter=3000
         )
 
-    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_batch_entry_renders_each_transaction(self):
         response = _upload_fixture(
             self.client, self.subscription, path=FIXTURE_054_PATH
@@ -141,7 +131,6 @@ class Camt054BatchTestCase(LoggedInTestCase):
         self.assertContains(response, "MEMBRE 2026")
         self.assertContains(response, "membre 2026")
 
-    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_matches_invoices_by_reference_and_debtor_name(self):
         member = Member.objects.create(firstname="Ultimate Payer", lastname="Two")
         member_subscription = MemberSubscription.objects.create(
@@ -162,7 +151,6 @@ class Camt054BatchTestCase(LoggedInTestCase):
         self.assertContains(response, f"/camt_link/{invoice.pk}/60/ANON-INSTR-2/")
         self.assertContains(response, "bg-green-600")
 
-    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_unmatched_gutschrift_shows_resolve_button(self):
         response = _upload_fixture(
             self.client, self.subscription, path=FIXTURE_054_PATH
@@ -171,7 +159,6 @@ class Camt054BatchTestCase(LoggedInTestCase):
         self.assertEqual(200, response.status_code)
         self.assertContains(response, "Resolve?", count=3)
 
-    @skipIf(SKIP_CAMT054, "CAMT 054 not supported by pycamt < 1.1")
     def test_camt054_parser_extracts_distinct_fields_per_transaction(self):
         from core.camt_importer.camt_importer import CamtImporter
 
@@ -1035,7 +1022,7 @@ class CamtReconcileFallbackTestCase(TestCase):
 
         from core.camt_importer.camt_importer import CamtImporter
 
-        with patch("core.camt_importer.camt_importer.MyCamt053Parser") as MockParser:
+        with patch("core.camt_importer.camt_importer.CamtParser") as MockParser:
             MockParser.return_value.get_transactions.return_value = transactions
             return CamtImporter(BytesIO(b"<xml/>"), self.subscription)
 
